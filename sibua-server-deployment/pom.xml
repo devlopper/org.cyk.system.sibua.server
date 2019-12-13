@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.cyk.system.sibua.server</groupId>
+		<artifactId>sibua-server-_pom</artifactId>
+		<version>0.1.0</version>
+	</parent>
+
+	<name>Deployment</name>
+	
+	<groupId>org.cyk.system.sibua.server.deployment</groupId>
+	<artifactId>sibua-server-deployment</artifactId>
+	<packaging>war</packaging>
+	
+	<properties>
+		<microprofile.archive.name>sibua-server</microprofile.archive.name>
+		<jboss-web.context-root>sibua/server</jboss-web.context-root>
+		<web.context>/${jboss-web.context-root}</web.context>
+	</properties>
+	
+	<dependencies>
+		<dependency>
+			<groupId>org.cyk.system.sibua.server.representation</groupId>
+			<artifactId>sibua-server-representation-impl</artifactId>
+			<version>0.1.0</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.cyk.jee.utility.server.deployment</groupId>
+			<artifactId>jee-utility-server-deployment</artifactId>
+			<version>0.1.0</version>
+		</dependency>
+	</dependencies>		
+
+</project>

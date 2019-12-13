@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.cyk.pom.jee.server</groupId>
+		<artifactId>pom-jee-server</artifactId>
+		<version>pom.jee.server.0.1.0</version>
+	</parent>
+
+	<groupId>org.cyk.system.sibua.server</groupId>
+	<artifactId>sibua-server-_pom</artifactId>
+	<version>0.1.0</version>
+	<packaging>pom</packaging>
+
+	<name>sibua system server</name>
+	<url>http://www.cykcorp.org</url>
+	
+	<properties>
+		<data.source.name>sibuaServerDataSource</data.source.name>
+		<data.source.jndi.name>java:/sibua/server/dataSource</data.source.jndi.name>
+		<server.port.offset>0</server.port.offset>
+		<hibernate.hbm2ddl.auto>validate</hibernate.hbm2ddl.auto>
+	</properties>
+	
+	<modules>
+		<!-- Persistence Layer -->
+		<module>../sibua-server-persistence-entities</module>
+		<module>../sibua-server-persistence-api</module>
+		<module>../sibua-server-persistence-impl</module>
+		
+		<!-- Business Layer -->
+		<module>../sibua-server-business-entities</module>
+		<module>../sibua-server-business-api</module>
+		<module>../sibua-server-business-impl</module>
+		
+		<!-- Representation Layer -->
+		<module>../sibua-server-representation-entities</module>
+		<module>../sibua-server-representation-api</module>
+		<module>../sibua-server-representation-impl</module>
+		
+		<!-- Deployment -->
+		<module>../sibua-server-deployment</module>
+	</modules>
+	
+	<repositories>
+	    <repository>
+	        <id>cyk</id>
+	        <url>https://rawgit.com/devlopper/artifact.maven/master</url>
+	    </repository>
+	</repositories>
+	
+</project>
