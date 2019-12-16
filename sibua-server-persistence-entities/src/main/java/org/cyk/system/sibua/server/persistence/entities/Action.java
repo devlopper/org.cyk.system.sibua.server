@@ -17,32 +17,28 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Getter @Setter @Accessors(chain=true) @NoArgsConstructor
-@Entity @Table(name=Activity.TABLE_NAME)
-public class Activity extends AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl implements Serializable {
+@Entity @Table(name=Action.TABLE_NAME)
+public class Action extends AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	@NotNull @ManyToOne @JoinColumn(name = COLUMN_ACTION) private Action action;
+	@NotNull @ManyToOne @JoinColumn(name = COLUMN_PROGRAM) private Program program;
 	
 	@Transient private Section section;
-	@Transient private Program program;
-	@Transient private AdministrativeUnit administrativeUnit;
 	
 	@Override
-	public Activity setCode(String code) {
-		return (Activity) super.setCode(code);
+	public Action setCode(String code) {
+		return (Action) super.setCode(code);
 	}
 	
 	@Override
-	public Activity setName(String name) {
-		return (Activity) super.setName(name);
+	public Action setName(String name) {
+		return (Action) super.setName(name);
 	}
 	
-	public static final String FIELD_ACTION = "action";
-	public static final String FIELD_SECTION = "section";
 	public static final String FIELD_PROGRAM = "program";
-	public static final String FIELD_ADMINISTRATIVE_UNIT = "administrativeUnit";
+	public static final String FIELD_SECTION = "section";
 	
-	public static final String COLUMN_ACTION = FIELD_ACTION;
+	public static final String COLUMN_PROGRAM = FIELD_PROGRAM;
 	
-	public static final String TABLE_NAME = "activite";	
+	public static final String TABLE_NAME = "action";	
 }

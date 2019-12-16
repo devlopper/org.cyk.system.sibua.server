@@ -5,9 +5,11 @@ import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import org.cyk.system.sibua.server.persistence.entities.Action;
 import org.cyk.system.sibua.server.persistence.entities.Activity;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitActivity;
+import org.cyk.system.sibua.server.persistence.entities.Program;
 import org.cyk.system.sibua.server.persistence.entities.Section;
 import org.cyk.utility.__kernel__.AbstractApplicationScopeLifeCycleListener;
 import org.cyk.utility.__kernel__.klass.PersistableClassesGetter;
@@ -18,7 +20,7 @@ public class ApplicationScopeLifeCycleListener extends AbstractApplicationScopeL
 
 	@Override
 	public void __initialize__(Object object) {
-		PersistableClassesGetter.COLLECTION.set(List.of(AdministrativeUnitActivity.class,AdministrativeUnit.class,Section.class,Activity.class));
+		PersistableClassesGetter.COLLECTION.set(List.of(AdministrativeUnitActivity.class,AdministrativeUnit.class,Activity.class,Action.class,Program.class,Section.class));
 		__inject__(org.cyk.utility.server.persistence.impl.ApplicationScopeLifeCycleListener.class).initialize(null);
 		__inject__(org.cyk.system.sibua.server.persistence.entities.ApplicationScopeLifeCycleListener.class).initialize(null);
 		
