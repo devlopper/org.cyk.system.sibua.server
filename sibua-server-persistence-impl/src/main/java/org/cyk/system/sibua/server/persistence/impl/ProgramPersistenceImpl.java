@@ -23,7 +23,7 @@ public class ProgramPersistenceImpl extends AbstractPersistenceEntityImpl<Progra
 	@Override
 	protected void __listenPostConstructPersistenceQueries__() {
 		super.__listenPostConstructPersistenceQueries__();
-		addQueryCollectInstances(readBySectionsCodes, "SELECT program FROM Program program WHERE program.section.code IN :sectionsCodes");
+		addQueryCollectInstances(readBySectionsCodes, "SELECT program FROM Program program WHERE program.section.code IN :sectionsCodes ORDER BY program.code ASC");
 	}
 	
 	@Override

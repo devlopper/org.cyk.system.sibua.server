@@ -21,7 +21,8 @@ import org.cyk.utility.server.persistence.query.PersistenceQueryContext;
 public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activity> implements ActivityPersistence,ReadActivityBySections,ReadActivityByPrograms,ReadActivityByActions,ReadActivityByAdministrativeUnits,Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private String readBySectionsCodes,readByProgramsCodes,readByActionsCodes,readByAdministrativeUnitsCodes;
+	private String readWhereAdministrativeUnitDoesNotExistBySectionsCodes,readWhereAdministrativeUnitDoesNotExistByProgramsCodes
+	,readWhereAdministrativeUnitDoesNotExistByActionsCodes,readBySectionsCodes,readByProgramsCodes,readByActionsCodes,readByAdministrativeUnitsCodes;
 	
 	@Override
 	protected void __listenPostConstructPersistenceQueries__() {
@@ -30,6 +31,29 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 		addQueryCollectInstances(readByProgramsCodes, "SELECT activity FROM Activity activity WHERE activity.action.program.code IN :programsCodes");
 		addQueryCollectInstances(readByActionsCodes, "SELECT activity FROM Activity activity WHERE activity.action.code IN :actionsCodes");
 		addQueryCollectInstances(readByAdministrativeUnitsCodes, "SELECT activity FROM Activity activity WHERE EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity AND administrativeUnitActivity.administrativeUnit.code IN :administrativeUnitsCodes)");
+		addQueryCollectInstances(readWhereAdministrativeUnitDoesNotExistBySectionsCodes, "SELECT activity FROM Activity activity WHERE activity.action.program.section.code IN :sectionsCodes AND NOT EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity)");
+		addQueryCollectInstances(readWhereAdministrativeUnitDoesNotExistByProgramsCodes, "SELECT activity FROM Activity activity WHERE activity.action.program.code IN :programsCodes AND NOT EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity)");
+		addQueryCollectInstances(readWhereAdministrativeUnitDoesNotExistByActionsCodes, "SELECT activity FROM Activity activity WHERE activity.action.code IN :actionsCodes AND NOT EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity)");
+	}
+	
+	@Override
+	public Collection<Activity> readWhereAdministrativeUnitDoesNotExistBySectionsCodes(Collection<String> sectionsCodes,Properties properties) {
+		if(CollectionHelper.isEmpty(sectionsCodes))
+			return null;
+		if(properties == null)
+			properties = new Properties();
+		properties.setIfNull(Properties.QUERY_IDENTIFIER, readWhereAdministrativeUnitDoesNotExistBySectionsCodes);
+		return __readMany__(properties, ____getQueryParameters____(properties,sectionsCodes));
+	}
+	
+	@Override
+	public Collection<Activity> readWhereAdministrativeUnitDoesNotExistByProgramsCodes(Collection<String> programsCodes,Properties properties) {
+		if(CollectionHelper.isEmpty(programsCodes))
+			return null;
+		if(properties == null)
+			properties = new Properties();
+		properties.setIfNull(Properties.QUERY_IDENTIFIER, readWhereAdministrativeUnitDoesNotExistByProgramsCodes);
+		return __readMany__(properties, ____getQueryParameters____(properties,programsCodes));
 	}
 	
 	@Override
@@ -95,6 +119,21 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 	
 	@Override
 	protected Object[] __getQueryParameters__(PersistenceQueryContext queryContext, Properties properties,Object... objects) {
+		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readWhereAdministrativeUnitDoesNotExistBySectionsCodes)) {
+			if(ArrayHelper.isEmpty(objects))
+				objects = new Object[] {queryContext.getFilterByKeysValue(Activity.FIELD_SECTION)};
+			return new Object[]{"sectionsCodes",objects[0]};
+		}
+		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readWhereAdministrativeUnitDoesNotExistByProgramsCodes)) {
+			if(ArrayHelper.isEmpty(objects))
+				objects = new Object[] {queryContext.getFilterByKeysValue(Activity.FIELD_PROGRAM)};
+			return new Object[]{"programsCodes",objects[0]};
+		}
+		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readWhereAdministrativeUnitDoesNotExistByActionsCodes)) {
+			if(ArrayHelper.isEmpty(objects))
+				objects = new Object[] {queryContext.getFilterByKeysValue(Activity.FIELD_ACTION)};
+			return new Object[]{"actionsCodes",objects[0]};
+		}
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readBySectionsCodes)) {
 			if(ArrayHelper.isEmpty(objects))
 				objects = new Object[] {queryContext.getFilterByKeysValue(Activity.FIELD_SECTION)};

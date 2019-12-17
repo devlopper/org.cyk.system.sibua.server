@@ -33,5 +33,76 @@
 			<version>0.1.0</version>
 		</dependency>
 	</dependencies>		
-
+	
+	<profiles>
+		<profile>
+			<id>deployment.common</id>
+			<properties>
+				<cyk.variable.system.name>Module de gestion des unités administratives</cyk.variable.system.name>
+				<cyk.variable.system.version>0.1.0</cyk.variable.system.version>
+			</properties>
+		</profile>
+		
+		<profile>
+			<id>deployment.server.jboss.wildfly.local</id>
+			<properties>
+				
+			</properties>
+		</profile>
+		
+		<profile>
+			<id>deployment.local</id>
+			<properties>
+				<data.source.user>developper</data.source.user>
+				<data.source.password>developper</data.source.password>
+			</properties>
+		</profile>
+		
+		<profile>
+			<id>deployment.data.server.remote</id>
+			<properties>
+				<data.base.management.system.host>10.3.4.37</data.base.management.system.host>
+				<data.base.management.system.sid>prodoc</data.base.management.system.sid>
+				<data.source.user>basculement</data.source.user>
+				<data.source.password>basculement</data.source.password>
+				<cyk.variable.system.host>10.3.4.37</cyk.variable.system.host>
+			</properties>
+		</profile>
+		
+		<profile>
+			<id>deployment.remote.10.3.4.37</id>
+			<properties>
+				<data.base.management.system.host>10.3.4.37</data.base.management.system.host>
+				<data.base.management.system.sid>prodoc</data.base.management.system.sid>
+				<data.source.user>basculement</data.source.user>
+				<data.source.password>basculement</data.source.password>
+				<cyk.variable.system.host>10.3.4.37</cyk.variable.system.host>
+			</properties>
+		</profile>
+		
+		<profile>
+			<id>deployment.remote.10.3.4.60</id>
+			<properties>
+				<data.base.management.system.host>10.3.4.60</data.base.management.system.host>
+				<data.base.management.system.sid>prodoc</data.base.management.system.sid>
+				<data.source.user>prodoc</data.source.user>
+				<data.source.password>Dgbf_dti_prodoc_1</data.source.password>
+				<cyk.variable.system.host>10.3.4.60</cyk.variable.system.host>
+			</properties>
+		</profile>
+		
+		<profile>
+			<id>deployment.thorntail.local</id>
+			<properties>
+				<data.base.management.system.host>10.3.4.60</data.base.management.system.host>
+				<data.base.management.system.sid>prodoc</data.base.management.system.sid>
+				<data.source.user>prodoc</data.source.user>
+				<data.source.password>Dgbf_dti_prodoc_1</data.source.password>
+				<jboss-web.context-root></jboss-web.context-root>
+				<swagger.json>/api/swagger.json</swagger.json>
+				<cyk.variable.system.port>8081</cyk.variable.system.port>
+			</properties>
+		</profile>
+	</profiles>
+	
 </project>
