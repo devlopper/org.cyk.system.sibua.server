@@ -3,6 +3,8 @@
     <persistence-unit name="sibuaPersistenceUnit" transaction-type="JTA">
     	<jta-data-source>${data.source.jndi.name}</jta-data-source>
     	<exclude-unlisted-classes>true</exclude-unlisted-classes>
+    	<class>org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitDestination</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.Destination</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.ServiceGroup</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.Localisation</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.FunctionalClassification</class>
@@ -11,6 +13,7 @@
     	<class>org.cyk.system.sibua.server.persistence.entities.Activity</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.Section</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitHierarchy</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitActivity</class>
 		<properties>
 			<property name="hibernate.hbm2ddl.auto" value="${hibernate.hbm2ddl.auto}"/>

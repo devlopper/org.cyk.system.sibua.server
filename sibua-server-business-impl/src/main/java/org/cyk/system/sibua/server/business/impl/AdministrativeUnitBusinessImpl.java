@@ -8,12 +8,17 @@ import javax.enterprise.context.ApplicationScoped;
 
 import org.apache.commons.lang3.StringUtils;
 import org.cyk.system.sibua.server.business.api.AdministrativeUnitBusiness;
+import org.cyk.system.sibua.server.business.api.AdministrativeUnitDestinationBusiness;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitActivityPersistence;
+import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitDestinationPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitPersistence;
 import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitActivityByAdministrativeUnits;
+import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitDestinationByAdministrativeUnits;
 import org.cyk.system.sibua.server.persistence.entities.Activity;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitActivity;
+import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitDestination;
+import org.cyk.system.sibua.server.persistence.entities.Destination;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.constant.ConstantCharacter;
 import org.cyk.utility.__kernel__.properties.Properties;
@@ -42,6 +47,15 @@ public class AdministrativeUnitBusinessImpl extends AbstractBusinessEntityImpl<A
 	}
 	
 	@Override
+	protected void __listenExecuteCreateAfter__(AdministrativeUnit administrativeUnit, Properties properties,BusinessFunctionCreator function) {
+		super.__listenExecuteCreateAfter__(administrativeUnit, properties, function);		
+		if(CollectionHelper.isNotEmpty(administrativeUnit.getDestinations())) {
+			__inject__(AdministrativeUnitDestinationBusiness.class).createMany(administrativeUnit.getDestinations().stream()
+					.map(x -> new AdministrativeUnitDestination().setAdministrativeUnit(administrativeUnit).setDestination(x)).collect(Collectors.toList()));	
+		}			
+	}
+	
+	@Override
 	protected void __listenExecuteUpdateBefore__(AdministrativeUnit administrativeUnit, Properties properties,BusinessFunctionModifier function) {
 		super.__listenExecuteUpdateBefore__(administrativeUnit, properties, function);
 		Strings fields = __getFieldsFromProperties__(properties);
@@ -60,6 +74,13 @@ public class AdministrativeUnitBusinessImpl extends AbstractBusinessEntityImpl<A
 				if(!database.getServiceGroup().equals(administrativeUnit.getServiceGroup()) || !database.getFunctionalClassification().equals(administrativeUnit.getFunctionalClassification())) {
 					__setOrderNumberAndCode__(administrativeUnit);
 				}
+			}else if(AdministrativeUnit.FIELD_DESTINATIONS.equals(index)) {
+				Collection<AdministrativeUnitDestination> databaseAdministrativeUnitDestinations = ((ReadAdministrativeUnitDestinationByAdministrativeUnits)__inject__(AdministrativeUnitDestinationPersistence.class)).readByAdministrativeUnits(administrativeUnit);
+				Collection<Destination> databaseDestinations = CollectionHelper.isEmpty(databaseAdministrativeUnitDestinations) ? null : databaseAdministrativeUnitDestinations.stream()
+						.map(AdministrativeUnitDestination::getDestination).collect(Collectors.toList());
+				
+				__delete__(administrativeUnit.getDestinations(), databaseAdministrativeUnitDestinations,AdministrativeUnitDestination.FIELD_DESTINATION);
+				__save__(AdministrativeUnitDestination.class,administrativeUnit.getDestinations(), databaseDestinations, AdministrativeUnitDestination.FIELD_DESTINATION, administrativeUnit, AdministrativeUnitDestination.FIELD_ADMINISTRATIVE_UNIT);
 			}
 		}
 	}

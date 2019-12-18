@@ -9,6 +9,7 @@ import javax.ws.rs.core.Response;
 
 import org.cyk.system.sibua.server.business.api.ActionBusiness;
 import org.cyk.system.sibua.server.business.api.ActivityBusiness;
+import org.cyk.system.sibua.server.business.api.DestinationBusiness;
 import org.cyk.system.sibua.server.business.api.FunctionalClassificationBusiness;
 import org.cyk.system.sibua.server.business.api.LocalisationBusiness;
 import org.cyk.system.sibua.server.business.api.ProgramBusiness;
@@ -17,6 +18,7 @@ import org.cyk.system.sibua.server.business.api.ServiceGroupBusiness;
 import org.cyk.system.sibua.server.persistence.entities.Action;
 import org.cyk.system.sibua.server.persistence.entities.Activity;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
+import org.cyk.system.sibua.server.persistence.entities.Destination;
 import org.cyk.system.sibua.server.persistence.entities.FunctionalClassification;
 import org.cyk.system.sibua.server.persistence.entities.Localisation;
 import org.cyk.system.sibua.server.persistence.entities.Program;
@@ -41,6 +43,7 @@ public class DataLoaderImpl extends AbstractDataLoaderImpl implements Serializab
 			Collection<Program> programs = null;
 			Collection<Action> actions = null;
 			Collection<Activity> activities = null;
+			Collection<Destination> destinations = new ArrayList<>();
 			for(Integer index = 1 ; index < 100 ; index = index + 1)
 				serviceGroups.add(new ServiceGroup().setCode("gs_"+index).setName("groupe de service "+index));
 			for(Integer index = 1 ; index < 100 ; index = index + 1)
@@ -50,6 +53,7 @@ public class DataLoaderImpl extends AbstractDataLoaderImpl implements Serializab
 			
 			Integer uaIndex = 1;
 			Integer programCount = 0;
+			Integer destinationCount = 0;
 			for(Integer index = 1 ; index < 100 ; index = index + 1) {
 				if(sections == null)
 					sections = new ArrayList<>();
@@ -84,6 +88,11 @@ public class DataLoaderImpl extends AbstractDataLoaderImpl implements Serializab
 					programs.add(program);
 					programCount = programCount + 1;
 				}
+				
+				for(Integer indexDestination = 1 ; indexDestination < 10 ; indexDestination = indexDestination + 1) {
+					destinations.add(new Destination().setCode("dest_"+(destinationCount+1)).setName("dest "+(destinationCount+1)).setSection(section));
+					destinationCount = destinationCount + 1;
+				}
 			}
 			if(CollectionHelper.isNotEmpty(serviceGroups))
 				__inject__(ServiceGroupBusiness.class).createByBatch(serviceGroups, 100);
@@ -102,6 +111,9 @@ public class DataLoaderImpl extends AbstractDataLoaderImpl implements Serializab
 				__inject__(ActionBusiness.class).createByBatch(actions, 100);
 			if(CollectionHelper.isNotEmpty(activities))
 				__inject__(ActivityBusiness.class).createByBatch(activities, 100);
+			
+			if(CollectionHelper.isNotEmpty(destinations))
+				__inject__(DestinationBusiness.class).createByBatch(destinations, 100);
 		} catch (Exception exception) {
 			exception.printStackTrace();
 			return Response.serverError().build();

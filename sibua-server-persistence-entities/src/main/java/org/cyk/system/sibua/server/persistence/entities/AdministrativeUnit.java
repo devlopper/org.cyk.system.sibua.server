@@ -39,6 +39,10 @@ public class AdministrativeUnit extends AbstractIdentifiableSystemScalarStringId
 	
 	@Transient private Collection<Program> programs;
 	@Transient private Collection<Activity> activities;
+	@Transient private AdministrativeUnit parent;
+	@Transient private Collection<AdministrativeUnit> parents;
+	@Transient private Collection<AdministrativeUnit> children;
+	@Transient private Collection<Destination> destinations;
 	
 	@Override
 	public AdministrativeUnit setCode(String code) {
@@ -89,6 +93,7 @@ public class AdministrativeUnit extends AbstractIdentifiableSystemScalarStringId
 	public static final String FIELD_ORDER_NUMBER = "orderNumber";
 	public static final String FIELD_ACTIVITIES = "activities";
 	public static final String FIELD_PROGRAMS = "programs";
+	public static final String FIELD_DESTINATIONS = "destinations";
 	
 	public static final String COLUMN_SECTION = Section.TABLE_NAME;	
 	public static final String COLUMN_SERVICE_GROUP = ServiceGroup.TABLE_NAME;	

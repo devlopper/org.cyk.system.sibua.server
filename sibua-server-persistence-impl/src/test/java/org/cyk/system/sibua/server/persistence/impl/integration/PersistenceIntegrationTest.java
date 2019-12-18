@@ -8,7 +8,9 @@ import java.util.stream.Collectors;
 import org.cyk.system.sibua.server.persistence.api.ActionPersistence;
 import org.cyk.system.sibua.server.persistence.api.ActivityPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitActivityPersistence;
+import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitDestinationPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitPersistence;
+import org.cyk.system.sibua.server.persistence.api.DestinationPersistence;
 import org.cyk.system.sibua.server.persistence.api.FunctionalClassificationPersistence;
 import org.cyk.system.sibua.server.persistence.api.LocalisationPersistence;
 import org.cyk.system.sibua.server.persistence.api.ProgramPersistence;
@@ -19,11 +21,14 @@ import org.cyk.system.sibua.server.persistence.entities.Action;
 import org.cyk.system.sibua.server.persistence.entities.Activity;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitActivity;
+import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitDestination;
+import org.cyk.system.sibua.server.persistence.entities.Destination;
 import org.cyk.system.sibua.server.persistence.entities.FunctionalClassification;
 import org.cyk.system.sibua.server.persistence.entities.Localisation;
 import org.cyk.system.sibua.server.persistence.entities.Program;
 import org.cyk.system.sibua.server.persistence.entities.Section;
 import org.cyk.system.sibua.server.persistence.entities.ServiceGroup;
+import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.server.persistence.test.arquillian.AbstractPersistenceArquillianIntegrationTestWithDefaultDeployment;
 import org.junit.Test;
 
@@ -209,4 +214,59 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 		assertThat(readAdministrativeUnitByPrograms.readByProgramsCodes("3")).isEmpty();
 	}
 	
+	@Test
+	public void readWhereDestinationDoesNotExistBySectionsCodes() throws Exception{
+		userTransaction.begin();
+		__inject__(SectionPersistence.class).createMany(CollectionHelper.listOf(new Section().setCode("1").setName("1"),new Section().setCode("2").setName("1")
+				,new Section().setCode("3").setName("1")));
+		
+		__inject__(ServiceGroupPersistence.class).create(new ServiceGroup().setCode("1").setName("1"));
+		__inject__(FunctionalClassificationPersistence.class).create(new FunctionalClassification().setCode("1").setName("1"));
+		__inject__(LocalisationPersistence.class).create(new Localisation().setCode("1").setName("1"));
+		__inject__(AdministrativeUnitPersistence.class).create(new AdministrativeUnit().setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1")
+				.setLocalisationFromCode("1").setSectionFromCode("1").setCode("1").setName("1").setOrderNumber(1));
+		__inject__(AdministrativeUnitPersistence.class).create(new AdministrativeUnit().setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1")
+				.setLocalisationFromCode("1").setSectionFromCode("1").setCode("2").setName("1").setOrderNumber(2));
+		__inject__(AdministrativeUnitPersistence.class).create(new AdministrativeUnit().setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1")
+				.setLocalisationFromCode("1").setSectionFromCode("1").setCode("3").setName("1").setOrderNumber(3));
+		
+		__inject__(DestinationPersistence.class).createMany(CollectionHelper.listOf(new Destination().setCode("1").setName("1").setSectionFromCode("1")
+				,new Destination().setCode("2").setName("1").setSectionFromCode("1"),new Destination().setCode("3").setName("1").setSectionFromCode("1")
+				,new Destination().setCode("4").setName("1").setSectionFromCode("1"),new Destination().setCode("5").setName("1").setSectionFromCode("1")));
+		userTransaction.commit();
+		
+		assertThat(__inject__(DestinationPersistence.class).readWhereAdministrativeUnitDoesNotExistBySectionsCodes("1").stream().map(Destination::getCode)
+				.collect(Collectors.toList())).containsExactlyInAnyOrder("1","2","3","4","5");
+		assertThat(__inject__(DestinationPersistence.class).readWhereAdministrativeUnitDoesNotExistBySectionsCodes("2").stream().map(Destination::getCode)
+				.collect(Collectors.toList())).isEmpty();
+		
+		userTransaction.begin();
+		__inject__(AdministrativeUnitDestinationPersistence.class).create(new AdministrativeUnitDestination().setAdministrativeUnitFromCode("1").setDestinationFromCode("1"));
+		userTransaction.commit();
+		
+		Collection<Destination> destinations = __inject__(DestinationPersistence.class).readWhereAdministrativeUnitDoesNotExistBySectionsCodes("1");
+		assertThat(destinations).isNotNull();
+		assertThat(destinations.stream().map(Destination::getCode).collect(Collectors.toList())).containsExactlyInAnyOrder("2","3","4","5");
+		
+		userTransaction.begin();
+		__inject__(AdministrativeUnitDestinationPersistence.class).create(new AdministrativeUnitDestination().setAdministrativeUnitFromCode("2").setDestinationFromCode("2"));
+		__inject__(AdministrativeUnitDestinationPersistence.class).create(new AdministrativeUnitDestination().setAdministrativeUnitFromCode("2").setDestinationFromCode("3"));
+		userTransaction.commit();
+		
+		destinations = __inject__(DestinationPersistence.class).readWhereAdministrativeUnitDoesNotExistBySectionsCodes("1");
+		assertThat(destinations).isNotNull();
+		assertThat(destinations.stream().map(Destination::getCode).collect(Collectors.toList())).containsExactlyInAnyOrder("1");
+		
+		destinations = __inject__(DestinationPersistence.class).readWhereAdministrativeUnitDoesNotExistBySectionsCodes("2");
+		assertThat(destinations).isNotNull();
+		assertThat(destinations.stream().map(Destination::getCode).collect(Collectors.toList())).containsExactlyInAnyOrder("2","3");
+		
+		userTransaction.begin();
+		__inject__(AdministrativeUnitActivityPersistence.class).deleteAll();
+		userTransaction.commit();
+		
+		assertThat(__inject__(DestinationPersistence.class).readWhereAdministrativeUnitDoesNotExistBySectionsCodes("1")).isEmpty();
+		assertThat(__inject__(DestinationPersistence.class).readWhereAdministrativeUnitDoesNotExistBySectionsCodes("2")).isEmpty();
+		assertThat(__inject__(DestinationPersistence.class).readWhereAdministrativeUnitDoesNotExistBySectionsCodes("3")).isEmpty();
+	}
 }

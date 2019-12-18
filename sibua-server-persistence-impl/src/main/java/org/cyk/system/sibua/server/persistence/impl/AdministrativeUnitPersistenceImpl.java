@@ -1,5 +1,6 @@
 package org.cyk.system.sibua.server.persistence.impl;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.Collection;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -7,8 +8,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitPersistence;
+import org.cyk.system.sibua.server.persistence.api.DestinationPersistence;
 import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitByPrograms;
 import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitBySections;
+import org.cyk.system.sibua.server.persistence.api.query.ReadDestinationByAdministrativeUnits;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
 import org.cyk.utility.__kernel__.array.ArrayHelper;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
@@ -66,6 +69,15 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 		if(maxOrderNumber == null)
 			maxOrderNumber = 0;
 		return maxOrderNumber;
+	}
+	
+	@Override
+	protected void __listenExecuteReadAfterSetFieldValue__(AdministrativeUnit administrativeUnit, Field field, Properties properties) {
+		super.__listenExecuteReadAfterSetFieldValue__(administrativeUnit, field, properties);
+		if(field.getName().equals(AdministrativeUnit.FIELD_DESTINATIONS)) {
+			administrativeUnit.setDestinations(((ReadDestinationByAdministrativeUnits)__inject__(DestinationPersistence.class))
+					.readByAdministrativeUnits(administrativeUnit));
+		}
 	}
 	
 	@Override

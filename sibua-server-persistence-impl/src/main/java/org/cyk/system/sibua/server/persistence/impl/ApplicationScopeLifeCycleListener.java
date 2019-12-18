@@ -9,6 +9,9 @@ import org.cyk.system.sibua.server.persistence.entities.Action;
 import org.cyk.system.sibua.server.persistence.entities.Activity;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitActivity;
+import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitDestination;
+import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitHierarchy;
+import org.cyk.system.sibua.server.persistence.entities.Destination;
 import org.cyk.system.sibua.server.persistence.entities.FunctionalClassification;
 import org.cyk.system.sibua.server.persistence.entities.Localisation;
 import org.cyk.system.sibua.server.persistence.entities.Program;
@@ -23,7 +26,9 @@ public class ApplicationScopeLifeCycleListener extends AbstractApplicationScopeL
 
 	@Override
 	public void __initialize__(Object object) {
-		PersistableClassesGetter.COLLECTION.set(List.of(AdministrativeUnitActivity.class,AdministrativeUnit.class,Activity.class,Action.class,Program.class,Section.class,ServiceGroup.class,Localisation.class,FunctionalClassification.class));
+		PersistableClassesGetter.COLLECTION.set(List.of(AdministrativeUnitDestination.class,Destination.class,AdministrativeUnitHierarchy.class,AdministrativeUnitActivity.class
+				,AdministrativeUnit.class,Activity.class,Action.class,Program.class,Section.class,ServiceGroup.class,Localisation.class,FunctionalClassification.class
+				));
 		__inject__(org.cyk.utility.server.persistence.impl.ApplicationScopeLifeCycleListener.class).initialize(null);
 		__inject__(org.cyk.system.sibua.server.persistence.entities.ApplicationScopeLifeCycleListener.class).initialize(null);
 		

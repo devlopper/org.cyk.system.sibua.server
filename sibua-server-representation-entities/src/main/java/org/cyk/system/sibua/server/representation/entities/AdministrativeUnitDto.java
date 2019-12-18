@@ -19,7 +19,10 @@ public class AdministrativeUnitDto extends AbstractIdentifiableSystemScalarStrin
 	private FunctionalClassificationDto functionalClassification;
 	private LocalisationDto localisation;
 	private Integer orderNumber;
+	private AdministrativeUnitDto parent;
 	
+	private ArrayList<AdministrativeUnitDto> parents;
+	private ArrayList<AdministrativeUnitDto> children;
 	private ArrayList<ActivityDto> activities;
-	
+	private ArrayList<DestinationDto> destinations;
 }
