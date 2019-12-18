@@ -8,7 +8,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import org.cyk.utility.__kernel__.instance.InstanceGetter;
 import org.cyk.utility.__kernel__.object.__static__.persistence.AbstractIdentifiableSystemScalarStringImpl;
+import org.cyk.utility.__kernel__.string.StringHelper;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +25,22 @@ public class AdministrativeUnitActivity extends AbstractIdentifiableSystemScalar
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_ADMINISTRATIVE_UNIT) private AdministrativeUnit administrativeUnit;
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_ACTIVITY,unique = true) private Activity activity;
 
+	public AdministrativeUnitActivity setAdministrativeUnitFromCode(String code) {
+		if(StringHelper.isBlank(code))
+			this.administrativeUnit = null;
+		else
+			this.administrativeUnit = InstanceGetter.getInstance().getByBusinessIdentifier(AdministrativeUnit.class, code);
+		return this;
+	}
+	
+	public AdministrativeUnitActivity setActivityFromCode(String code) {
+		if(StringHelper.isBlank(code))
+			this.activity = null;
+		else
+			this.activity = InstanceGetter.getInstance().getByBusinessIdentifier(Activity.class, code);
+		return this;
+	}
+	
 	public static final String FIELD_ADMINISTRATIVE_UNIT = "administrativeUnit";
 	public static final String FIELD_ACTIVITY = "activity";
 	

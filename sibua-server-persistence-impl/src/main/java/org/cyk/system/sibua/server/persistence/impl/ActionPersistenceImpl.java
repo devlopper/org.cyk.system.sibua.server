@@ -24,8 +24,8 @@ public class ActionPersistenceImpl extends AbstractPersistenceEntityImpl<Action>
 	@Override
 	protected void __listenPostConstructPersistenceQueries__() {
 		super.__listenPostConstructPersistenceQueries__();
-		addQueryCollectInstances(readBySectionsCodes, "SELECT action FROM Action action WHERE action.program.section.code IN :sectionsCodes");
-		addQueryCollectInstances(readByProgramsCodes, "SELECT action FROM Action action WHERE action.program.code IN :programsCodes");
+		addQueryCollectInstances(readBySectionsCodes, "SELECT action FROM Action action WHERE action.program.section.code IN :sectionsCodes ORDER BY action.code ASC");
+		addQueryCollectInstances(readByProgramsCodes, "SELECT action FROM Action action WHERE action.program.code IN :programsCodes ORDER BY action.code ASC");
 	}
 	
 	@Override

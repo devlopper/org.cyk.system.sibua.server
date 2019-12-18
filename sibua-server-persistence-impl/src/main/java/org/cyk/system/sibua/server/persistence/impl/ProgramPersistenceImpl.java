@@ -1,10 +1,13 @@
 package org.cyk.system.sibua.server.persistence.impl;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.Collection;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitPersistence;
 import org.cyk.system.sibua.server.persistence.api.ProgramPersistence;
+import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitByPrograms;
 import org.cyk.system.sibua.server.persistence.api.query.ReadProgramBySections;
 import org.cyk.system.sibua.server.persistence.entities.Program;
 import org.cyk.utility.__kernel__.array.ArrayHelper;
@@ -43,6 +46,14 @@ public class ProgramPersistenceImpl extends AbstractPersistenceEntityImpl<Progra
 				return readBySectionsCodes;
 		}
 		return super.__getQueryIdentifier__(klass, properties, objects);
+	}
+	
+	@Override
+	protected void __listenExecuteReadAfterSetFieldValue__(Program program, Field field, Properties properties) {
+		super.__listenExecuteReadAfterSetFieldValue__(program, field, properties);
+		if(field.getName().equals(Program.FIELD_ADMINISTRATIVE_UNITS)) {
+			program.setAdministrativeUnits(((ReadAdministrativeUnitByPrograms)__inject__(AdministrativeUnitPersistence.class)).readByPrograms(program));
+		}
 	}
 	
 	@Override

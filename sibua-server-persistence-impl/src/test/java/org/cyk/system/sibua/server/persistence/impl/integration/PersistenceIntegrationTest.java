@@ -14,6 +14,7 @@ import org.cyk.system.sibua.server.persistence.api.LocalisationPersistence;
 import org.cyk.system.sibua.server.persistence.api.ProgramPersistence;
 import org.cyk.system.sibua.server.persistence.api.SectionPersistence;
 import org.cyk.system.sibua.server.persistence.api.ServiceGroupPersistence;
+import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitByPrograms;
 import org.cyk.system.sibua.server.persistence.entities.Action;
 import org.cyk.system.sibua.server.persistence.entities.Activity;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
@@ -131,6 +132,81 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 		activities = __inject__(ActivityPersistence.class).readWhereAdministrativeUnitDoesNotExistByProgramsCodes("01");
 		assertThat(activities).isNotNull();
 		assertThat(activities.stream().map(Activity::getCode).collect(Collectors.toList())).contains("01");
+	}
+	
+	@Test
+	public void readWhereAdministrativeUnitByPrograms() throws Exception{
+		userTransaction.begin();
+		__inject__(ServiceGroupPersistence.class).create(new ServiceGroup().setCode("1").setName("1"));
+		__inject__(FunctionalClassificationPersistence.class).create(new FunctionalClassification().setCode("1").setName("1"));
+		__inject__(LocalisationPersistence.class).create(new Localisation().setCode("1").setName("1"));		
+		__inject__(SectionPersistence.class).create(new Section().setCode("1").setName("1"));
+		
+		__inject__(AdministrativeUnitPersistence.class).create(new AdministrativeUnit().setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1")
+				.setLocalisationFromCode("1").setSectionFromCode("1").setCode("1").setName("1").setOrderNumber(1));
+		__inject__(AdministrativeUnitPersistence.class).create(new AdministrativeUnit().setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1")
+				.setLocalisationFromCode("1").setSectionFromCode("1").setCode("2").setName("1").setOrderNumber(2));
+		__inject__(AdministrativeUnitPersistence.class).create(new AdministrativeUnit().setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1")
+				.setLocalisationFromCode("1").setSectionFromCode("1").setCode("3").setName("1").setOrderNumber(3));
+		__inject__(AdministrativeUnitPersistence.class).create(new AdministrativeUnit().setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1")
+				.setLocalisationFromCode("1").setSectionFromCode("1").setCode("4").setName("1").setOrderNumber(4));
+		__inject__(AdministrativeUnitPersistence.class).create(new AdministrativeUnit().setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1")
+				.setLocalisationFromCode("1").setSectionFromCode("1").setCode("5").setName("1").setOrderNumber(5));
+		
+		__inject__(ProgramPersistence.class).create(new Program().setCode("1").setName("1").setSectionFromCode("1"));		
+		__inject__(ActionPersistence.class).create(new Action().setCode("1.1").setName("1.1").setProgramFromCode("1"));
+		__inject__(ActivityPersistence.class).create(new Activity().setCode("1.1.1").setName("1.1.1").setActionFromCode("1.1"));	
+		
+		__inject__(ProgramPersistence.class).create(new Program().setCode("2").setName("2").setSectionFromCode("1"));		
+		__inject__(ActionPersistence.class).create(new Action().setCode("2.1").setName("2.1").setProgramFromCode("2"));
+		__inject__(ActivityPersistence.class).create(new Activity().setCode("2.1.1").setName("2.1.1").setActionFromCode("2.1"));	
+		__inject__(ActivityPersistence.class).create(new Activity().setCode("2.1.2").setName("2.1.2").setActionFromCode("2.1"));	
+		
+		__inject__(ProgramPersistence.class).create(new Program().setCode("3").setName("3").setSectionFromCode("1"));		
+		__inject__(ActionPersistence.class).create(new Action().setCode("3.1").setName("3.1").setProgramFromCode("3"));
+		__inject__(ActivityPersistence.class).create(new Activity().setCode("3.1.1").setName("3.1.1").setActionFromCode("3.1"));
+		userTransaction.commit();
+		
+		ReadAdministrativeUnitByPrograms readAdministrativeUnitByPrograms = (ReadAdministrativeUnitByPrograms) __inject__(AdministrativeUnitPersistence.class);
+		Collection<AdministrativeUnit> administrativeUnits = null;
+		
+		assertThat(readAdministrativeUnitByPrograms.readByProgramsCodes("1")).isEmpty();
+		assertThat(readAdministrativeUnitByPrograms.readByProgramsCodes("2")).isEmpty();
+		assertThat(readAdministrativeUnitByPrograms.readByProgramsCodes("3")).isEmpty();
+		
+		userTransaction.begin();
+		__inject__(AdministrativeUnitActivityPersistence.class).create(new AdministrativeUnitActivity().setAdministrativeUnitFromCode("1").setActivityFromCode("1.1.1"));
+		userTransaction.commit();
+		
+		administrativeUnits = readAdministrativeUnitByPrograms.readByProgramsCodes("1");
+		assertThat(administrativeUnits).isNotNull();
+		assertThat(administrativeUnits.stream().map(AdministrativeUnit::getCode).collect(Collectors.toList())).contains("1");
+		
+		assertThat(readAdministrativeUnitByPrograms.readByProgramsCodes("2")).isEmpty();
+		assertThat(readAdministrativeUnitByPrograms.readByProgramsCodes("3")).isEmpty();
+		
+		userTransaction.begin();
+		__inject__(AdministrativeUnitActivityPersistence.class).create(new AdministrativeUnitActivity().setAdministrativeUnitFromCode("2").setActivityFromCode("2.1.1"));
+		__inject__(AdministrativeUnitActivityPersistence.class).create(new AdministrativeUnitActivity().setAdministrativeUnitFromCode("3").setActivityFromCode("2.1.2"));
+		userTransaction.commit();
+		
+		administrativeUnits = readAdministrativeUnitByPrograms.readByProgramsCodes("1");
+		assertThat(administrativeUnits).isNotNull();
+		assertThat(administrativeUnits.stream().map(AdministrativeUnit::getCode).collect(Collectors.toList())).contains("1");
+		
+		administrativeUnits = readAdministrativeUnitByPrograms.readByProgramsCodes("2");
+		assertThat(administrativeUnits).isNotNull();
+		assertThat(administrativeUnits.stream().map(AdministrativeUnit::getCode).collect(Collectors.toList())).contains("2","3");
+		
+		assertThat(readAdministrativeUnitByPrograms.readByProgramsCodes("3")).isEmpty();
+		
+		userTransaction.begin();
+		__inject__(AdministrativeUnitActivityPersistence.class).deleteAll();
+		userTransaction.commit();
+		
+		assertThat(readAdministrativeUnitByPrograms.readByProgramsCodes("1")).isEmpty();
+		assertThat(readAdministrativeUnitByPrograms.readByProgramsCodes("2")).isEmpty();
+		assertThat(readAdministrativeUnitByPrograms.readByProgramsCodes("3")).isEmpty();
 	}
 	
 }

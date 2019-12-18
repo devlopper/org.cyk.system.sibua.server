@@ -12,7 +12,9 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
+import org.cyk.utility.__kernel__.instance.InstanceGetter;
 import org.cyk.utility.__kernel__.object.__static__.persistence.AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl;
+import org.cyk.utility.__kernel__.string.StringHelper;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,6 +37,7 @@ public class AdministrativeUnit extends AbstractIdentifiableSystemScalarStringId
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_LOCALISATION) private Localisation localisation;
 	@NotNull @Column(name = COLUMN_ORDER_NUMBER) private Integer orderNumber;
 	
+	@Transient private Collection<Program> programs;
 	@Transient private Collection<Activity> activities;
 	
 	@Override
@@ -47,12 +50,45 @@ public class AdministrativeUnit extends AbstractIdentifiableSystemScalarStringId
 		return (AdministrativeUnit) super.setName(name);
 	}
 	
+	public AdministrativeUnit setSectionFromCode(String code) {
+		if(StringHelper.isBlank(code))
+			this.section = null;
+		else
+			this.section = InstanceGetter.getInstance().getByBusinessIdentifier(Section.class, code);
+		return this;
+	}
+	
+	public AdministrativeUnit setServiceGroupFromCode(String code) {
+		if(StringHelper.isBlank(code))
+			this.serviceGroup = null;
+		else
+			this.serviceGroup = InstanceGetter.getInstance().getByBusinessIdentifier(ServiceGroup.class, code);
+		return this;
+	}
+	
+	public AdministrativeUnit setFunctionalClassificationFromCode(String code) {
+		if(StringHelper.isBlank(code))
+			this.functionalClassification = null;
+		else
+			this.functionalClassification = InstanceGetter.getInstance().getByBusinessIdentifier(FunctionalClassification.class, code);
+		return this;
+	}
+	
+	public AdministrativeUnit setLocalisationFromCode(String code) {
+		if(StringHelper.isBlank(code))
+			this.localisation = null;
+		else
+			this.localisation = InstanceGetter.getInstance().getByBusinessIdentifier(Localisation.class, code);
+		return this;
+	}
+	
 	public static final String FIELD_SECTION = "section";
 	public static final String FIELD_SERVICE_GROUP = "serviceGroup";
 	public static final String FIELD_FUNCTIONAL_CLASSIFICATION = "functionalClassification";
 	public static final String FIELD_LOCALISATION = "localisation";
 	public static final String FIELD_ORDER_NUMBER = "orderNumber";
 	public static final String FIELD_ACTIVITIES = "activities";
+	public static final String FIELD_PROGRAMS = "programs";
 	
 	public static final String COLUMN_SECTION = Section.TABLE_NAME;	
 	public static final String COLUMN_SERVICE_GROUP = ServiceGroup.TABLE_NAME;	

@@ -9,7 +9,9 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
+import org.cyk.utility.__kernel__.instance.InstanceGetter;
 import org.cyk.utility.__kernel__.object.__static__.persistence.AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl;
+import org.cyk.utility.__kernel__.string.StringHelper;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,6 +35,14 @@ public class Action extends AbstractIdentifiableSystemScalarStringIdentifiableBu
 	@Override
 	public Action setName(String name) {
 		return (Action) super.setName(name);
+	}
+	
+	public Action setProgramFromCode(String code) {
+		if(StringHelper.isBlank(code))
+			this.program = null;
+		else
+			this.program = InstanceGetter.getInstance().getByBusinessIdentifier(Program.class, code);
+		return this;
 	}
 	
 	public static final String FIELD_PROGRAM = "program";
