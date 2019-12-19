@@ -86,6 +86,14 @@ public class AdministrativeUnit extends AbstractIdentifiableSystemScalarStringId
 		return this;
 	}
 	
+	public AdministrativeUnit setParentFromCode(String code) {
+		if(StringHelper.isBlank(code))
+			this.parent = null;
+		else
+			this.parent = InstanceGetter.getInstance().getByBusinessIdentifier(AdministrativeUnit.class, code);
+		return this;
+	}
+	
 	public static final String FIELD_SECTION = "section";
 	public static final String FIELD_SERVICE_GROUP = "serviceGroup";
 	public static final String FIELD_FUNCTIONAL_CLASSIFICATION = "functionalClassification";
@@ -94,6 +102,7 @@ public class AdministrativeUnit extends AbstractIdentifiableSystemScalarStringId
 	public static final String FIELD_ACTIVITIES = "activities";
 	public static final String FIELD_PROGRAMS = "programs";
 	public static final String FIELD_DESTINATIONS = "destinations";
+	public static final String FIELD_PARENT = "parent";
 	
 	public static final String COLUMN_SECTION = Section.TABLE_NAME;	
 	public static final String COLUMN_SERVICE_GROUP = ServiceGroup.TABLE_NAME;	

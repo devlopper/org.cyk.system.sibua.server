@@ -9,8 +9,10 @@ import javax.enterprise.context.ApplicationScoped;
 import org.apache.commons.lang3.StringUtils;
 import org.cyk.system.sibua.server.business.api.AdministrativeUnitBusiness;
 import org.cyk.system.sibua.server.business.api.AdministrativeUnitDestinationBusiness;
+import org.cyk.system.sibua.server.business.api.AdministrativeUnitHierarchyBusiness;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitActivityPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitDestinationPersistence;
+import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitHierarchyPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitPersistence;
 import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitActivityByAdministrativeUnits;
 import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitDestinationByAdministrativeUnits;
@@ -18,6 +20,7 @@ import org.cyk.system.sibua.server.persistence.entities.Activity;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitActivity;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitDestination;
+import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitHierarchy;
 import org.cyk.system.sibua.server.persistence.entities.Destination;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.constant.ConstantCharacter;
@@ -52,7 +55,10 @@ public class AdministrativeUnitBusinessImpl extends AbstractBusinessEntityImpl<A
 		if(CollectionHelper.isNotEmpty(administrativeUnit.getDestinations())) {
 			__inject__(AdministrativeUnitDestinationBusiness.class).createMany(administrativeUnit.getDestinations().stream()
 					.map(x -> new AdministrativeUnitDestination().setAdministrativeUnit(administrativeUnit).setDestination(x)).collect(Collectors.toList()));	
-		}			
+		}
+		if(administrativeUnit.getParent() != null) {
+			__inject__(AdministrativeUnitHierarchyBusiness.class).create(new AdministrativeUnitHierarchy().setParent(administrativeUnit.getParent()).setChild(administrativeUnit));	
+		}
 	}
 	
 	@Override
@@ -81,6 +87,21 @@ public class AdministrativeUnitBusinessImpl extends AbstractBusinessEntityImpl<A
 				
 				__delete__(administrativeUnit.getDestinations(), databaseAdministrativeUnitDestinations,AdministrativeUnitDestination.FIELD_DESTINATION);
 				__save__(AdministrativeUnitDestination.class,administrativeUnit.getDestinations(), databaseDestinations, AdministrativeUnitDestination.FIELD_DESTINATION, administrativeUnit, AdministrativeUnitDestination.FIELD_ADMINISTRATIVE_UNIT);
+			}else if(AdministrativeUnit.FIELD_PARENT.equals(index)) {
+				AdministrativeUnitHierarchy administrativeUnitHierarchy = CollectionHelper.getFirst(__inject__(AdministrativeUnitHierarchyPersistence.class).readWhereIsChildByChildren(administrativeUnit));
+				if(administrativeUnitHierarchy == null) {
+					if(administrativeUnit.getParent() != null)
+						__inject__(AdministrativeUnitHierarchyBusiness.class).create(new AdministrativeUnitHierarchy().setParent(administrativeUnit.getParent()).setChild(administrativeUnit));
+				}else {
+					if(administrativeUnit.getParent() == null) {
+						__inject__(AdministrativeUnitHierarchyBusiness.class).delete(administrativeUnitHierarchy);
+					}else if(administrativeUnit.getParent().equals(administrativeUnit)) {
+						throw new RuntimeException("une unité administrative ne peut pas être son propre parent.");
+					}else {
+						administrativeUnitHierarchy.setParent(administrativeUnit.getParent());
+						__inject__(AdministrativeUnitHierarchyBusiness.class).update(administrativeUnitHierarchy);	
+					}
+				}
 			}
 		}
 	}

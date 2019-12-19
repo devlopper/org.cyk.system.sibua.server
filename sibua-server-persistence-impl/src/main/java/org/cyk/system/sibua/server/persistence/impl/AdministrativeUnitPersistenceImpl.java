@@ -7,12 +7,14 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 
+import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitHierarchyPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitPersistence;
 import org.cyk.system.sibua.server.persistence.api.DestinationPersistence;
 import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitByPrograms;
 import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitBySections;
 import org.cyk.system.sibua.server.persistence.api.query.ReadDestinationByAdministrativeUnits;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
+import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitHierarchy;
 import org.cyk.utility.__kernel__.array.ArrayHelper;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.properties.Properties;
@@ -77,6 +79,11 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 		if(field.getName().equals(AdministrativeUnit.FIELD_DESTINATIONS)) {
 			administrativeUnit.setDestinations(((ReadDestinationByAdministrativeUnits)__inject__(DestinationPersistence.class))
 					.readByAdministrativeUnits(administrativeUnit));
+		}else if(field.getName().equals(AdministrativeUnit.FIELD_PARENT)) {
+			Collection<AdministrativeUnitHierarchy> administrativeUnitHierarchies = __inject__(AdministrativeUnitHierarchyPersistence.class).readWhereIsChildByChildren(administrativeUnit);
+			if(CollectionHelper.isNotEmpty(administrativeUnitHierarchies)) {
+				administrativeUnit.setParent(CollectionHelper.getFirst(administrativeUnitHierarchies).getParent());	
+			}			
 		}
 	}
 	
