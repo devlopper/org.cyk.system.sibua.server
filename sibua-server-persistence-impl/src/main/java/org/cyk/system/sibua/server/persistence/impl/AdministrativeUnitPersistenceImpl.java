@@ -7,9 +7,11 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 
+import org.cyk.system.sibua.server.persistence.api.ActivityPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitHierarchyPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitPersistence;
 import org.cyk.system.sibua.server.persistence.api.DestinationPersistence;
+import org.cyk.system.sibua.server.persistence.api.query.ReadActivityByAdministrativeUnits;
 import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitByPrograms;
 import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitBySections;
 import org.cyk.system.sibua.server.persistence.api.query.ReadDestinationByAdministrativeUnits;
@@ -78,6 +80,9 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 		super.__listenExecuteReadAfterSetFieldValue__(administrativeUnit, field, properties);
 		if(field.getName().equals(AdministrativeUnit.FIELD_DESTINATIONS)) {
 			administrativeUnit.setDestinations(((ReadDestinationByAdministrativeUnits)__inject__(DestinationPersistence.class))
+					.readByAdministrativeUnits(administrativeUnit));
+		}else if(field.getName().equals(AdministrativeUnit.FIELD_ACTIVITIES)) {
+			administrativeUnit.setActivities(((ReadActivityByAdministrativeUnits)__inject__(ActivityPersistence.class))
 					.readByAdministrativeUnits(administrativeUnit));
 		}else if(field.getName().equals(AdministrativeUnit.FIELD_PARENT)) {
 			Collection<AdministrativeUnitHierarchy> administrativeUnitHierarchies = __inject__(AdministrativeUnitHierarchyPersistence.class).readWhereIsChildByChildren(administrativeUnit);

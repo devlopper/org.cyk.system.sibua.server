@@ -33,5 +33,28 @@ public interface DestinationPersistence extends PersistenceEntity<Destination> {
 		
 	/**/
 	
+	Collection<Destination> readWhereActivityDoesNotExistBySectionsCodes(Collection<String> sectionsCodes,Properties properties);
+	
+	default Collection<Destination> readWhereActivityDoesNotExistBySectionsCodes(Collection<String> sectionsCodes) {
+		if(CollectionHelper.isEmpty(sectionsCodes))
+			return null;
+		return readWhereActivityDoesNotExistBySectionsCodes(sectionsCodes, null);
+	}
+	
+	default Collection<Destination> readWhereActivityDoesNotExistBySectionsCodes(Properties properties,String...sectionsCodes){
+		if(ArrayHelper.isEmpty(sectionsCodes))
+			return null;
+		return readWhereActivityDoesNotExistBySectionsCodes(CollectionHelper.listOf(sectionsCodes), properties);
+	}
+	
+	default Collection<Destination> readWhereActivityDoesNotExistBySectionsCodes(String...sectionsCodes){
+		if(ArrayHelper.isEmpty(sectionsCodes))
+			return null;
+		return readWhereActivityDoesNotExistBySectionsCodes(CollectionHelper.listOf(sectionsCodes), null);
+	}
+	
+	/**/
+	
 	String READ_WHERE_ADMINISTRATIVE_UNIT_DOES_NOT_EXIST_BY_SECTIONS_CODES = QueryIdentifierBuilder.getInstance().build(Destination.class,"readWhereAdministrativeUnitDoesNotExistBySectionsCodes");
+	String READ_WHERE_ACTIVITY_DOES_NOT_EXIST_BY_SECTIONS_CODES = QueryIdentifierBuilder.getInstance().build(Destination.class,"readWhereActivityDoesNotExistBySectionsCodes");
 }

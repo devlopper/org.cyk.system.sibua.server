@@ -24,8 +24,10 @@ public class Destination extends AbstractIdentifiableSystemScalarStringIdentifia
 	private static final long serialVersionUID = 1L;
 
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_SECTION) private Section section;
+	@NotNull @ManyToOne @JoinColumn(name = COLUMN_TITLE) private Title title;
 	
 	@Transient private AdministrativeUnit administrativeUnit;
+	@Transient private Activity activity;
 	
 	@Override
 	public Destination setCode(String code) {
@@ -48,9 +50,12 @@ public class Destination extends AbstractIdentifiableSystemScalarStringIdentifia
 	/**/
 	
 	public static final String FIELD_SECTION = "section";
+	public static final String FIELD_TITLE = "title";
 	public static final String FIELD_ADMINISTRATIVE_UNIT = "administrativeUnit";
+	public static final String FIELD_ACTIVITY = "activity";
 	
-	public static final String COLUMN_SECTION = Section.TABLE_NAME;	
+	public static final String COLUMN_SECTION = Section.TABLE_NAME;
+	public static final String COLUMN_TITLE = Title.TABLE_NAME;
 	
 	public static final String TABLE_NAME = "destination_sigbud";	
 }

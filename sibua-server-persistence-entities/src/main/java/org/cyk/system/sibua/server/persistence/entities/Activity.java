@@ -1,6 +1,7 @@
 package org.cyk.system.sibua.server.persistence.entities;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -28,6 +29,7 @@ public class Activity extends AbstractIdentifiableSystemScalarStringIdentifiable
 	@Transient private Section section;
 	@Transient private Program program;
 	@Transient private AdministrativeUnit administrativeUnit;
+	@Transient private Collection<Destination> destinations;
 	
 	@Override
 	public Activity setCode(String code) {
@@ -51,6 +53,7 @@ public class Activity extends AbstractIdentifiableSystemScalarStringIdentifiable
 	public static final String FIELD_SECTION = "section";
 	public static final String FIELD_PROGRAM = "program";
 	public static final String FIELD_ADMINISTRATIVE_UNIT = "administrativeUnit";
+	public static final String FIELD_DESTINATIONS = "destinations";
 	
 	public static final String COLUMN_ACTION = FIELD_ACTION;
 	

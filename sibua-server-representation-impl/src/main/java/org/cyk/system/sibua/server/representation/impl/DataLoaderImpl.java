@@ -15,6 +15,7 @@ import org.cyk.system.sibua.server.business.api.LocalisationBusiness;
 import org.cyk.system.sibua.server.business.api.ProgramBusiness;
 import org.cyk.system.sibua.server.business.api.SectionBusiness;
 import org.cyk.system.sibua.server.business.api.ServiceGroupBusiness;
+import org.cyk.system.sibua.server.business.api.TitleBusiness;
 import org.cyk.system.sibua.server.persistence.entities.Action;
 import org.cyk.system.sibua.server.persistence.entities.Activity;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
@@ -24,6 +25,7 @@ import org.cyk.system.sibua.server.persistence.entities.Localisation;
 import org.cyk.system.sibua.server.persistence.entities.Program;
 import org.cyk.system.sibua.server.persistence.entities.Section;
 import org.cyk.system.sibua.server.persistence.entities.ServiceGroup;
+import org.cyk.system.sibua.server.persistence.entities.Title;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.random.RandomHelper;
 import org.cyk.utility.server.representation.AbstractDataLoaderImpl;
@@ -35,6 +37,7 @@ public class DataLoaderImpl extends AbstractDataLoaderImpl implements Serializab
 	@Override
 	public Response load() {
 		try {
+			List<Title> titles = new ArrayList<>();
 			List<ServiceGroup> serviceGroups = new ArrayList<>();
 			List<Localisation> localisations = new ArrayList<>();
 			List<FunctionalClassification> functionalClassifications = new ArrayList<>();
@@ -50,6 +53,8 @@ public class DataLoaderImpl extends AbstractDataLoaderImpl implements Serializab
 				localisations.add(new Localisation().setCode("loc_"+index).setName("localisation "+index));
 			for(Integer index = 1 ; index < 100 ; index = index + 1)
 				functionalClassifications.add(new FunctionalClassification().setCode("cfap_"+index).setName("cfap "+index));
+			for(Integer index = 0 ; index < 5 ; index = index + 1)
+				titles.add(new Title().setCode("T_"+index).setName("Titre "+index));
 			
 			Integer uaIndex = 1;
 			Integer programCount = 0;
@@ -90,7 +95,8 @@ public class DataLoaderImpl extends AbstractDataLoaderImpl implements Serializab
 				}
 				
 				for(Integer indexDestination = 1 ; indexDestination < 10 ; indexDestination = indexDestination + 1) {
-					destinations.add(new Destination().setCode("dest_"+(destinationCount+1)).setName("dest "+(destinationCount+1)).setSection(section));
+					destinations.add(new Destination().setCode("dest_"+(destinationCount+1)).setName("dest "+(destinationCount+1)).setSection(section)
+							.setTitle(RandomHelper.get(titles)));
 					destinationCount = destinationCount + 1;
 				}
 			}
@@ -112,6 +118,8 @@ public class DataLoaderImpl extends AbstractDataLoaderImpl implements Serializab
 			if(CollectionHelper.isNotEmpty(activities))
 				__inject__(ActivityBusiness.class).createByBatch(activities, 100);
 			
+			if(CollectionHelper.isNotEmpty(titles))
+				__inject__(TitleBusiness.class).createByBatch(titles, 100);
 			if(CollectionHelper.isNotEmpty(destinations))
 				__inject__(DestinationBusiness.class).createByBatch(destinations, 100);
 		} catch (Exception exception) {

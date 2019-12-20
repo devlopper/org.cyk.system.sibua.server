@@ -1,14 +1,17 @@
 package org.cyk.system.sibua.server.persistence.impl;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.Collection;
 
 import javax.enterprise.context.ApplicationScoped;
 
 import org.cyk.system.sibua.server.persistence.api.ActivityPersistence;
+import org.cyk.system.sibua.server.persistence.api.DestinationPersistence;
 import org.cyk.system.sibua.server.persistence.api.query.ReadActivityByActions;
 import org.cyk.system.sibua.server.persistence.api.query.ReadActivityByAdministrativeUnits;
 import org.cyk.system.sibua.server.persistence.api.query.ReadActivityByPrograms;
 import org.cyk.system.sibua.server.persistence.api.query.ReadActivityBySections;
+import org.cyk.system.sibua.server.persistence.api.query.ReadDestinationByActivities;
 import org.cyk.system.sibua.server.persistence.entities.Activity;
 import org.cyk.utility.__kernel__.array.ArrayHelper;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
@@ -34,6 +37,15 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 		addQueryCollectInstances(readWhereAdministrativeUnitDoesNotExistBySectionsCodes, "SELECT activity FROM Activity activity WHERE activity.action.program.section.code IN :sectionsCodes AND NOT EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity)  ORDER BY activity.code ASC");
 		addQueryCollectInstances(readWhereAdministrativeUnitDoesNotExistByProgramsCodes, "SELECT activity FROM Activity activity WHERE activity.action.program.code IN :programsCodes AND NOT EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity)  ORDER BY activity.code ASC");
 		addQueryCollectInstances(readWhereAdministrativeUnitDoesNotExistByActionsCodes, "SELECT activity FROM Activity activity WHERE activity.action.code IN :actionsCodes AND NOT EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity)  ORDER BY activity.code ASC");
+	}
+	
+	@Override
+	protected void __listenExecuteReadAfterSetFieldValue__(Activity activity, Field field, Properties properties) {
+		super.__listenExecuteReadAfterSetFieldValue__(activity, field, properties);
+		if(field.getName().equals(Activity.FIELD_DESTINATIONS)) {
+			activity.setDestinations(((ReadDestinationByActivities)__inject__(DestinationPersistence.class))
+					.readByActivities(activity));
+		}
 	}
 	
 	@Override

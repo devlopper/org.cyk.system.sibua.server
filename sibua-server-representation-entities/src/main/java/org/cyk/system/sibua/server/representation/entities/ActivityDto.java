@@ -1,6 +1,7 @@
 package org.cyk.system.sibua.server.representation.entities;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import org.cyk.utility.__kernel__.object.__static__.representation.AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl;
 
@@ -15,5 +16,5 @@ public class ActivityDto extends AbstractIdentifiableSystemScalarStringIdentifia
 
 	private SectionDto section;
 	private AdministrativeUnitDto administrativeUnit;
-	
+	private ArrayList<DestinationDto> destinations;
 }
