@@ -80,6 +80,17 @@
 		</profile>
 		
 		<profile>
+			<id>deployment.remote.10.3.111.91</id>
+			<properties>
+				<data.base.management.system.host>10.3.111.91</data.base.management.system.host>
+				<data.base.management.system.sid>prodoc</data.base.management.system.sid>
+				<data.source.user>basculement</data.source.user>
+				<data.source.password>basculement</data.source.password>
+				<cyk.variable.system.host>10.3.111.91</cyk.variable.system.host>
+			</properties>
+		</profile>
+		
+		<profile>
 			<id>deployment.remote.10.3.4.60</id>
 			<properties>
 				<data.base.management.system.host>10.3.4.60</data.base.management.system.host>

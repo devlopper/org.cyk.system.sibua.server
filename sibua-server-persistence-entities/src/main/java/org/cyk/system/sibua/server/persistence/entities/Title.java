@@ -28,4 +28,11 @@ public class Title extends AbstractIdentifiableSystemScalarStringIdentifiableBus
 	}
 	
 	public static final String TABLE_NAME = "titre";	
+	
+	public static final String CODE_0 = "0";
+	public static final String CODE_1 = "1";
+	public static final String CODE_2 = "2";
+	public static final String CODE_3 = "3";
+	public static final String CODE_4 = "4";
+	
 }

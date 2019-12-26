@@ -11,5 +11,4 @@ import org.cyk.utility.server.persistence.AbstractPersistenceEntityImpl;
 public class SectionPersistenceImpl extends AbstractPersistenceEntityImpl<Section> implements SectionPersistence,Serializable {
 	private static final long serialVersionUID = 1L;
 
-	
 }

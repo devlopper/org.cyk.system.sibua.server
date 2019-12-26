@@ -74,15 +74,15 @@ public class DataLoaderImpl extends AbstractDataLoaderImpl implements Serializab
 					uaIndex = uaIndex + 1;
 				}
 				
-				for(Integer indexProgram = 1 ; indexProgram <= 6 ; indexProgram = indexProgram + 1) {
+				for(Integer indexProgram = 1 ; indexProgram <= 10 ; indexProgram = indexProgram + 1) {
 					if(programs == null)
 						programs = new ArrayList<>();
 					Program program = new Program().setCode("prog_"+(programCount+1)).setName("programme "+(programCount+1)).setSection(section);
-					for(Integer indexAction = 1 ; indexAction <= 5 ; indexAction = indexAction + 1) {
+					for(Integer indexAction = 1 ; indexAction <= 50 ; indexAction = indexAction + 1) {
 						if(actions == null)
 							actions = new ArrayList<>();
 						Action action = new Action().setCode(program.getCode()+"_action_"+indexAction).setName(program.getName()+" action "+indexAction).setProgram(program);
-						for(Integer indexActivity = 1 ; indexActivity <= 7 ; indexActivity = indexActivity + 1) {
+						for(Integer indexActivity = 1 ; indexActivity <= 250 ; indexActivity = indexActivity + 1) {
 							if(activities == null)
 								activities = new ArrayList<>();
 							Activity activity = new Activity().setCode(action.getCode()+"_activite_"+indexActivity).setName(action.getName()+" activité "+indexActivity).setAction(action);

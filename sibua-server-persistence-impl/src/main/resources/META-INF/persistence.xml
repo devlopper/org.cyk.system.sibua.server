@@ -5,6 +5,7 @@
     	<exclude-unlisted-classes>true</exclude-unlisted-classes>
     	<class>org.cyk.system.sibua.server.persistence.entities.Title</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.ActivityDestination</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitFromDestination</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitDestination</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.Destination</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.ServiceGroup</class>
