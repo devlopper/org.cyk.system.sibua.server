@@ -27,5 +27,7 @@ public class FunctionalClassification extends AbstractIdentifiableSystemScalarSt
 		return (FunctionalClassification) super.setName(name);
 	}
 	
-	public static final String TABLE_NAME = "cfap";	
+	public static final String TABLE_NAME = "cfap";
+	
+	public static final String CODE_NOT_SET = "NON_DEFINI";
 }

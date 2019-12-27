@@ -13,5 +13,7 @@ import lombok.experimental.Accessors;
 public class ActivityDestinationDto extends AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	private ActivityDto activity;
+	private DestinationDto destination;
 	
 }

@@ -2,11 +2,14 @@ package org.cyk.system.sibua.server.business.impl;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 
 import org.apache.commons.lang3.StringUtils;
+import org.cyk.system.sibua.server.business.api.ActivityDestinationBusiness;
+import org.cyk.system.sibua.server.business.api.AdministrativeUnitActivityBusiness;
 import org.cyk.system.sibua.server.business.api.AdministrativeUnitBusiness;
 import org.cyk.system.sibua.server.business.api.AdministrativeUnitDestinationBusiness;
 import org.cyk.system.sibua.server.business.api.AdministrativeUnitHierarchyBusiness;
@@ -17,14 +20,17 @@ import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitPersistence
 import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitActivityByAdministrativeUnits;
 import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitDestinationByAdministrativeUnits;
 import org.cyk.system.sibua.server.persistence.entities.Activity;
+import org.cyk.system.sibua.server.persistence.entities.ActivityDestination;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitActivity;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitDestination;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitHierarchy;
 import org.cyk.system.sibua.server.persistence.entities.Destination;
+import org.cyk.system.sibua.server.persistence.entities.ServiceGroup;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.constant.ConstantCharacter;
 import org.cyk.utility.__kernel__.properties.Properties;
+import org.cyk.utility.__kernel__.random.RandomHelper;
 import org.cyk.utility.__kernel__.string.Strings;
 import org.cyk.utility.server.business.AbstractBusinessEntityImpl;
 import org.cyk.utility.server.business.BusinessFunctionCreator;
@@ -35,12 +41,14 @@ public class AdministrativeUnitBusinessImpl extends AbstractBusinessEntityImpl<A
 	private static final long serialVersionUID = 1L;
 
 	private void __setOrderNumberAndCode__(AdministrativeUnit administrativeUnit) {
-		administrativeUnit.setOrderNumber(__persistence__.readMaxOrderNumberByServiceGroupCodeByFunctionalClassificationCode(administrativeUnit.getServiceGroup().getCode()
+		if(administrativeUnit.getServiceGroup().getCode().equals(ServiceGroup.CODE_NOT_SET) || administrativeUnit.getServiceGroup().getCode().equals(ServiceGroup.CODE_NOT_SET))
+			administrativeUnit.setOrderNumber(RandomHelper.getNumeric(5).intValue());
+		else
+			administrativeUnit.setOrderNumber(__persistence__.readMaxOrderNumberByServiceGroupCodeByFunctionalClassificationCode(administrativeUnit.getServiceGroup().getCode()
 				, administrativeUnit.getFunctionalClassification().getCode(), properties)+1);
-		if(administrativeUnit.getServiceGroup() != null && administrativeUnit.getFunctionalClassification() != null && administrativeUnit.getLocalisation() != null
-				&& administrativeUnit.getOrderNumber() != null)
+		if(administrativeUnit.getServiceGroup() != null && administrativeUnit.getFunctionalClassification() != null && administrativeUnit.getOrderNumber() != null)
 			administrativeUnit.setCode(administrativeUnit.getServiceGroup().getCode()+administrativeUnit.getFunctionalClassification().getBusinessIdentifier()+
-				StringUtils.leftPad(administrativeUnit.getOrderNumber().toString(), 5, ConstantCharacter.ZERO)+administrativeUnit.getLocalisation().getCode());
+				StringUtils.leftPad(administrativeUnit.getOrderNumber().toString(), 5, ConstantCharacter.ZERO));
 	}
 	
 	@Override
@@ -51,7 +59,19 @@ public class AdministrativeUnitBusinessImpl extends AbstractBusinessEntityImpl<A
 	
 	@Override
 	protected void __listenExecuteCreateAfter__(AdministrativeUnit administrativeUnit, Properties properties,BusinessFunctionCreator function) {
-		super.__listenExecuteCreateAfter__(administrativeUnit, properties, function);		
+		super.__listenExecuteCreateAfter__(administrativeUnit, properties, function);
+		Collection<Activity> activities = new HashSet<>();
+		Collection<Destination> destinations = new HashSet<>();
+		if(CollectionHelper.isNotEmpty(administrativeUnit.getActivityDestinations())) {
+			activities = administrativeUnit.getActivityDestinations().stream().map(ActivityDestination::getActivity).collect(Collectors.toSet());
+			destinations = administrativeUnit.getActivityDestinations().stream().map(ActivityDestination::getDestination).collect(Collectors.toSet());
+			__inject__(AdministrativeUnitActivityBusiness.class).createMany(activities.stream().map(activity -> new AdministrativeUnitActivity()
+					.setAdministrativeUnit(administrativeUnit).setActivity(activity)).collect(Collectors.toList()));
+			__inject__(AdministrativeUnitDestinationBusiness.class).createMany(destinations.stream().map(destination -> new AdministrativeUnitDestination()
+					.setAdministrativeUnit(administrativeUnit).setDestination(destination)).collect(Collectors.toList()));
+			__inject__(ActivityDestinationBusiness.class).createMany(administrativeUnit.getActivityDestinations());
+		}
+		/*
 		if(CollectionHelper.isNotEmpty(administrativeUnit.getDestinations())) {
 			__inject__(AdministrativeUnitDestinationBusiness.class).createMany(administrativeUnit.getDestinations().stream()
 					.map(x -> new AdministrativeUnitDestination().setAdministrativeUnit(administrativeUnit).setDestination(x)).collect(Collectors.toList()));	
@@ -59,6 +79,7 @@ public class AdministrativeUnitBusinessImpl extends AbstractBusinessEntityImpl<A
 		if(administrativeUnit.getParent() != null) {
 			__inject__(AdministrativeUnitHierarchyBusiness.class).create(new AdministrativeUnitHierarchy().setParent(administrativeUnit.getParent()).setChild(administrativeUnit));	
 		}
+		*/
 	}
 	
 	@Override

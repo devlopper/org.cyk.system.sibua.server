@@ -43,6 +43,7 @@ public class AdministrativeUnit extends AbstractIdentifiableSystemScalarStringId
 	@Transient private Collection<AdministrativeUnit> parents;
 	@Transient private Collection<AdministrativeUnit> children;
 	@Transient private Collection<Destination> destinations;
+	@Transient private Collection<ActivityDestination> activityDestinations;
 	
 	@Override
 	public AdministrativeUnit setCode(String code) {

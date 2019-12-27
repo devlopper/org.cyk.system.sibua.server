@@ -25,14 +25,6 @@ public class ActivityDestination extends AbstractIdentifiableSystemScalarStringI
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_ACTIVITY) private Activity activity;
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_DESTINATION,unique = true) private Destination destination;
 	
-	public ActivityDestination setDestinationFromCode(String code) {
-		if(StringHelper.isBlank(code))
-			this.destination = null;
-		else
-			this.destination = InstanceGetter.getInstance().getByBusinessIdentifier(Destination.class, code);
-		return this;
-	}
-	
 	public ActivityDestination setActivityFromCode(String code) {
 		if(StringHelper.isBlank(code))
 			this.activity = null;
@@ -41,11 +33,19 @@ public class ActivityDestination extends AbstractIdentifiableSystemScalarStringI
 		return this;
 	}
 	
-	public static final String FIELD_DESTINATION = "destination";
-	public static final String FIELD_ACTIVITY = "activity";
+	public ActivityDestination setDestinationFromCode(String code) {
+		if(StringHelper.isBlank(code))
+			this.destination = null;
+		else
+			this.destination = InstanceGetter.getInstance().getByBusinessIdentifier(Destination.class, code);
+		return this;
+	}
 	
-	public static final String COLUMN_DESTINATION = "DEST_CODE";
+	public static final String FIELD_ACTIVITY = "activity";
+	public static final String FIELD_DESTINATION = "destination";
+	
 	public static final String COLUMN_ACTIVITY = "ATV_CODE";
+	public static final String COLUMN_DESTINATION = "DEST_CODE";
 	
 	public static final String TABLE_NAME = Activity.TABLE_NAME+"_destination";
 	

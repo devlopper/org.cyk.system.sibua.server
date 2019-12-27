@@ -27,5 +27,7 @@ public class ServiceGroup extends AbstractIdentifiableSystemScalarStringIdentifi
 		return (ServiceGroup) super.setName(name);
 	}
 	
-	public static final String TABLE_NAME = "groupe_service";	
+	public static final String TABLE_NAME = "groupe_service";
+	
+	public static final String CODE_NOT_SET = "NON_DEFINI";
 }

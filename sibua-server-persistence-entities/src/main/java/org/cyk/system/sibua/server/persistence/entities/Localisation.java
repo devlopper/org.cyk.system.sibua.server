@@ -28,4 +28,6 @@ public class Localisation extends AbstractIdentifiableSystemScalarStringIdentifi
 	}
 	
 	public static final String TABLE_NAME = "localisation_geographique";	
+	
+	public static final String CODE_NOT_SET = "NON_DEFINI";
 }
