@@ -47,6 +47,14 @@ public class Destination extends AbstractIdentifiableSystemScalarStringIdentifia
 		return this;
 	}
 	
+	public Destination setTitleFromCode(String code) {
+		if(StringHelper.isBlank(code))
+			this.title = null;
+		else
+			this.title = InstanceGetter.getInstance().getByBusinessIdentifier(Title.class, code);
+		return this;
+	}
+	
 	/**/
 	
 	public static final String FIELD_SECTION = "section";

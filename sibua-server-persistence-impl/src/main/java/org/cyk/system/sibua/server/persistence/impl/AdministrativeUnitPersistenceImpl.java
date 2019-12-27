@@ -7,6 +7,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.cyk.system.sibua.server.persistence.api.ActivityPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitHierarchyPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitPersistence;
@@ -28,7 +29,7 @@ import org.cyk.utility.server.persistence.query.PersistenceQueryContext;
 public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntityImpl<AdministrativeUnit> implements AdministrativeUnitPersistence,ReadAdministrativeUnitBySections,ReadAdministrativeUnitByPrograms,Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private String readBySectionsCodes,readByProgramsCodes,readMaxOrderNumberByServiceGroupCodeByFunctionalClassificationCode;
+	private String readBySectionsCodes,readByProgramsCodes,readMaxOrderNumberByServiceGroupCodeByFunctionalClassificationCode,readByFilters;
 	
 	@Override
 	protected void __listenPostConstructPersistenceQueries__() {
@@ -41,6 +42,12 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 				+ "ORDER BY administrativeUnit.code ASC");
 		addQuery(readMaxOrderNumberByServiceGroupCodeByFunctionalClassificationCode, "SELECT MAX(administrativeUnit.orderNumber) FROM AdministrativeUnit administrativeUnit "
 				+ "WHERE administrativeUnit.serviceGroup.code = :serviceGroupCode AND administrativeUnit.functionalClassification.code = :functionalClassificationCode",Integer.class);
+		addQueryCollectInstances(readByFilters, "SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit "
+				+ "WHERE LOWER(administrativeUnit.name) LIKE LOWER(:name) "
+				+ "AND administrativeUnit.section.code IN :sectionsCodes "
+				+ "AND administrativeUnit.serviceGroup.code IN :serviceGroupsCodes "
+				+ "AND administrativeUnit.functionalClassification.code IN :functionalClassificationsCodes "
+				+ "ORDER BY administrativeUnit.code ASC");
 	}
 	
 	@Override
@@ -113,8 +120,15 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 				objects = new Object[] {queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_PROGRAMS)};
 			return new Object[]{"programsCodes",objects[0]};
 		}
+		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByFilters)) {
+			if(ArrayHelper.isEmpty(objects))
+				objects = new Object[] {queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_NAME),queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_SECTION)
+						,queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_SERVICE_GROUP),queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION)};
+			objects = new Object[]{AdministrativeUnit.FIELD_NAME,"%"+StringUtils.trimToEmpty((String) objects[0])+"%"
+					,"sectionsCodes",objects[1],"serviceGroupsCodes",objects[2],"functionalClassificationsCodes",objects[3]
+					};
+			return objects;
+		}
 		return super.__getQueryParameters__(queryContext, properties, objects);
 	}
-
-	
 }

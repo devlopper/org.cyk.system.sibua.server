@@ -42,7 +42,7 @@ public class AdministrativeUnitBusinessImpl extends AbstractBusinessEntityImpl<A
 
 	private void __setOrderNumberAndCode__(AdministrativeUnit administrativeUnit) {
 		if(administrativeUnit.getServiceGroup().getCode().equals(ServiceGroup.CODE_NOT_SET) || administrativeUnit.getServiceGroup().getCode().equals(ServiceGroup.CODE_NOT_SET))
-			administrativeUnit.setOrderNumber(RandomHelper.getNumeric(5).intValue());
+			administrativeUnit.setOrderNumber(RandomHelper.getNumeric(10).intValue());
 		else
 			administrativeUnit.setOrderNumber(__persistence__.readMaxOrderNumberByServiceGroupCodeByFunctionalClassificationCode(administrativeUnit.getServiceGroup().getCode()
 				, administrativeUnit.getFunctionalClassification().getCode(), properties)+1);

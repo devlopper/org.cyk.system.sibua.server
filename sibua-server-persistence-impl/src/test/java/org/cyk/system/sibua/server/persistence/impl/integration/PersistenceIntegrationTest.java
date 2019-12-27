@@ -3,6 +3,7 @@ package org.cyk.system.sibua.server.persistence.impl.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.cyk.system.sibua.server.persistence.api.ActionPersistence;
@@ -16,6 +17,7 @@ import org.cyk.system.sibua.server.persistence.api.LocalisationPersistence;
 import org.cyk.system.sibua.server.persistence.api.ProgramPersistence;
 import org.cyk.system.sibua.server.persistence.api.SectionPersistence;
 import org.cyk.system.sibua.server.persistence.api.ServiceGroupPersistence;
+import org.cyk.system.sibua.server.persistence.api.TitlePersistence;
 import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitByPrograms;
 import org.cyk.system.sibua.server.persistence.entities.Action;
 import org.cyk.system.sibua.server.persistence.entities.Activity;
@@ -28,7 +30,10 @@ import org.cyk.system.sibua.server.persistence.entities.Localisation;
 import org.cyk.system.sibua.server.persistence.entities.Program;
 import org.cyk.system.sibua.server.persistence.entities.Section;
 import org.cyk.system.sibua.server.persistence.entities.ServiceGroup;
+import org.cyk.system.sibua.server.persistence.entities.Title;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
+import org.cyk.utility.__kernel__.properties.Properties;
+import org.cyk.utility.server.persistence.query.filter.Filter;
 import org.cyk.utility.server.persistence.test.arquillian.AbstractPersistenceArquillianIntegrationTestWithDefaultDeployment;
 import org.junit.Test;
 
@@ -214,11 +219,13 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 		assertThat(readAdministrativeUnitByPrograms.readByProgramsCodes("3")).isEmpty();
 	}
 	
-	@Test
+	//@Test
 	public void readWhereDestinationDoesNotExistBySectionsCodes() throws Exception{
 		userTransaction.begin();
 		__inject__(SectionPersistence.class).createMany(CollectionHelper.listOf(new Section().setCode("1").setName("1"),new Section().setCode("2").setName("1")
 				,new Section().setCode("3").setName("1")));
+		__inject__(TitlePersistence.class).createMany(CollectionHelper.listOf(new Title().setCode("1").setName("1"),new Title().setCode("2").setName("1")
+				,new Title().setCode("3").setName("1")));
 		
 		__inject__(ServiceGroupPersistence.class).create(new ServiceGroup().setCode("1").setName("1"));
 		__inject__(FunctionalClassificationPersistence.class).create(new FunctionalClassification().setCode("1").setName("1"));
@@ -230,9 +237,11 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 		__inject__(AdministrativeUnitPersistence.class).create(new AdministrativeUnit().setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1")
 				.setLocalisationFromCode("1").setSectionFromCode("1").setCode("3").setName("1").setOrderNumber(3));
 		
-		__inject__(DestinationPersistence.class).createMany(CollectionHelper.listOf(new Destination().setCode("1").setName("1").setSectionFromCode("1")
-				,new Destination().setCode("2").setName("1").setSectionFromCode("1"),new Destination().setCode("3").setName("1").setSectionFromCode("1")
-				,new Destination().setCode("4").setName("1").setSectionFromCode("1"),new Destination().setCode("5").setName("1").setSectionFromCode("1")));
+		__inject__(DestinationPersistence.class).createMany(CollectionHelper.listOf(new Destination().setCode("1").setName("1").setSectionFromCode("1").setTitleFromCode("1")
+				,new Destination().setCode("2").setName("1").setSectionFromCode("1").setTitleFromCode("1")
+				,new Destination().setCode("3").setName("1").setSectionFromCode("1").setTitleFromCode("1")
+				,new Destination().setCode("4").setName("1").setSectionFromCode("1").setTitleFromCode("1")
+				,new Destination().setCode("5").setName("1").setSectionFromCode("1").setTitleFromCode("1")));
 		userTransaction.commit();
 		
 		assertThat(__inject__(DestinationPersistence.class).readWhereAdministrativeUnitDoesNotExistBySectionsCodes("1").stream().map(Destination::getCode)
@@ -268,5 +277,56 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 		assertThat(__inject__(DestinationPersistence.class).readWhereAdministrativeUnitDoesNotExistBySectionsCodes("1")).isEmpty();
 		assertThat(__inject__(DestinationPersistence.class).readWhereAdministrativeUnitDoesNotExistBySectionsCodes("2")).isEmpty();
 		assertThat(__inject__(DestinationPersistence.class).readWhereAdministrativeUnitDoesNotExistBySectionsCodes("3")).isEmpty();
+	}
+	
+	@Test
+	public void readByFilter_administrativeUnit() throws Exception{
+		userTransaction.begin();
+		__inject__(SectionPersistence.class).create(new Section().setCode("1").setName("1"));
+		__inject__(ServiceGroupPersistence.class).create(new ServiceGroup().setCode("1").setName("1"));
+		__inject__(FunctionalClassificationPersistence.class).create(new FunctionalClassification().setCode("1").setName("1"));
+		__inject__(LocalisationPersistence.class).create(new Localisation().setCode("1").setName("1"));
+		__inject__(AdministrativeUnitPersistence.class).createMany(List.of(
+				new AdministrativeUnit().setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1").setLocalisationFromCode("1").setSectionFromCode("1").setCode("1")
+					.setName("Alice").setOrderNumber(1)
+				,new AdministrativeUnit().setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1").setLocalisationFromCode("1").setSectionFromCode("1").setCode("2")
+				.setName("Paul").setOrderNumber(2)
+				,new AdministrativeUnit().setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1").setLocalisationFromCode("1").setSectionFromCode("1").setCode("3")
+				.setName("Jean-Yves").setOrderNumber(3)
+				,new AdministrativeUnit().setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1").setLocalisationFromCode("1").setSectionFromCode("1").setCode("4")
+				.setName("Komenan").setOrderNumber(4)
+				,new AdministrativeUnit().setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1").setLocalisationFromCode("1").setSectionFromCode("1").setCode("5")
+				.setName("Komenan Yao Chrsitian").setOrderNumber(5)
+					));
+		userTransaction.commit();
+		
+		__assertReadByFilter__(null, 5l, new String[] {"Alice","Paul","Jean-Yves","Komenan","Komenan Yao Chrsitian"});
+		__assertReadByFilter__("", 5l, new String[] {"Alice","Paul","Jean-Yves","Komenan","Komenan Yao Chrsitian"});
+		__assertReadByFilter__(" ", 5l, new String[] {"Alice","Paul","Jean-Yves","Komenan","Komenan Yao Chrsitian"});
+		__assertReadByFilter__("   ", 5l, new String[] {"Alice","Paul","Jean-Yves","Komenan","Komenan Yao Chrsitian"});
+		__assertReadByFilter__("y", 2l, new String[] {"Jean-Yves","Komenan Yao Chrsitian"});
+		__assertReadByFilter__("ya", 1l, new String[] {"Komenan Yao Chrsitian"});
+		__assertReadByFilter__("kom", 2l, new String[] {"Komenan","Komenan Yao Chrsitian"});
+		__assertReadByFilter__("YVES", 1l, new String[] {"Jean-Yves"});
+		__assertReadByFilter__("123", 0l, new String[] {});
+	}
+	
+	private void __assertReadByFilter__(String name,Long expectedCount,String[] expectedNames) {
+		assertThat(__inject__(AdministrativeUnitPersistence.class).count(new Properties().
+				setQueryIdentifier(AdministrativeUnitPersistence.COUNT_BY_FILTERS).setQueryFilters(__inject__(Filter.class).addField(AdministrativeUnit.FIELD_NAME, name)
+						.addField(AdministrativeUnit.FIELD_SECTION, List.of("1"))
+						.addField(AdministrativeUnit.FIELD_SERVICE_GROUP, List.of("1"))
+						.addField(AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION, List.of("1"))
+						))).isEqualTo(expectedCount);
+		
+		Collection<AdministrativeUnit> administrativeUnits = __inject__(AdministrativeUnitPersistence.class).read(new Properties().
+				setQueryIdentifier(AdministrativeUnitPersistence.READ_BY_FILTERS).setQueryFilters(__inject__(Filter.class).addField(AdministrativeUnit.FIELD_NAME, name)
+						.addField(AdministrativeUnit.FIELD_SECTION, List.of("1"))
+						.addField(AdministrativeUnit.FIELD_SERVICE_GROUP, List.of("1"))
+						.addField(AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION, List.of("1"))
+						));
+		
+		assertThat(administrativeUnits).hasSize(expectedNames.length);
+		assertThat(administrativeUnits.stream().map(AdministrativeUnit::getName).collect(Collectors.toList())).containsExactlyInAnyOrder(expectedNames);
 	}
 }
