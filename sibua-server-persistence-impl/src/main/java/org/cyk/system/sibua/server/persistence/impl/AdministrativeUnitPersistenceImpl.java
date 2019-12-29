@@ -20,6 +20,7 @@ import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitHierarchy;
 import org.cyk.utility.__kernel__.array.ArrayHelper;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
+import org.cyk.utility.__kernel__.constant.ConstantEmpty;
 import org.cyk.utility.__kernel__.properties.Properties;
 import org.cyk.utility.server.persistence.AbstractPersistenceEntityImpl;
 import org.cyk.utility.server.persistence.PersistenceFunctionReader;
@@ -43,7 +44,9 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 		addQuery(readMaxOrderNumberByServiceGroupCodeByFunctionalClassificationCode, "SELECT MAX(administrativeUnit.orderNumber) FROM AdministrativeUnit administrativeUnit "
 				+ "WHERE administrativeUnit.serviceGroup.code = :serviceGroupCode AND administrativeUnit.functionalClassification.code = :functionalClassificationCode",Integer.class);
 		addQueryCollectInstances(readByFilters, "SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit "
-				+ "WHERE LOWER(administrativeUnit.name) LIKE LOWER(:name) "
+				+ "WHERE "
+				+ "administrativeUnit.code NOT IN :codes "
+				+ "AND LOWER(administrativeUnit.name) LIKE LOWER(:name) "
 				+ "AND administrativeUnit.section.code IN :sectionsCodes "
 				+ "AND administrativeUnit.serviceGroup.code IN :serviceGroupsCodes "
 				+ "AND administrativeUnit.functionalClassification.code IN :functionalClassificationsCodes "
@@ -122,11 +125,17 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 		}
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByFilters)) {
 			if(ArrayHelper.isEmpty(objects))
-				objects = new Object[] {queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_NAME),queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_SECTION)
-						,queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_SERVICE_GROUP),queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION)};
+				objects = new Object[] {queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_NAME)
+						,queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_SECTION)
+						,queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_SERVICE_GROUP)
+						,queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION)
+						,queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_CODE) == null ? ConstantEmpty.STRINGS_WITH_ONE_ELEMENT : queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_CODE)
+						};
 			objects = new Object[]{AdministrativeUnit.FIELD_NAME,"%"+StringUtils.trimToEmpty((String) objects[0])+"%"
 					,"sectionsCodes",objects[1],"serviceGroupsCodes",objects[2],"functionalClassificationsCodes",objects[3]
+							,"codes",objects[4]
 					};
+			//System.out.println("AdministrativeUnitPersistenceImpl.__getQueryParameters__() : "+Arrays.deepToString(objects));
 			return objects;
 		}
 		return super.__getQueryParameters__(queryContext, properties, objects);
