@@ -13,4 +13,7 @@ public interface AdministrativeUnitPersistence extends PersistenceEntity<Adminis
 	
 	String READ_BY_FILTERS = QueryIdentifierBuilder.getInstance().build(AdministrativeUnit.class,"readByFilters");
 	String COUNT_BY_FILTERS = QueryIdentifierBuilder.getInstance().build(AdministrativeUnit.class,"countByFilters");
+	
+	String READ_BY_SECTIONS_CODES = QueryIdentifierBuilder.getInstance().build(AdministrativeUnit.class,"readBySectionsCodes");
+	String COUNT_BY_SECTIONS_CODES = QueryIdentifierBuilder.getInstance().build(AdministrativeUnit.class,"countBySectionsCodes");
 }
