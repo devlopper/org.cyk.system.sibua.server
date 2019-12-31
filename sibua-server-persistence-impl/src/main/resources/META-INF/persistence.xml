@@ -3,9 +3,16 @@
     <persistence-unit name="sibuaPersistenceUnit" transaction-type="JTA">
     	<jta-data-source>${data.source.jndi.name}</jta-data-source>
     	<exclude-unlisted-classes>true</exclude-unlisted-classes>
+    	<class>org.cyk.system.sibua.server.persistence.entities.FunctionType</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.Function</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.User</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.UserFile</class>
+    	
     	<class>org.cyk.system.sibua.server.persistence.entities.Title</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.ActivityDestination</class>
+    	<!--
     	<class>org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitFromDestination</class>
+    	-->
     	<class>org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitDestination</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.Destination</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.ServiceGroup</class>

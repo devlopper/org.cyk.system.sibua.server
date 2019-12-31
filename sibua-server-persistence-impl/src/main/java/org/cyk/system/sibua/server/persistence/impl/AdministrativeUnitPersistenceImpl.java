@@ -1,7 +1,9 @@
 package org.cyk.system.sibua.server.persistence.impl;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.EntityManager;
@@ -12,12 +14,18 @@ import org.cyk.system.sibua.server.persistence.api.ActivityPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitHierarchyPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitPersistence;
 import org.cyk.system.sibua.server.persistence.api.DestinationPersistence;
+import org.cyk.system.sibua.server.persistence.api.FunctionalClassificationPersistence;
+import org.cyk.system.sibua.server.persistence.api.SectionPersistence;
+import org.cyk.system.sibua.server.persistence.api.ServiceGroupPersistence;
 import org.cyk.system.sibua.server.persistence.api.query.ReadActivityByAdministrativeUnits;
 import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitByPrograms;
 import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitBySections;
 import org.cyk.system.sibua.server.persistence.api.query.ReadDestinationByAdministrativeUnits;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitHierarchy;
+import org.cyk.system.sibua.server.persistence.entities.FunctionalClassification;
+import org.cyk.system.sibua.server.persistence.entities.Section;
+import org.cyk.system.sibua.server.persistence.entities.ServiceGroup;
 import org.cyk.utility.__kernel__.array.ArrayHelper;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.constant.ConstantEmpty;
@@ -30,7 +38,7 @@ import org.cyk.utility.server.persistence.query.PersistenceQueryContext;
 public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntityImpl<AdministrativeUnit> implements AdministrativeUnitPersistence,ReadAdministrativeUnitBySections,ReadAdministrativeUnitByPrograms,Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private String readBySectionsCodes,readByProgramsCodes,readMaxOrderNumberByServiceGroupCodeByFunctionalClassificationCode,readByFilters;
+	private String readBySectionsCodes,readByProgramsCodes,readMaxOrderNumberByServiceGroupCodeByFunctionalClassificationCode,readByFilters,readWhereCodeNotInByFilters;
 	
 	@Override
 	protected void __listenPostConstructPersistenceQueries__() {
@@ -43,7 +51,28 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 				+ "ORDER BY administrativeUnit.code ASC");
 		addQuery(readMaxOrderNumberByServiceGroupCodeByFunctionalClassificationCode, "SELECT MAX(administrativeUnit.orderNumber) FROM AdministrativeUnit administrativeUnit "
 				+ "WHERE administrativeUnit.serviceGroup.code = :serviceGroupCode AND administrativeUnit.functionalClassification.code = :functionalClassificationCode",Integer.class);
+		/*
 		addQueryCollectInstances(readByFilters, "SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit "
+				+ "WHERE "
+				+ "administrativeUnit.code NOT IN :codes "
+				+ "AND LOWER(administrativeUnit.name) LIKE LOWER(:name) "
+				+ "AND administrativeUnit.section.code IN :sectionsCodes "
+				+ "AND administrativeUnit.serviceGroup.code IN :serviceGroupsCodes "
+				+ "AND administrativeUnit.functionalClassification.code IN :functionalClassificationsCodes "
+				+ "ORDER BY administrativeUnit.code ASC");
+		*/
+		addQueryCollectInstances(readByFilters, 
+				"SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit "
+				+ "WHERE "
+				+ "LOWER(administrativeUnit.code) LIKE LOWER(:code) "
+				+ "AND LOWER(administrativeUnit.name) LIKE LOWER(:name) "
+				+ "AND administrativeUnit.section.code IN :sectionsCodes "
+				+ "AND administrativeUnit.serviceGroup.code IN :serviceGroupsCodes "
+				+ "AND administrativeUnit.functionalClassification.code IN :functionalClassificationsCodes "
+				+ "ORDER BY administrativeUnit.code ASC");
+		
+		addQueryCollectInstances(readWhereCodeNotInByFilters, 
+				"SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit "
 				+ "WHERE "
 				+ "administrativeUnit.code NOT IN :codes "
 				+ "AND LOWER(administrativeUnit.name) LIKE LOWER(:name) "
@@ -111,6 +140,7 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 		return super.__getQueryIdentifier__(klass, properties, objects);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected Object[] __getQueryParameters__(PersistenceQueryContext queryContext, Properties properties,Object... objects) {
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readBySectionsCodes)) {
@@ -123,6 +153,7 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 				objects = new Object[] {queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_PROGRAMS)};
 			return new Object[]{"programsCodes",objects[0]};
 		}
+		/*
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByFilters)) {
 			if(ArrayHelper.isEmpty(objects))
 				objects = new Object[] {queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_NAME)
@@ -138,6 +169,103 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 			//System.out.println("AdministrativeUnitPersistenceImpl.__getQueryParameters__() : "+Arrays.deepToString(objects));
 			return objects;
 		}
+		*/
+		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByFilters)) {
+			if(ArrayHelper.isEmpty(objects)) {
+				Object code = null;
+				org.cyk.utility.server.persistence.query.filter.Field codeField = queryContext.getFilterFieldByKeys(AdministrativeUnit.FIELD_CODE);				
+				if(codeField == null || codeField.getValue() == null || codeField.getValue() instanceof String) {
+					code = "%"+(codeField == null ? ConstantEmpty.STRING : StringUtils.trimToEmpty((String) codeField.getValue()))+"%";
+				}else if(codeField.getValue() instanceof Collection) {
+					code = codeField.getValue();
+				}
+								
+				Object name = null;
+				org.cyk.utility.server.persistence.query.filter.Field nameField = queryContext.getFilterFieldByKeys(AdministrativeUnit.FIELD_NAME);				
+				if(nameField == null || nameField.getValue() == null || nameField.getValue() instanceof String) {
+					name = "%"+(nameField == null ? ConstantEmpty.STRING : StringUtils.trimToEmpty((String) nameField.getValue()))+"%";
+				}			
+				
+				Collection<String> sectionsCodes = (Collection<String>) queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_SECTION);
+				if(CollectionHelper.isEmpty(sectionsCodes)) {
+					if(sectionsCodes == null)
+						sectionsCodes = new ArrayList<>();
+					sectionsCodes.addAll(__inject__(SectionPersistence.class).read().stream().map(Section::getCode).collect(Collectors.toList()));
+				}
+				
+				Collection<String> functionalClassificationsCodes = (Collection<String>) queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION);
+				if(CollectionHelper.isEmpty(functionalClassificationsCodes)) {
+					if(functionalClassificationsCodes == null)
+						functionalClassificationsCodes = new ArrayList<>();
+					functionalClassificationsCodes.addAll(__inject__(FunctionalClassificationPersistence.class).read().stream().map(FunctionalClassification::getCode).collect(Collectors.toList()));
+				}
+
+				Collection<String> serviceGroupsCodes = (Collection<String>) queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_SERVICE_GROUP);
+				if(CollectionHelper.isEmpty(serviceGroupsCodes)) {
+					if(serviceGroupsCodes == null)
+						serviceGroupsCodes = new ArrayList<>();
+					serviceGroupsCodes.addAll(__inject__(ServiceGroupPersistence.class).read().stream().map(ServiceGroup::getCode).collect(Collectors.toList()));
+				}
+				
+				objects = new Object[] {code,name,sectionsCodes,functionalClassificationsCodes,serviceGroupsCodes};
+			}
+			
+			objects = new Object[]{AdministrativeUnit.FIELD_CODE,objects[0],AdministrativeUnit.FIELD_NAME,objects[1]
+					,"sectionsCodes",objects[2],"functionalClassificationsCodes",objects[3],"serviceGroupsCodes",objects[4]};
+			//System.out.println("AdministrativeUnitPersistenceImpl.__getQueryParameters__() : "+java.util.Arrays.deepToString(objects));
+			return objects;
+		}
+		
+		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readWhereCodeNotInByFilters)) {
+			if(ArrayHelper.isEmpty(objects)) {
+				Object code = null;
+				org.cyk.utility.server.persistence.query.filter.Field codeField = queryContext.getFilterFieldByKeys(AdministrativeUnit.FIELD_CODE);				
+				if(codeField == null || codeField.getValue() == null) {
+					code = ConstantEmpty.STRINGS_WITH_ONE_ELEMENT;
+				}else if(codeField.getValue() instanceof Collection) {
+					code = codeField.getValue();
+					if(CollectionHelper.isEmpty((Collection<?>) code))
+						code = ConstantEmpty.STRINGS_WITH_ONE_ELEMENT;
+				}
+								
+				Object name = null;
+				org.cyk.utility.server.persistence.query.filter.Field nameField = queryContext.getFilterFieldByKeys(AdministrativeUnit.FIELD_NAME);				
+				if(nameField == null || nameField.getValue() == null || nameField.getValue() instanceof String) {
+					name = "%"+(nameField == null ? ConstantEmpty.STRING : StringUtils.trimToEmpty((String) nameField.getValue()))+"%";
+				}			
+				
+				Collection<String> sectionsCodes = (Collection<String>) queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_SECTION);
+				if(CollectionHelper.isEmpty(sectionsCodes)) {
+					if(sectionsCodes == null)
+						sectionsCodes = new ArrayList<>();
+					sectionsCodes.addAll(__inject__(SectionPersistence.class).read().stream().map(Section::getCode).collect(Collectors.toList()));
+				}
+				
+				Collection<String> functionalClassificationsCodes = (Collection<String>) queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION);
+				if(CollectionHelper.isEmpty(functionalClassificationsCodes)) {
+					if(functionalClassificationsCodes == null)
+						functionalClassificationsCodes = new ArrayList<>();
+					functionalClassificationsCodes.addAll(__inject__(FunctionalClassificationPersistence.class).read().stream().map(FunctionalClassification::getCode).collect(Collectors.toList()));
+				}
+
+				Collection<String> serviceGroupsCodes = (Collection<String>) queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_SERVICE_GROUP);
+				if(CollectionHelper.isEmpty(serviceGroupsCodes)) {
+					if(serviceGroupsCodes == null)
+						serviceGroupsCodes = new ArrayList<>();
+					serviceGroupsCodes.addAll(__inject__(ServiceGroupPersistence.class).read().stream().map(ServiceGroup::getCode).collect(Collectors.toList()));
+				}
+				
+				objects = new Object[] {code,name,sectionsCodes,functionalClassificationsCodes,serviceGroupsCodes};
+			}
+			
+			objects = new Object[]{"codes",objects[0],AdministrativeUnit.FIELD_NAME,objects[1]
+					,"sectionsCodes",objects[2],"functionalClassificationsCodes",objects[3],"serviceGroupsCodes",objects[4]};
+			//System.out.println("AdministrativeUnitPersistenceImpl.__getQueryParameters__() : "+java.util.Arrays.deepToString(objects));
+			return objects;
+		}
+		
 		return super.__getQueryParameters__(queryContext, properties, objects);
 	}
+	
+	
 }

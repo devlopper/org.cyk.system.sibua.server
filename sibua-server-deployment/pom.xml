@@ -36,6 +36,24 @@
 	
 	<profiles>
 		<profile>
+			<id>wildfly.10.3.111.91</id>
+			<properties>
+				<wildfly.hostname>10.3.111.91</wildfly.hostname>
+				<wildfly.username>dgbf</wildfly.username>
+				<wildfly.password>dgbf</wildfly.password>
+			</properties>
+		</profile>
+		
+		<profile>
+			<id>wildfly.10.3.4.37</id>
+			<properties>
+				<wildfly.hostname>10.3.4.37</wildfly.hostname>
+				<wildfly.username>dgbf</wildfly.username>
+				<wildfly.password>dgbf</wildfly.password>
+			</properties>
+		</profile>
+		
+		<profile>
 			<id>deployment.common</id>
 			<properties>
 				<cyk.variable.system.name>Module de gestion des unités administratives</cyk.variable.system.name>

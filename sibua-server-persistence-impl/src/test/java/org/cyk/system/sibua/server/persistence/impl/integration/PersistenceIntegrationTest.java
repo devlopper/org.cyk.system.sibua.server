@@ -300,23 +300,34 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 					));
 		userTransaction.commit();
 		
-		__assertReadByFilter__(null, 5l, new String[] {"Alice","Paul","Jean-Yves","Komenan","Komenan Yao Chrsitian"});
-		__assertReadByFilter__("", 5l, new String[] {"Alice","Paul","Jean-Yves","Komenan","Komenan Yao Chrsitian"});
-		__assertReadByFilter__(" ", 5l, new String[] {"Alice","Paul","Jean-Yves","Komenan","Komenan Yao Chrsitian"});
-		__assertReadByFilter__("   ", 5l, new String[] {"Alice","Paul","Jean-Yves","Komenan","Komenan Yao Chrsitian"});
-		__assertReadByFilter__("y", 2l, new String[] {"Jean-Yves","Komenan Yao Chrsitian"});
-		__assertReadByFilter__("ya", 1l, new String[] {"Komenan Yao Chrsitian"});
-		__assertReadByFilter__("kom", 2l, new String[] {"Komenan","Komenan Yao Chrsitian"});
-		__assertReadByFilter__("YVES", 1l, new String[] {"Jean-Yves"});
-		__assertReadByFilter__("123", 0l, new String[] {});
+		__assertReadByFilter__(null,null, 5l, new String[] {"Alice","Paul","Jean-Yves","Komenan","Komenan Yao Chrsitian"});
+		__assertReadByFilter__(null,"", 5l, new String[] {"Alice","Paul","Jean-Yves","Komenan","Komenan Yao Chrsitian"});
+		__assertReadByFilter__(null," ", 5l, new String[] {"Alice","Paul","Jean-Yves","Komenan","Komenan Yao Chrsitian"});
+		__assertReadByFilter__(null,"   ", 5l, new String[] {"Alice","Paul","Jean-Yves","Komenan","Komenan Yao Chrsitian"});
+		__assertReadByFilter__(null,"y", 2l, new String[] {"Jean-Yves","Komenan Yao Chrsitian"});
+		__assertReadByFilter__(null,"ya", 1l, new String[] {"Komenan Yao Chrsitian"});
+		__assertReadByFilter__(null,"kom", 2l, new String[] {"Komenan","Komenan Yao Chrsitian"});
+		__assertReadByFilter__(null,"YVES", 1l, new String[] {"Jean-Yves"});
+		__assertReadByFilter__(null,"123", 0l, new String[] {});
+		
+		__assertReadByFilter__("1",null, 1l, new String[] {"Alice"});
+		__assertReadByFilter__("2",null, 1l, new String[] {"Paul"});
+		__assertReadByFilter__("3",null, 1l, new String[] {"Jean-Yves"});
+		__assertReadByFilter__("4",null, 1l, new String[] {"Komenan"});
+		__assertReadByFilter__("5",null, 1l, new String[] {"Komenan Yao Chrsitian"});
+		
+		__assertReadWhereCodeNotInByFilter__(List.of("1"),null, 4l, new String[] {"Paul","Jean-Yves","Komenan","Komenan Yao Chrsitian"});
+		__assertReadWhereCodeNotInByFilter__(List.of("1","5"),null, 3l, new String[] {"Paul","Jean-Yves","Komenan"});
+		__assertReadWhereCodeNotInByFilter__(List.of("2","4"),null, 3l, new String[] {"Alice","Jean-Yves","Komenan Yao Chrsitian"});
 	}
 	
-	private void __assertReadByFilter__(String name,Long expectedCount,String[] expectedNames) {
+	private void __assertReadByFilter__(String code,String name,Long expectedCount,String[] expectedNames) {
 		assertThat(__inject__(AdministrativeUnitPersistence.class).count(new Properties().
 				setQueryIdentifier(AdministrativeUnitPersistence.COUNT_BY_FILTERS).setQueryFilters(__inject__(Filter.class).addField(AdministrativeUnit.FIELD_NAME, name)
 						.addField(AdministrativeUnit.FIELD_SECTION, List.of("1"))
 						.addField(AdministrativeUnit.FIELD_SERVICE_GROUP, List.of("1"))
 						.addField(AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION, List.of("1"))
+						.addField(AdministrativeUnit.FIELD_CODE, code)
 						))).isEqualTo(expectedCount);
 		
 		Collection<AdministrativeUnit> administrativeUnits = __inject__(AdministrativeUnitPersistence.class).read(new Properties().
@@ -324,6 +335,28 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 						.addField(AdministrativeUnit.FIELD_SECTION, List.of("1"))
 						.addField(AdministrativeUnit.FIELD_SERVICE_GROUP, List.of("1"))
 						.addField(AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION, List.of("1"))
+						.addField(AdministrativeUnit.FIELD_CODE, code)
+						));
+		
+		assertThat(administrativeUnits).hasSize(expectedNames.length);
+		assertThat(administrativeUnits.stream().map(AdministrativeUnit::getName).collect(Collectors.toList())).containsExactlyInAnyOrder(expectedNames);
+	}
+	
+	private void __assertReadWhereCodeNotInByFilter__(Collection<String> codes,String name,Long expectedCount,String[] expectedNames) {
+		assertThat(__inject__(AdministrativeUnitPersistence.class).count(new Properties().
+				setQueryIdentifier(AdministrativeUnitPersistence.COUNT_WHERE_CODE_NOT_IN_BY_FILTERS).setQueryFilters(__inject__(Filter.class).addField(AdministrativeUnit.FIELD_NAME, name)
+						.addField(AdministrativeUnit.FIELD_SECTION, List.of("1"))
+						.addField(AdministrativeUnit.FIELD_SERVICE_GROUP, List.of("1"))
+						.addField(AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION, List.of("1"))
+						.addField(AdministrativeUnit.FIELD_CODE, codes)
+						))).isEqualTo(expectedCount);
+		
+		Collection<AdministrativeUnit> administrativeUnits = __inject__(AdministrativeUnitPersistence.class).read(new Properties().
+				setQueryIdentifier(AdministrativeUnitPersistence.READ_WHERE_CODE_NOT_IN_BY_FILTERS).setQueryFilters(__inject__(Filter.class).addField(AdministrativeUnit.FIELD_NAME, name)
+						.addField(AdministrativeUnit.FIELD_SECTION, List.of("1"))
+						.addField(AdministrativeUnit.FIELD_SERVICE_GROUP, List.of("1"))
+						.addField(AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION, List.of("1"))
+						.addField(AdministrativeUnit.FIELD_CODE, codes)
 						));
 		
 		assertThat(administrativeUnits).hasSize(expectedNames.length);
