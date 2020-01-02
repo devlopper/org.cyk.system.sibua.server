@@ -6,8 +6,8 @@ import javax.enterprise.context.ApplicationScoped;
 
 import org.cyk.system.sibua.server.persistence.api.ActivityDestinationPersistence;
 import org.cyk.system.sibua.server.persistence.api.query.ReadActivityDestinationByActivities;
+import org.cyk.system.sibua.server.persistence.api.query.ReadActivityDestinationByAdministrativeUnits;
 import org.cyk.system.sibua.server.persistence.entities.ActivityDestination;
-import org.cyk.utility.__kernel__.array.ArrayHelper;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.properties.Properties;
 import org.cyk.utility.server.persistence.AbstractPersistenceEntityImpl;
@@ -15,15 +15,18 @@ import org.cyk.utility.server.persistence.PersistenceFunctionReader;
 import org.cyk.utility.server.persistence.query.PersistenceQueryContext;
 
 @ApplicationScoped
-public class ActivityDestinationPersistenceImpl extends AbstractPersistenceEntityImpl<ActivityDestination> implements ActivityDestinationPersistence,ReadActivityDestinationByActivities,Serializable {
+public class ActivityDestinationPersistenceImpl extends AbstractPersistenceEntityImpl<ActivityDestination> implements ActivityDestinationPersistence,ReadActivityDestinationByAdministrativeUnits,ReadActivityDestinationByActivities,Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private String readByActivitiesCodes;
+	private String readByActivitiesCodes,readByAdministrativeUnitsCodes;
 	
 	@Override
 	protected void __listenPostConstructPersistenceQueries__() {
 		super.__listenPostConstructPersistenceQueries__();
 		addQueryCollectInstances(readByActivitiesCodes, "SELECT activityDestination FROM ActivityDestination activityDestination WHERE activityDestination.activity.code IN :activitiesCodes");
+		addQueryCollectInstances(readByAdministrativeUnitsCodes, "SELECT activityDestination FROM ActivityDestination activityDestination WHERE "
+				+ "EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activityDestination.activity "
+				+ "AND administrativeUnitActivity.administrativeUnit.code IN :administrativeUnitsCodes)");
 	}
 	
 	@Override
@@ -33,6 +36,16 @@ public class ActivityDestinationPersistenceImpl extends AbstractPersistenceEntit
 		if(properties == null)
 			properties = new Properties();
 		properties.setIfNull(Properties.QUERY_IDENTIFIER, readByActivitiesCodes);
+		return __readMany__(properties, ____getQueryParameters____(properties,codes));
+	}
+	
+	@Override
+	public Collection<ActivityDestination> readByAdministrativeUnitsCodes(Collection<String> codes,Properties properties) {
+		if(CollectionHelper.isEmpty(codes))
+			return null;
+		if(properties == null)
+			properties = new Properties();
+		properties.setIfNull(Properties.QUERY_IDENTIFIER, readByAdministrativeUnitsCodes);
 		return __readMany__(properties, ____getQueryParameters____(properties,codes));
 	}
 
@@ -48,9 +61,10 @@ public class ActivityDestinationPersistenceImpl extends AbstractPersistenceEntit
 	@Override
 	protected Object[] __getQueryParameters__(PersistenceQueryContext queryContext, Properties properties,Object... objects) {
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByActivitiesCodes)) {
-			if(ArrayHelper.isEmpty(objects))
-				objects = new Object[] {queryContext.getFilterByKeysValue(ActivityDestination.FIELD_ACTIVITY)};
 			return new Object[]{"activitiesCodes",objects[0]};
+		}
+		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByAdministrativeUnitsCodes)) {
+			return new Object[]{"administrativeUnitsCodes",objects[0]};
 		}
 		return super.__getQueryParameters__(queryContext, properties, objects);
 	}

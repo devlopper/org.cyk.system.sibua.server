@@ -104,6 +104,7 @@ public class AdministrativeUnit extends AbstractIdentifiableSystemScalarStringId
 	public static final String FIELD_PROGRAMS = "programs";
 	public static final String FIELD_DESTINATIONS = "destinations";
 	public static final String FIELD_PARENT = "parent";
+	public static final String FIELD_ACTIVITY_DESTINATIONS = "activityDestinations";
 	
 	public static final String COLUMN_SECTION = Section.TABLE_NAME;	
 	public static final String COLUMN_SERVICE_GROUP = ServiceGroup.TABLE_NAME;	
