@@ -19,7 +19,7 @@ public class ExcelSheetReaderUnitTest extends AbstractWeldUnitTest {
 	public void read() throws Exception {
 		Workbook workbook = (Workbook) WorkBookGetter.getInstance().get(getClass().getResourceAsStream("Canevas Rattachement des Activités aux Unités Administratives UA vf.xls"));
 		Sheet sheet =  (Sheet) SheetGetter.getInstance().get(workbook, 0);
-		ArrayTwoDimensionString array = SheetReader.getInstance().read(workbook, sheet,__inject__(Interval.class).setLow(3),__inject__(Interval.class).setLow(1));
+		ArrayTwoDimensionString array = SheetReader.getInstance().read(workbook, sheet,__inject__(Interval.class).setLow(3),__inject__(Interval.class).setLow(1).setHigh(5));
 		/*
 		for(String[] arrayIndex : (String[][])array.getValue()) {
 			System.out.println(String.format("%1$50s |", arrayIndex[3])+String.format("%1$55s |", arrayIndex[2])+String.format("%1$9s |"

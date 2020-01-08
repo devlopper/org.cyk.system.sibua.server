@@ -1,6 +1,7 @@
 package org.cyk.system.sibua.server.persistence.entities;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.persistence.Column;
@@ -9,9 +10,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
+import org.cyk.utility.__kernel__.array.ArrayHelper;
+import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.instance.InstanceGetter;
 import org.cyk.utility.__kernel__.object.__static__.persistence.AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl;
 import org.cyk.utility.__kernel__.string.StringHelper;
@@ -23,11 +25,11 @@ import lombok.experimental.Accessors;
 
 @Getter @Setter @Accessors(chain=true) @NoArgsConstructor
 @Entity
-@Table(name=AdministrativeUnit.TABLE_NAME,
+@Table(name=AdministrativeUnit.TABLE_NAME/*,
 uniqueConstraints= {
 		@UniqueConstraint(name=AdministrativeUnit.UNIQUE_CONSTRAINT_SERVICE_GROUP_FUNCTIONAL_CLASSIFICATION_ORDER_NUMBER
 				,columnNames= {AdministrativeUnit.COLUMN_SERVICE_GROUP,AdministrativeUnit.COLUMN_FUNCTIONAL_CLASSIFICATION,AdministrativeUnit.FIELD_ORDER_NUMBER}
-		)})
+		)}*/)
 public class AdministrativeUnit extends AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -44,6 +46,14 @@ public class AdministrativeUnit extends AbstractIdentifiableSystemScalarStringId
 	@Transient private Collection<AdministrativeUnit> children;
 	@Transient private Collection<Destination> destinations;
 	@Transient private Collection<ActivityDestination> activityDestinations;
+	
+	public AdministrativeUnit(String code,String name,String sectionCode,String serviceGroupCode,String functionalClassificationCode,String localisationCode) {
+		super(code, name);
+		setSectionFromCode(sectionCode);
+		setServiceGroupFromCode(serviceGroupCode);
+		setFunctionalClassificationFromCode(functionalClassificationCode);
+		setLocalisationFromCode(localisationCode);
+	}
 	
 	@Override
 	public AdministrativeUnit setCode(String code) {
@@ -95,6 +105,30 @@ public class AdministrativeUnit extends AbstractIdentifiableSystemScalarStringId
 		return this;
 	}
 	
+	public Collection<Activity> getActivities(Boolean injectIfNull) {
+		if(activities == null && Boolean.TRUE.equals(injectIfNull))
+			activities = new ArrayList<>();
+		return this.activities;
+	}
+	
+	public AdministrativeUnit addActivitiesByCodes(Collection<String> codes) {
+		if(CollectionHelper.isEmpty(codes))
+			return this;
+		for(String code : codes) {
+			Activity activity = InstanceGetter.getInstance().getByBusinessIdentifier(Activity.class, code);
+			if(activity == null)
+				continue;
+			getActivities(Boolean.TRUE).add(activity);
+		}
+		return this;
+	}
+	
+	public AdministrativeUnit addActivitiesByCodes(String...codes) {
+		if(ArrayHelper.isEmpty(codes))
+			return this;
+		return addActivitiesByCodes(CollectionHelper.listOf(codes));
+	}
+	
 	public static final String FIELD_SECTION = "section";
 	public static final String FIELD_SERVICE_GROUP = "serviceGroup";
 	public static final String FIELD_FUNCTIONAL_CLASSIFICATION = "functionalClassification";
@@ -104,6 +138,7 @@ public class AdministrativeUnit extends AbstractIdentifiableSystemScalarStringId
 	public static final String FIELD_PROGRAMS = "programs";
 	public static final String FIELD_DESTINATIONS = "destinations";
 	public static final String FIELD_PARENT = "parent";
+	public static final String FIELD_CHILDREN = "children";
 	public static final String FIELD_ACTIVITY_DESTINATIONS = "activityDestinations";
 	
 	public static final String COLUMN_SECTION = Section.TABLE_NAME;	

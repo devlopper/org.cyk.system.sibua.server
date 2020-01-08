@@ -41,6 +41,7 @@
 				<wildfly.hostname>10.3.111.91</wildfly.hostname>
 				<wildfly.username>dgbf</wildfly.username>
 				<wildfly.password>dgbf</wildfly.password>
+				<cyk.variable.system.host>10.3.111.91</cyk.variable.system.host>
 			</properties>
 		</profile>
 		
@@ -50,6 +51,17 @@
 				<wildfly.hostname>10.3.4.37</wildfly.hostname>
 				<wildfly.username>dgbf</wildfly.username>
 				<wildfly.password>dgbf</wildfly.password>
+				<cyk.variable.system.host>10.3.4.37</cyk.variable.system.host>
+			</properties>
+		</profile>
+		
+		<profile>
+			<id>oracle.10.3.4.37</id>
+			<properties>
+				<data.base.management.system.host>10.3.4.37</data.base.management.system.host>
+				<data.base.management.system.sid>prodoc</data.base.management.system.sid>
+				<data.source.user>basculement</data.source.user>
+				<data.source.password>basculement</data.source.password>
 			</properties>
 		</profile>
 		
@@ -73,6 +85,16 @@
 			<properties>
 				<data.source.user>developper</data.source.user>
 				<data.source.password>developper</data.source.password>
+			</properties>
+		</profile>
+		
+		<profile>
+			<id>deployment.data.base.10.3.4.37</id>
+			<properties>
+				<data.base.management.system.host>10.3.4.37</data.base.management.system.host>
+				<data.base.management.system.sid>prodoc</data.base.management.system.sid>
+				<data.source.user>basculement</data.source.user>
+				<data.source.password>basculement</data.source.password>
 			</properties>
 		</profile>
 		

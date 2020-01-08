@@ -8,7 +8,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.validation.constraints.NotNull;
 
 import org.cyk.utility.__kernel__.instance.InstanceGetter;
 import org.cyk.utility.__kernel__.object.__static__.persistence.AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl;
@@ -24,12 +23,16 @@ import lombok.experimental.Accessors;
 public class Activity extends AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	@NotNull @ManyToOne @JoinColumn(name = COLUMN_ACTION) private Action action;
+	/*@NotNull */@ManyToOne @JoinColumn(name = COLUMN_ACTION) private Action action;
 	
 	@Transient private Section section;
 	@Transient private Program program;
 	@Transient private AdministrativeUnit administrativeUnit;
 	@Transient private Collection<Destination> destinations;
+	
+	public Activity(String code,String name) {
+		super(code,name);
+	}
 	
 	@Override
 	public Activity setCode(String code) {
@@ -58,4 +61,6 @@ public class Activity extends AbstractIdentifiableSystemScalarStringIdentifiable
 	public static final String COLUMN_ACTION = FIELD_ACTION;
 	
 	public static final String TABLE_NAME = "activite";	
+	
+	public static final String CODE_NEW_PREFIX = "NA";
 }

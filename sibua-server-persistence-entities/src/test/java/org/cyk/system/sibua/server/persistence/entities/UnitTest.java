@@ -11,9 +11,11 @@ public class UnitTest extends AbstractWeldUnitTest {
 
 	@Test
 	public void load_section_code() {
-		Pattern pattern = Pattern.compile(".*(ddd).*");
+		Pattern pattern = Pattern.compile(".*(\\d{3}).*");
 		Matcher matcher = pattern.matcher("Section: 101 Représentation Nationale");
+		matcher.find();
 		System.out.println(matcher.group(0));
+		System.out.println(matcher.group(1));
 	}
 	
 }

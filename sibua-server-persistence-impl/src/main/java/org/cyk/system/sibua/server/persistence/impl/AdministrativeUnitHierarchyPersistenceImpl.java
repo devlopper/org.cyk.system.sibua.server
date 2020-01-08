@@ -16,13 +16,15 @@ import org.cyk.utility.server.persistence.query.PersistenceQueryContext;
 public class AdministrativeUnitHierarchyPersistenceImpl extends AbstractPersistenceEntityImpl<AdministrativeUnitHierarchy> implements AdministrativeUnitHierarchyPersistence,Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private String readByParentCodeByChildCode,readWhereIsChildByChildrenCodes;
+	private String readByParentCodeByChildCode,readWhereIsChildByChildrenCodes,readWhereIsParentByParentsCodes;
 	
 	@Override
 	protected void __listenPostConstructPersistenceQueries__() {
 		super.__listenPostConstructPersistenceQueries__();
 		addQueryCollectInstances(readByParentCodeByChildCode, "SELECT administrativeUnitHierarchy FROM AdministrativeUnitHierarchy administrativeUnitHierarchy "
 				+ "WHERE administrativeUnitHierarchy.parent.code = :parentCode AND administrativeUnitHierarchy.child.code = :childCode");
+		addQueryCollectInstances(readWhereIsParentByParentsCodes, "SELECT administrativeUnitHierarchy FROM AdministrativeUnitHierarchy administrativeUnitHierarchy "
+				+ "WHERE administrativeUnitHierarchy.parent.code = :parentsCodes");
 		addQueryCollectInstances(readWhereIsChildByChildrenCodes, "SELECT administrativeUnitHierarchy FROM AdministrativeUnitHierarchy administrativeUnitHierarchy "
 				+ "WHERE administrativeUnitHierarchy.child.code = :childrenCodes");
 	}
@@ -46,6 +48,16 @@ public class AdministrativeUnitHierarchyPersistenceImpl extends AbstractPersiste
 		properties.setIfNull(Properties.QUERY_IDENTIFIER, readWhereIsChildByChildrenCodes);
 		return __readMany__(properties, ____getQueryParameters____(properties,codes));
 	}
+	
+	@Override
+	public Collection<AdministrativeUnitHierarchy> readWhereIsParentByParentsCodes(Collection<String> codes,Properties properties) {
+		if(CollectionHelper.isEmpty(codes))
+			return null;
+		if(properties == null)
+			properties = new Properties();
+		properties.setIfNull(Properties.QUERY_IDENTIFIER, readWhereIsParentByParentsCodes);
+		return __readMany__(properties, ____getQueryParameters____(properties,codes));
+	}
 
 	@Override
 	protected Object[] __getQueryParameters__(PersistenceQueryContext queryContext, Properties properties,Object... objects) {
@@ -54,6 +66,9 @@ public class AdministrativeUnitHierarchyPersistenceImpl extends AbstractPersiste
 		}
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readWhereIsChildByChildrenCodes)) {
 			return new Object[]{"childrenCodes",objects[0]};
+		}
+		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readWhereIsParentByParentsCodes)) {
+			return new Object[]{"parentsCodes",objects[0]};
 		}
 		return super.__getQueryParameters__(queryContext, properties, objects);
 	}

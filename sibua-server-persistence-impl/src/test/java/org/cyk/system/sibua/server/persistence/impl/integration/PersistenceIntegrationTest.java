@@ -10,6 +10,7 @@ import org.cyk.system.sibua.server.persistence.api.ActionPersistence;
 import org.cyk.system.sibua.server.persistence.api.ActivityPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitActivityPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitDestinationPersistence;
+import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitHierarchyPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitPersistence;
 import org.cyk.system.sibua.server.persistence.api.DestinationPersistence;
 import org.cyk.system.sibua.server.persistence.api.FunctionalClassificationPersistence;
@@ -24,6 +25,7 @@ import org.cyk.system.sibua.server.persistence.entities.Activity;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitActivity;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitDestination;
+import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitHierarchy;
 import org.cyk.system.sibua.server.persistence.entities.Destination;
 import org.cyk.system.sibua.server.persistence.entities.FunctionalClassification;
 import org.cyk.system.sibua.server.persistence.entities.Localisation;
@@ -31,6 +33,7 @@ import org.cyk.system.sibua.server.persistence.entities.Program;
 import org.cyk.system.sibua.server.persistence.entities.Section;
 import org.cyk.system.sibua.server.persistence.entities.ServiceGroup;
 import org.cyk.system.sibua.server.persistence.entities.Title;
+import org.cyk.utility.__kernel__.array.ArrayHelper;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.properties.Properties;
 import org.cyk.utility.server.persistence.query.filter.Filter;
@@ -39,6 +42,58 @@ import org.junit.Test;
 
 public class PersistenceIntegrationTest extends AbstractPersistenceArquillianIntegrationTestWithDefaultDeployment {
 	private static final long serialVersionUID = 1L;
+	
+	@Test
+	public void readWhereAdministrativeUnitDoesNotExistBySectionsCodes_() throws Exception{
+		userTransaction.begin();
+		Section section = new Section().setCode("01").setName("01");
+		__inject__(SectionPersistence.class).create(section);
+		
+		Program program = new Program().setCode("01").setName("01").setSection(section);
+		__inject__(ProgramPersistence.class).create(program);
+		
+		Action action = new Action().setCode("01").setName("01").setProgram(program);
+		__inject__(ActionPersistence.class).create(action);
+		
+		ServiceGroup serviceGroup = new ServiceGroup().setCode("01").setName("01");
+		__inject__(ServiceGroupPersistence.class).create(serviceGroup);
+		FunctionalClassification functionalClassification = new FunctionalClassification().setCode("01").setName("01");
+		__inject__(FunctionalClassificationPersistence.class).create(functionalClassification);
+		Localisation localisation = new Localisation().setCode("01").setName("01");
+		__inject__(LocalisationPersistence.class).create(localisation);
+		AdministrativeUnit administrativeUnit = new AdministrativeUnit().setServiceGroup(serviceGroup).setFunctionalClassification(functionalClassification)
+				.setLocalisation(localisation).setSection(section).setCode("01").setName("01").setOrderNumber(1);
+		__inject__(AdministrativeUnitPersistence.class).create(administrativeUnit);
+		userTransaction.commit();
+		
+		Collection<Activity> activities = __inject__(ActivityPersistence.class).readWhereAdministrativeUnitDoesNotExistBySectionsCodes("01");
+		assertThat(activities).isEmpty();
+		
+		userTransaction.begin();
+		Activity activity = new Activity().setCode("01").setName("01").setAction(action);
+		__inject__(ActivityPersistence.class).create(activity);
+		userTransaction.commit();
+		
+		activities = __inject__(ActivityPersistence.class).readWhereAdministrativeUnitDoesNotExistBySectionsCodes("01");
+		assertThat(activities).isNotNull();
+		assertThat(activities.stream().map(Activity::getCode).collect(Collectors.toList())).contains("01");
+		
+		userTransaction.begin();
+		AdministrativeUnitActivity administrativeUnitActivity = new AdministrativeUnitActivity().setAdministrativeUnit(administrativeUnit).setActivity(activity);
+		__inject__(AdministrativeUnitActivityPersistence.class).create(administrativeUnitActivity);
+		userTransaction.commit();
+		
+		activities = __inject__(ActivityPersistence.class).readWhereAdministrativeUnitDoesNotExistBySectionsCodes("01");
+		assertThat(activities).isEmpty();
+		
+		userTransaction.begin();
+		__inject__(AdministrativeUnitActivityPersistence.class).deleteAll();
+		userTransaction.commit();
+		
+		activities = __inject__(ActivityPersistence.class).readWhereAdministrativeUnitDoesNotExistBySectionsCodes("01");
+		assertThat(activities).isNotNull();
+		assertThat(activities.stream().map(Activity::getCode).collect(Collectors.toList())).contains("01");
+	}
 	
 	@Test
 	public void readWhereAdministrativeUnitDoesNotExistBySectionsCodes() throws Exception{
@@ -219,6 +274,36 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 		assertThat(readAdministrativeUnitByPrograms.readByProgramsCodes("3")).isEmpty();
 	}
 	
+	@Test
+	public void administrativeUnit_readChildren() throws Exception{
+		userTransaction.begin();
+		__inject__(ServiceGroupPersistence.class).create(new ServiceGroup().setCode("1").setName("1"));
+		__inject__(FunctionalClassificationPersistence.class).create(new FunctionalClassification().setCode("1").setName("1"));
+		__inject__(LocalisationPersistence.class).create(new Localisation().setCode("1").setName("1"));		
+		__inject__(SectionPersistence.class).create(new Section().setCode("1").setName("1"));
+		
+		__inject__(AdministrativeUnitPersistence.class).createMany(List.of(
+				new AdministrativeUnit("1","1","1","1","1","1").setOrderNumber(1),new AdministrativeUnit("2","1","1","1","1","1").setOrderNumber(2)
+				,new AdministrativeUnit("3","1","1","1","1","1").setOrderNumber(3),new AdministrativeUnit("4","1","1","1","1","1").setOrderNumber(4)
+				,new AdministrativeUnit("5","1","1","1","1","1").setOrderNumber(5),new AdministrativeUnit("6","1","1","1","1","1").setOrderNumber(6)
+				));
+		userTransaction.commit();
+		
+		assertThat(__inject__(AdministrativeUnitPersistence.class).count(new Properties().setQueryIdentifier(AdministrativeUnitPersistence.COUNT_CHILDREN_BY_CODES)
+				.setQueryFilters(__inject__(Filter.class).addField(AdministrativeUnit.FIELD_CODE, List.of("1"))))).isEqualTo(0l);
+		
+		userTransaction.begin();
+		__inject__(AdministrativeUnitHierarchyPersistence.class).createMany(List.of(
+				new AdministrativeUnitHierarchy("1","2"),new AdministrativeUnitHierarchy("1","3"),new AdministrativeUnitHierarchy("1","4")
+				));
+		userTransaction.commit();
+		
+		assertThat(__inject__(AdministrativeUnitPersistence.class).count(new Properties().setQueryIdentifier(AdministrativeUnitPersistence.COUNT_CHILDREN_BY_CODES)
+				.setQueryFilters(__inject__(Filter.class).addField(AdministrativeUnit.FIELD_CODE, List.of("1"))))).isEqualTo(3l);
+		assertThat(__inject__(AdministrativeUnitPersistence.class).count(new Properties().setQueryIdentifier(AdministrativeUnitPersistence.COUNT_CHILDREN_BY_CODES)
+				.setQueryFilters(__inject__(Filter.class).addField(AdministrativeUnit.FIELD_CODE, List.of("2"))))).isEqualTo(0l);		
+	}
+	
 	//@Test
 	public void readWhereDestinationDoesNotExistBySectionsCodes() throws Exception{
 		userTransaction.begin();
@@ -319,6 +404,42 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 		__assertReadWhereCodeNotInByFilter__(List.of("1"),null, 4l, new String[] {"Paul","Jean-Yves","Komenan","Komenan Yao Chrsitian"});
 		__assertReadWhereCodeNotInByFilter__(List.of("1","5"),null, 3l, new String[] {"Paul","Jean-Yves","Komenan"});
 		__assertReadWhereCodeNotInByFilter__(List.of("2","4"),null, 3l, new String[] {"Alice","Jean-Yves","Komenan Yao Chrsitian"});
+	}
+	
+	@Test
+	public void serviceGroup_readWhereBusinessIdentifierOrNameContains() throws Exception{
+		userTransaction.begin();
+		__inject__(ServiceGroupPersistence.class).createMany(List.of(
+			new ServiceGroup().setCode("codeabcd01").setName("nameabcd01")
+			,new ServiceGroup().setCode("codeabcd02").setName("nameabcd02")
+			,new ServiceGroup().setCode("codeabcd03").setName("nameabcd03")
+			,new ServiceGroup().setCode("codeabcd04").setName("nameabcd04")
+			,new ServiceGroup().setCode("codeabcd05").setName("nameabcd05")
+		));
+		userTransaction.commit();
+		__assertServiceGroupReadWhereBusinessIdentifierOrNameContains__(null, new String[] {"codeabcd01","codeabcd02","codeabcd03","codeabcd04","codeabcd05"});
+		__assertServiceGroupReadWhereBusinessIdentifierOrNameContains__("", new String[] {"codeabcd01","codeabcd02","codeabcd03","codeabcd04","codeabcd05"});
+		__assertServiceGroupReadWhereBusinessIdentifierOrNameContains__("c", new String[] {"codeabcd01","codeabcd02","codeabcd03","codeabcd04","codeabcd05"});
+		__assertServiceGroupReadWhereBusinessIdentifierOrNameContains__("code", new String[] {"codeabcd01","codeabcd02","codeabcd03","codeabcd04","codeabcd05"});
+		__assertServiceGroupReadWhereBusinessIdentifierOrNameContains__("n", new String[] {"codeabcd01","codeabcd02","codeabcd03","codeabcd04","codeabcd05"});
+		__assertServiceGroupReadWhereBusinessIdentifierOrNameContains__("name", new String[] {"codeabcd01","codeabcd02","codeabcd03","codeabcd04","codeabcd05"});
+		__assertServiceGroupReadWhereBusinessIdentifierOrNameContains__("01", new String[] {"codeabcd01"});
+		__assertServiceGroupReadWhereBusinessIdentifierOrNameContains__("02", new String[] {"codeabcd02"});
+	}
+	
+	private void __assertServiceGroupReadWhereBusinessIdentifierOrNameContains__(String string,String[] expectedCodes) {
+		assertThat(__inject__(ServiceGroupPersistence.class).count(new Properties().
+				setQueryIdentifier(ServiceGroupPersistence.COUNT_WHERE_CODE_OR_NAME_CONTAINS).setQueryFilters(__inject__(Filter.class).addField(ServiceGroup.FIELD_CODE, string)
+						.addField(ServiceGroup.FIELD_NAME, string)
+						))).isEqualTo(Long.valueOf(ArrayHelper.getSize(expectedCodes)));
+		
+		Collection<ServiceGroup> serviceGroups = __inject__(ServiceGroupPersistence.class).read(new Properties().
+				setQueryIdentifier(ServiceGroupPersistence.READ_WHERE_CODE_OR_NAME_CONTAINS).setQueryFilters(__inject__(Filter.class).addField(ServiceGroup.FIELD_CODE, string)
+						.addField(ServiceGroup.FIELD_NAME, string)
+						));
+		
+		assertThat(serviceGroups).hasSize(ArrayHelper.getSize(expectedCodes));
+		assertThat(serviceGroups.stream().map(ServiceGroup::getCode).collect(Collectors.toList())).containsExactlyInAnyOrder(expectedCodes);
 	}
 	
 	private void __assertReadByFilter__(String code,String name,Long expectedCount,String[] expectedNames) {

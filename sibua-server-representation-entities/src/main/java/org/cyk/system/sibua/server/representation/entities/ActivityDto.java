@@ -14,6 +14,7 @@ import lombok.experimental.Accessors;
 public class ActivityDto extends AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	private ActionDto action;
 	private SectionDto section;
 	private AdministrativeUnitDto administrativeUnit;
 	private ArrayList<DestinationDto> destinations;

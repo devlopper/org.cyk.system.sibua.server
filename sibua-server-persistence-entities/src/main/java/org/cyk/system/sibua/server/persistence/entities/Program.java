@@ -3,6 +3,7 @@ package org.cyk.system.sibua.server.persistence.entities;
 import java.io.Serializable;
 import java.util.Collection;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -25,6 +26,7 @@ public class Program extends AbstractIdentifiableSystemScalarStringIdentifiableB
 	private static final long serialVersionUID = 1L;
 
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_SECTION) private Section section;
+	@Column(name = COLUMN_BUDGET_CATEGORY_CODE) private String budgetCategoryCode;
 	
 	@Transient private Collection<AdministrativeUnit> administrativeUnits;
 	
@@ -47,9 +49,11 @@ public class Program extends AbstractIdentifiableSystemScalarStringIdentifiableB
 	}
 	
 	public static final String FIELD_SECTION = "section";
+	public static final String FIELD_BUDGET_CATEGORY_CODE = "budgetCategoryCode";
 	public static final String FIELD_ADMINISTRATIVE_UNITS = "administrativeUnits";
 	
 	public static final String COLUMN_SECTION = Section.TABLE_NAME;	
+	public static final String COLUMN_BUDGET_CATEGORY_CODE = "CATEGORYBUDGET";	
 	
 	public static final String TABLE_NAME = "programme";	
 }

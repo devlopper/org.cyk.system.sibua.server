@@ -59,6 +59,52 @@ public interface AdministrativeUnitHierarchyPersistence extends PersistenceEntit
 	
 	/**/
 	
+	Collection<AdministrativeUnitHierarchy> readWhereIsParentByParentsCodes(Collection<String> codes,Properties properties);
+	
+	default Collection<AdministrativeUnitHierarchy> readWhereIsParentByParentsCodes(Collection<String> codes) {
+		if(CollectionHelper.isEmpty(codes))
+			return null;
+		return readWhereIsParentByParentsCodes(codes,null);
+	}
+	
+	default Collection<AdministrativeUnitHierarchy> readWhereIsParentByParentsCodes(Properties properties,String...codes) {
+		if(ArrayHelper.isEmpty(codes))
+			return null;
+		return readWhereIsParentByParentsCodes(CollectionHelper.listOf(codes),properties);
+	}
+	
+	default Collection<AdministrativeUnitHierarchy> readWhereIsParentByParentsCodes(String...codes) {
+		if(ArrayHelper.isEmpty(codes))
+			return null;
+		return readWhereIsParentByParentsCodes(null,codes);
+	}
+	
+	default Collection<AdministrativeUnitHierarchy> readWhereIsParentByParents(Collection<AdministrativeUnit> administrativeUnits,Properties properties) {
+		if(CollectionHelper.isEmpty(administrativeUnits))
+			return null;
+		return readWhereIsParentByParentsCodes(administrativeUnits.stream().map(AdministrativeUnit::getCode).collect(Collectors.toList()),properties);
+	}
+	
+	default Collection<AdministrativeUnitHierarchy> readWhereIsParentByParents(Collection<AdministrativeUnit> administrativeUnits) {
+		if(CollectionHelper.isEmpty(administrativeUnits))
+			return null;
+		return readWhereIsParentByParents(administrativeUnits,null);
+	}
+	
+	default Collection<AdministrativeUnitHierarchy> readWhereIsParentByParents(Properties properties,AdministrativeUnit...administrativeUnits) {
+		if(ArrayHelper.isEmpty(administrativeUnits))
+			return null;
+		return readWhereIsParentByParents(CollectionHelper.listOf(administrativeUnits),properties);
+	}
+	
+	default Collection<AdministrativeUnitHierarchy> readWhereIsParentByParents(AdministrativeUnit...administrativeUnits) {
+		if(ArrayHelper.isEmpty(administrativeUnits))
+			return null;
+		return readWhereIsParentByParents(null,administrativeUnits);
+	}
+	
+	/**/
+	
 	AdministrativeUnitHierarchy readByParentCodeByChildCode(String parentCode,String childCode,Properties properties);
 	
 	default AdministrativeUnitHierarchy readByParentCodeByChildCode(String parentCode,String childCode) {

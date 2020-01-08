@@ -24,7 +24,7 @@ public class Destination extends AbstractIdentifiableSystemScalarStringIdentifia
 	private static final long serialVersionUID = 1L;
 
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_SECTION) private Section section;
-	@NotNull @ManyToOne @JoinColumn(name = COLUMN_TITLE) private Title title;
+	/*@NotNull*/ @ManyToOne @JoinColumn(name = COLUMN_TITLE) private Title title;
 	
 	@Transient private AdministrativeUnit administrativeUnit;
 	@Transient private Activity activity;
@@ -66,4 +66,6 @@ public class Destination extends AbstractIdentifiableSystemScalarStringIdentifia
 	public static final String COLUMN_TITLE = Title.TABLE_NAME;
 	
 	public static final String TABLE_NAME = "destination_sigbud";	
+	
+	public static final String CODE_NEW_PREFIX = "ND";
 }

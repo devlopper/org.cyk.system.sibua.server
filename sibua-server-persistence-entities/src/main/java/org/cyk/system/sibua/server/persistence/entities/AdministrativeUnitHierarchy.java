@@ -31,6 +31,11 @@ public class AdministrativeUnitHierarchy extends AbstractIdentifiableSystemScala
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_PARENT) private AdministrativeUnit parent;
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_CHILD) private AdministrativeUnit child;
 	
+	public AdministrativeUnitHierarchy(String parentCode,String childCode) {
+		setParentFromCode(parentCode);
+		setChildFromCode(childCode);
+	}
+	
 	public AdministrativeUnitHierarchy setParentFromCode(String code) {
 		if(StringHelper.isBlank(code))
 			this.parent = null;

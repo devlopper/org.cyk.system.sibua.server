@@ -23,7 +23,7 @@ public class AdministrativeUnitActivity extends AbstractIdentifiableSystemScalar
 	private static final long serialVersionUID = 1L;
 
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_ADMINISTRATIVE_UNIT) private AdministrativeUnit administrativeUnit;
-	@NotNull @ManyToOne @JoinColumn(name = COLUMN_ACTIVITY,unique = true) private Activity activity;
+	@NotNull @ManyToOne @JoinColumn(name = COLUMN_ACTIVITY) private Activity activity;
 
 	public AdministrativeUnitActivity setAdministrativeUnitFromCode(String code) {
 		if(StringHelper.isBlank(code))
