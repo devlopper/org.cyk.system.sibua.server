@@ -128,7 +128,7 @@ public class BusinessIntegrationTest extends AbstractBusinessArquillianIntegrati
 		__inject__(AdministrativeUnitBusiness.class).createMany(List.of(
 				new AdministrativeUnit("1","1","1","1","1","1"),new AdministrativeUnit("2","1","1","1","1","1"),new AdministrativeUnit("3","1","1","1","1","1")
 				));
-		__inject__(ActivityBusiness.class).createMany(List.of(new Activity("1","1"),new Activity("2","1"),new Activity("3","1"),new Activity("4","1"),new Activity("5","1")));
+		__inject__(ActivityBusiness.class).createMany(List.of(new Activity("1","1",null),new Activity("2","1",null),new Activity("3","1",null),new Activity("4","1",null),new Activity("5","1",null)));
 		AdministrativeUnit administrativeUnit = __inject__(AdministrativeUnitBusiness.class).findByBusinessIdentifier("1",new Properties().setFields(AdministrativeUnit.FIELD_ACTIVITIES));
 		assertThat(administrativeUnit.getActivities()).isEmpty();
 		administrativeUnit.addActivitiesByCodes("2");
