@@ -13,5 +13,7 @@ import lombok.experimental.Accessors;
 public class AdministrativeUnitActivityDto extends AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	private AdministrativeUnitDto administrativeUnit;
+	private ActivityDto activity;
 	
 }

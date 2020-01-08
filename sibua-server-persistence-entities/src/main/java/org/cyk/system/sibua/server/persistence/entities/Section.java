@@ -17,6 +17,10 @@ import lombok.experimental.Accessors;
 public class Section extends AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	public Section(String code,String name) {
+		super(code,name);
+	}
+	
 	@Override
 	public Section setCode(String code) {
 		return (Section) super.setCode(code);

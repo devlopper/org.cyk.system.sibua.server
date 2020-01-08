@@ -304,6 +304,40 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 				.setQueryFilters(__inject__(Filter.class).addField(AdministrativeUnit.FIELD_CODE, List.of("2"))))).isEqualTo(0l);		
 	}
 	
+	@Test
+	public void activity_readByFilters() throws Exception{
+		userTransaction.begin();
+		__inject__(ServiceGroupPersistence.class).create(new ServiceGroup().setCode("1").setName("1"));
+		__inject__(FunctionalClassificationPersistence.class).create(new FunctionalClassification().setCode("1").setName("1"));
+		__inject__(LocalisationPersistence.class).create(new Localisation().setCode("1").setName("1"));	
+		__inject__(SectionPersistence.class).createMany(List.of(new Section("1","1"),new Section("2","2")));
+		__inject__(ProgramPersistence.class).createMany(List.of(new Program("1","1","1","1"),new Program("2","1","1","1")));
+		__inject__(ActionPersistence.class).createMany(List.of(new Action("1","1","1"),new Action("2","1","1")));
+		__inject__(ActivityPersistence.class).createMany(List.of(new Activity("atv1","1","1"),new Activity("atv2","1","1"),new Activity("atv3","1","1")
+				,new Activity("atv4","1","1"),new Activity("atv5","1","1"),new Activity("atv6","1","1"),new Activity("atv7","1","1")));		
+		
+		__inject__(AdministrativeUnitPersistence.class).createMany(List.of(
+				new AdministrativeUnit("ua1","1","1","1","1","1").setOrderNumber(1),new AdministrativeUnit("ua2","1","1","1","1","1").setOrderNumber(2)
+				,new AdministrativeUnit("ua3","1","1","1","1","1").setOrderNumber(3),new AdministrativeUnit("ua4","1","1","1","1","1").setOrderNumber(4)
+				,new AdministrativeUnit("ua5","1","1","1","1","1").setOrderNumber(5),new AdministrativeUnit("ua6","1","1","1","1","1").setOrderNumber(6)
+				));
+		
+		__inject__(AdministrativeUnitActivityPersistence.class).createMany(List.of(
+				new AdministrativeUnitActivity("ua1","atv1")
+			));
+		
+		userTransaction.commit();
+		Collection<Activity> activities = null;
+		activities = __inject__(ActivityPersistence.class).read(new Properties().setQueryIdentifier(ActivityPersistence.READ_BY_FILTERS).setQueryFilters(__inject__(Filter.class)));
+		assertThat(activities.stream().map(Activity::getCode).collect(Collectors.toList())).containsExactly("atv1","atv2","atv3","atv4","atv5","atv6","atv7");
+		
+		activities = __inject__(ActivityPersistence.class).read(new Properties().setQueryIdentifier(ActivityPersistence.READ_BY_FILTERS).setQueryFilters(__inject__(Filter.class).addField(Activity.FIELD_ADMINISTRATIVE_UNIT, List.of("ua1"))));
+		assertThat(activities.stream().map(Activity::getCode).collect(Collectors.toList())).containsExactly("atv1");
+		
+		activities = __inject__(ActivityPersistence.class).read(new Properties().setQueryIdentifier(ActivityPersistence.READ_BY_FILTERS).setQueryFilters(__inject__(Filter.class).addField(Activity.FIELD_ADMINISTRATIVE_UNIT, List.of("ua2"))));
+		assertThat(activities).isEmpty();		
+	}
+	
 	//@Test
 	public void readWhereDestinationDoesNotExistBySectionsCodes() throws Exception{
 		userTransaction.begin();

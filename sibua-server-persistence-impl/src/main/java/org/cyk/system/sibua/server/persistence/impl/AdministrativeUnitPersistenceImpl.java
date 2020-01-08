@@ -265,7 +265,6 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 			objects = new Object[]{AdministrativeUnit.FIELD_CODE,objects[0],AdministrativeUnit.FIELD_NAME,objects[1]
 					,"sectionsCodes",objects[2],"functionalClassificationsCodes",objects[3],"serviceGroupsCodes",objects[4],"localisationsCodes01",objects[5]
 							,"localisationsCodes02",objects[6]};
-			//System.out.println("AdministrativeUnitPersistenceImpl.__getQueryParameters__() : "+java.util.Arrays.deepToString(objects));
 			return objects;
 		}
 		

@@ -27,6 +27,11 @@ public class Action extends AbstractIdentifiableSystemScalarStringIdentifiableBu
 	
 	@Transient private Section section;
 	
+	public Action(String code,String name,String programCode) {
+		super(code,name);
+		setProgramFromCode(programCode);
+	}
+	
 	@Override
 	public Action setCode(String code) {
 		return (Action) super.setCode(code);

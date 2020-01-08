@@ -30,8 +30,9 @@ public class Activity extends AbstractIdentifiableSystemScalarStringIdentifiable
 	@Transient private AdministrativeUnit administrativeUnit;
 	@Transient private Collection<Destination> destinations;
 	
-	public Activity(String code,String name) {
+	public Activity(String code,String name,String actionCode) {
 		super(code,name);
+		setActionFromCode(actionCode);
 	}
 	
 	@Override

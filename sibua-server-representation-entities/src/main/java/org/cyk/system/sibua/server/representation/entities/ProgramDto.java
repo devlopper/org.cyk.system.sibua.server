@@ -14,5 +14,6 @@ import lombok.experimental.Accessors;
 public class ProgramDto extends AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	private SectionDto section;
 	private ArrayList<AdministrativeUnitDto> administrativeUnits;
 }

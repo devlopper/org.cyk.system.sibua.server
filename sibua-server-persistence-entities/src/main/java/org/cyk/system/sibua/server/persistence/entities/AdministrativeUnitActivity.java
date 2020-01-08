@@ -25,6 +25,11 @@ public class AdministrativeUnitActivity extends AbstractIdentifiableSystemScalar
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_ADMINISTRATIVE_UNIT) private AdministrativeUnit administrativeUnit;
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_ACTIVITY) private Activity activity;
 
+	public AdministrativeUnitActivity(String administrativeUnitCode,String activityCode) {
+		setAdministrativeUnitFromCode(administrativeUnitCode);
+		setActivityFromCode(activityCode);
+	}
+	
 	public AdministrativeUnitActivity setAdministrativeUnitFromCode(String code) {
 		if(StringHelper.isBlank(code))
 			this.administrativeUnit = null;

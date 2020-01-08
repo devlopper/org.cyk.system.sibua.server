@@ -30,6 +30,12 @@ public class Program extends AbstractIdentifiableSystemScalarStringIdentifiableB
 	
 	@Transient private Collection<AdministrativeUnit> administrativeUnits;
 	
+	public Program(String code,String name,String sectionCode,String budgetCategoryCode) {
+		super(code,name);
+		setSectionFromCode(sectionCode);
+		this.budgetCategoryCode = budgetCategoryCode;
+	}
+	
 	@Override
 	public Program setCode(String code) {
 		return (Program) super.setCode(code);
