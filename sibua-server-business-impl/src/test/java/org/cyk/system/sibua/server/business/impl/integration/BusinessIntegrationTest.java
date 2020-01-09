@@ -33,7 +33,7 @@ import org.junit.Test;
 public class BusinessIntegrationTest extends AbstractBusinessArquillianIntegrationTestWithDefaultDeployment {
 	private static final long serialVersionUID = 1L;
 	
-	@Test
+	//@Test
 	public void administrativeUnit_generateCodesBySectionsCodes_section_one() throws Exception{
 		__inject__(SectionBusiness.class).createMany(List.of(new Section().setCode("1").setName("1"),new Section().setCode("2").setName("1"),new Section().setCode("3").setName("1")));
 		__inject__(ServiceGroupBusiness.class).createMany(List.of(new ServiceGroup().setCode("1").setName("1")));
@@ -84,6 +84,56 @@ public class BusinessIntegrationTest extends AbstractBusinessArquillianIntegrati
 	}
 	
 	@Test
+	public void administrativeUnit_generateCodesBySectionsCodes_section_one_v1() throws Exception{
+		__inject__(SectionBusiness.class).createMany(List.of(new Section().setCode("1").setName("1"),new Section().setCode("2").setName("1"),new Section().setCode("3").setName("1")));
+		__inject__(ServiceGroupBusiness.class).createMany(List.of(new ServiceGroup().setCode("1").setName("1")));
+		__inject__(FunctionalClassificationBusiness.class).createMany(List.of(new FunctionalClassification().setCode("1").setName("1")));
+		__inject__(LocalisationBusiness.class).create(new Localisation().setCode("1").setName("1"));
+		__inject__(AdministrativeUnitBusiness.class).createMany(List.of(
+				new AdministrativeUnit("1","1","1","1","1","1"),new AdministrativeUnit("2","1","1","1","1","1"),new AdministrativeUnit("3","1","1","1","1","1")
+				,new AdministrativeUnit("4","1","2","1","1","1"),new AdministrativeUnit("5","1","2","1","1","1"),new AdministrativeUnit("6","1","2","1","1","1")
+				,new AdministrativeUnit("7","1","3","1","1","1"),new AdministrativeUnit("8","1","3","1","1","1"),new AdministrativeUnit("9","1","3","1","1","1")
+				));
+		AdministrativeUnit administrativeUnit = __inject__(AdministrativeUnitPersistence.class).readByBusinessIdentifier("1");
+		assertThat(administrativeUnit).isNotNull();
+		assertThat(administrativeUnit.getOrderNumber()).isEqualTo(-1);
+		administrativeUnit = __inject__(AdministrativeUnitPersistence.class).readByBusinessIdentifier("2");
+		assertThat(administrativeUnit).isNotNull();
+		assertThat(administrativeUnit.getOrderNumber()).isEqualTo(-1);
+		administrativeUnit = __inject__(AdministrativeUnitPersistence.class).readByBusinessIdentifier("3");
+		assertThat(administrativeUnit).isNotNull();
+		assertThat(administrativeUnit.getOrderNumber()).isEqualTo(-1);
+		
+		__inject__(AdministrativeUnitBusiness.class).generateCodesBySectionsCodes("1");
+		
+		Collection<AdministrativeUnit> administrativeUnits = __inject__(AdministrativeUnitPersistence.class).readByServiceGroupCodeByFunctionalClassificationCode("1", "1");
+		assertThat(administrativeUnits).isNotEmpty();
+		assertThat(administrativeUnits.stream().map(AdministrativeUnit::getOrderNumber)).containsExactly(1,2,3,-1,-1,-1,-1,-1,-1);
+		assertThat(administrativeUnits.stream().map(AdministrativeUnit::getCode)).containsExactly("10001","10002","10003","4","5","6","7","8","9");
+		
+		__inject__(AdministrativeUnitBusiness.class).generateCodesBySectionsCodes("3");
+		
+		administrativeUnits = __inject__(AdministrativeUnitPersistence.class).readByServiceGroupCodeByFunctionalClassificationCode("1", "1");
+		assertThat(administrativeUnits).isNotEmpty();
+		assertThat(administrativeUnits.stream().map(AdministrativeUnit::getOrderNumber)).containsExactly(1,2,3,4,5,6,-1,-1,-1);
+		assertThat(administrativeUnits.stream().map(AdministrativeUnit::getCode)).containsExactly("10001","10002","10003","10004","10005","10006","4","5","6");
+		
+		__inject__(AdministrativeUnitBusiness.class).generateCodesBySectionsCodes("3");
+		
+		administrativeUnits = __inject__(AdministrativeUnitPersistence.class).readByServiceGroupCodeByFunctionalClassificationCode("1", "1");
+		assertThat(administrativeUnits).isNotEmpty();
+		assertThat(administrativeUnits.stream().map(AdministrativeUnit::getOrderNumber)).containsExactly(1,2,3,4,5,6,-1,-1,-1);
+		assertThat(administrativeUnits.stream().map(AdministrativeUnit::getCode)).containsExactly("10001","10002","10003","10004","10005","10006","4","5","6");
+		
+		__inject__(AdministrativeUnitBusiness.class).generateCodesBySectionsCodes("2");
+		
+		administrativeUnits = __inject__(AdministrativeUnitPersistence.class).readByServiceGroupCodeByFunctionalClassificationCode("1", "1");
+		assertThat(administrativeUnits).isNotEmpty();
+		assertThat(administrativeUnits.stream().map(AdministrativeUnit::getOrderNumber)).containsExactly(1,2,3,4,5,6,7,8,9);
+		assertThat(administrativeUnits.stream().map(AdministrativeUnit::getCode)).containsExactly("10001","10002","10003","10004","10005","10006","10007","10008","10009");
+	}
+	
+	//@Test
 	public void administrativeUnit_generateCodesBySectionsCodes_section_many() throws Exception{
 		__inject__(SectionBusiness.class).createMany(List.of(new Section().setCode("1").setName("1"),new Section().setCode("2").setName("1"),new Section().setCode("3").setName("1")));
 		__inject__(ServiceGroupBusiness.class).createMany(List.of(new ServiceGroup().setCode("1").setName("1")));

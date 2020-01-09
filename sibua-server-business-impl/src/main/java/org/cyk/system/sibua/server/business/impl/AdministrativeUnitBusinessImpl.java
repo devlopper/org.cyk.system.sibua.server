@@ -54,12 +54,14 @@ public class AdministrativeUnitBusinessImpl extends AbstractBusinessEntityImpl<A
 		Collection<AdministrativeUnit> administrativeUnits = ((ReadAdministrativeUnitBySections)__inject__(AdministrativeUnitPersistence.class)).readBySectionsCodes(codes);
 		if(CollectionHelper.isEmpty(administrativeUnits))
 			return;
-		Map<String,Map<String,Integer>> latestOrderNumberMap = new HashMap<>();
+		//Map<String,Map<String,Integer>> latestOrderNumberMap = new HashMap<>();
+		Map<String,Integer> latestOrderNumberMap = new HashMap<>();
 		Collection<AdministrativeUnit> administrativeUnitsWithCodeGenerated = null;
 		for(AdministrativeUnit administrativeUnit : administrativeUnits) {
 			if(administrativeUnit.getOrderNumber() == null || administrativeUnit.getOrderNumber() > 0)
 				continue;
-			Integer orderNumber = __getNextOrderNumber__(administrativeUnit, latestOrderNumberMap);
+			//Integer orderNumber = __getNextOrderNumber__(administrativeUnit, latestOrderNumberMap);
+			Integer orderNumber = __getNextOrderNumber__(administrativeUnit.getServiceGroup(), latestOrderNumberMap);
 			if(orderNumber == null) {
 				LogHelper.logSevere("Erreur lors de la génération du code de l'unité administrative de la section "+administrativeUnit.getSection().getCode()
 						+" : "+administrativeUnit.getName()+". Le numéro d'ordre n'a pas pu être déterminé.", getClass());
@@ -103,6 +105,19 @@ public class AdministrativeUnitBusinessImpl extends AbstractBusinessEntityImpl<A
 		return latestOrderNumber;
 	}
 	
+	private Integer __getNextOrderNumber__(ServiceGroup serviceGroup,Map<String,Integer> latestOrderNumberMap) {
+		if(serviceGroup == null || serviceGroup.getCode().equals(ServiceGroup.CODE_NOT_SET))
+			return null;
+		Integer latestOrderNumber = latestOrderNumberMap.get(serviceGroup.getCode());
+		if(latestOrderNumber == null) {
+			Integer value = __persistence__.readMaxOrderNumberByServiceGroup(serviceGroup);
+			latestOrderNumber = value == null || value < 1 ? 0 : value;
+		}
+		latestOrderNumber = latestOrderNumber + 1;
+		latestOrderNumberMap.put(serviceGroup.getCode(), latestOrderNumber);
+		return latestOrderNumber;
+	}
+	
 	private String __generateCode__(AdministrativeUnit administrativeUnit) {
 		if(administrativeUnit == null)
 			return null;
@@ -116,11 +131,12 @@ public class AdministrativeUnitBusinessImpl extends AbstractBusinessEntityImpl<A
 	}
 	
 	private String __generateCode__(ServiceGroup serviceGroup,FunctionalClassification functionalClassification,Integer orderNumber) {
-		if(functionalClassification == null || functionalClassification.getCode().equals(FunctionalClassification.CODE_NOT_SET)
-			|| serviceGroup == null || serviceGroup.getCode().equals(ServiceGroup.CODE_NOT_SET)
+		if(/*functionalClassification == null || functionalClassification.getCode().equals(FunctionalClassification.CODE_NOT_SET)
+			|| */serviceGroup == null || serviceGroup.getCode().equals(ServiceGroup.CODE_NOT_SET)
 			|| orderNumber == null || orderNumber <= 0)
 			return null;
-		return serviceGroup.getCode()+StringUtils.leftPad(orderNumber.toString(), 4, ConstantCharacter.ZERO)+functionalClassification.getCode();
+		//return serviceGroup.getCode()+StringUtils.leftPad(orderNumber.toString(), 4, ConstantCharacter.ZERO)+functionalClassification.getCode();
+		return serviceGroup.getCode()+StringUtils.leftPad(orderNumber.toString(), 4, ConstantCharacter.ZERO);
 	}
 	
 	private void __setOrderNumberAndCode__(AdministrativeUnit administrativeUnit) {

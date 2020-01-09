@@ -46,7 +46,7 @@ import org.cyk.utility.server.persistence.query.filter.Filter;
 public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntityImpl<AdministrativeUnit> implements AdministrativeUnitPersistence,ReadAdministrativeUnitBySections,ReadAdministrativeUnitByPrograms,Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private String readBySectionsCodes,readByProgramsCodes,readMaxOrderNumberByServiceGroupCodeByFunctionalClassificationCode,readByFilters,readWhereCodeNotInByFilters,readByServiceGroupCodeByFunctionalClassificationCode,readChildrenByCodes;
+	private String readBySectionsCodes,readByProgramsCodes,readMaxOrderNumberByServiceGroupCode,readMaxOrderNumberByServiceGroupCodeByFunctionalClassificationCode,readByFilters,readWhereCodeNotInByFilters,readByServiceGroupCodeByFunctionalClassificationCode,readChildrenByCodes;
 	
 	@Override
 	protected void __listenPostConstructPersistenceQueries__() {
@@ -60,6 +60,9 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 		addQueryCollectInstances(readByServiceGroupCodeByFunctionalClassificationCode, "SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit "
 				+ "WHERE administrativeUnit.serviceGroup.code = :serviceGroupCode AND administrativeUnit.functionalClassification.code = :functionalClassificationCode "
 				+ "ORDER BY administrativeUnit.code ASC");
+		addQuery(readMaxOrderNumberByServiceGroupCode, "SELECT MAX(administrativeUnit.orderNumber) FROM AdministrativeUnit administrativeUnit "
+				+ "WHERE administrativeUnit.serviceGroup.code = :serviceGroupCode",Integer.class);
+		
 		addQuery(readMaxOrderNumberByServiceGroupCodeByFunctionalClassificationCode, "SELECT MAX(administrativeUnit.orderNumber) FROM AdministrativeUnit administrativeUnit "
 				+ "WHERE administrativeUnit.serviceGroup.code = :serviceGroupCode AND administrativeUnit.functionalClassification.code = :functionalClassificationCode",Integer.class);
 		
@@ -135,6 +138,18 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 		try {
 			maxOrderNumber = __inject__(EntityManager.class).createNamedQuery(readMaxOrderNumberByServiceGroupCodeByFunctionalClassificationCode, Integer.class)
 					.setParameter("serviceGroupCode", serviceGroupCode).setParameter("functionalClassificationCode", functionalClassificationCode).getSingleResult();
+		} catch (NoResultException exception) {}
+		if(maxOrderNumber == null)
+			maxOrderNumber = 0;
+		return maxOrderNumber;
+	}
+	
+	@Override
+	public Integer readMaxOrderNumberByServiceGroupCode(String serviceGroupCode, Properties properties) {
+		Integer maxOrderNumber = null;
+		try {
+			maxOrderNumber = __inject__(EntityManager.class).createNamedQuery(readMaxOrderNumberByServiceGroupCode, Integer.class)
+					.setParameter("serviceGroupCode", serviceGroupCode).getSingleResult();
 		} catch (NoResultException exception) {}
 		if(maxOrderNumber == null)
 			maxOrderNumber = 0;

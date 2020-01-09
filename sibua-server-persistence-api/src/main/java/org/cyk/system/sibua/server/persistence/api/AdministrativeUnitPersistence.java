@@ -26,6 +26,24 @@ public interface AdministrativeUnitPersistence extends PersistenceEntity<Adminis
 		return readMaxOrderNumberByServiceGroupByFunctionalClassification(serviceGroup, functionalClassification, null);
 	}
 	
+	/**/
+	
+	Integer readMaxOrderNumberByServiceGroupCode(String serviceGroupCode,Properties properties);
+	
+	default Integer readMaxOrderNumberByServiceGroup(ServiceGroup serviceGroup,Properties properties) {
+		if(serviceGroup == null)
+			return null;
+		return readMaxOrderNumberByServiceGroupCode(serviceGroup.getCode(), properties);
+	}
+	
+	default Integer readMaxOrderNumberByServiceGroup(ServiceGroup serviceGroup) {
+		if(serviceGroup == null)
+			return null;
+		return readMaxOrderNumberByServiceGroup(serviceGroup, null);
+	}
+	
+	/**/
+	
 	Collection<AdministrativeUnit> readByServiceGroupCodeByFunctionalClassificationCode(String serviceGroupCode,String functionalClassificationCode,Properties properties);
 	
 	default Collection<AdministrativeUnit> readByServiceGroupCodeByFunctionalClassificationCode(String serviceGroupCode,String functionalClassificationCode) {
