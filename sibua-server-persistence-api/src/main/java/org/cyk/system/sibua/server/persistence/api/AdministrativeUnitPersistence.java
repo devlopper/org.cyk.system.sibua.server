@@ -69,8 +69,14 @@ public interface AdministrativeUnitPersistence extends PersistenceEntity<Adminis
 	String READ_BY_FILTERS = QueryIdentifierBuilder.getInstance().build(AdministrativeUnit.class,"readByFilters");
 	String COUNT_BY_FILTERS = QueryIdentifierBuilder.getInstance().build(AdministrativeUnit.class,"countByFilters");
 	
+	String READ_BY_FILTERS_CODES_LIKE = QueryIdentifierBuilder.getInstance().build(AdministrativeUnit.class,"readByFiltersCodesLike");
+	String COUNT_BY_FILTERS_CODES_LIKE = QueryIdentifierBuilder.getInstance().build(AdministrativeUnit.class,"countByFiltersCodesLike");
+	
 	String READ_WHERE_CODE_NOT_IN_BY_FILTERS = QueryIdentifierBuilder.getInstance().build(AdministrativeUnit.class,"readWhereCodeNotInByFilters");
 	String COUNT_WHERE_CODE_NOT_IN_BY_FILTERS = QueryIdentifierBuilder.getInstance().build(AdministrativeUnit.class,"countWhereCodeNotInByFilters");
+	
+	String READ_WHERE_CODE_NOT_IN_BY_FILTERS_CODES_LIKE = QueryIdentifierBuilder.getInstance().build(AdministrativeUnit.class,"readWhereCodeNotInByFiltersCodesLike");
+	String COUNT_WHERE_CODE_NOT_IN_BY_FILTERS_CODES_LIKE = QueryIdentifierBuilder.getInstance().build(AdministrativeUnit.class,"countWhereCodeNotInByFiltersCodesLike");
 	
 	String READ_BY_SECTIONS_CODES = QueryIdentifierBuilder.getInstance().build(AdministrativeUnit.class,"readBySectionsCodes");
 	String COUNT_BY_SECTIONS_CODES = QueryIdentifierBuilder.getInstance().build(AdministrativeUnit.class,"countBySectionsCodes");

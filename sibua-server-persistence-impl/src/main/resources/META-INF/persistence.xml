@@ -3,28 +3,39 @@
     <persistence-unit name="sibuaPersistenceUnit" transaction-type="JTA">
     	<jta-data-source>${data.source.jndi.name}</jta-data-source>
     	<exclude-unlisted-classes>true</exclude-unlisted-classes>
-    	<class>org.cyk.system.sibua.server.persistence.entities.FunctionType</class>
-    	<class>org.cyk.system.sibua.server.persistence.entities.Function</class>
-    	<class>org.cyk.system.sibua.server.persistence.entities.User</class>
-    	<class>org.cyk.system.sibua.server.persistence.entities.UserFile</class>
     	
-    	<class>org.cyk.system.sibua.server.persistence.entities.Title</class>
-    	<class>org.cyk.system.sibua.server.persistence.entities.ActivityDestination</class>
-    	<!--
-    	<class>org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitFromDestination</class>
-    	-->
-    	<class>org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitDestination</class>
-    	<class>org.cyk.system.sibua.server.persistence.entities.Destination</class>
-    	<class>org.cyk.system.sibua.server.persistence.entities.ServiceGroup</class>
-    	<class>org.cyk.system.sibua.server.persistence.entities.Localisation</class>
-    	<class>org.cyk.system.sibua.server.persistence.entities.FunctionalClassification</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.user.FunctionCategory</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.user.FunctionType</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.user.Function</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.user.User</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.user.UserType</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.user.Civility</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.user.File</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.user.UserFile</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.user.UserSection</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.user.UserFunction</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.user.UserAdministrativeUnit</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.user.UserLocalisation</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.user.UserActivity</class>
+    	
+    	<class>org.cyk.system.sibua.server.persistence.entities.Section</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.Program</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.Action</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.Activity</class>
-    	<class>org.cyk.system.sibua.server.persistence.entities.Section</class>
-    	<class>org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit</class>
+    	
+    	<class>org.cyk.system.sibua.server.persistence.entities.ServiceGroup</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.FunctionalClassification</class> 	
+    	<class>org.cyk.system.sibua.server.persistence.entities.Localisation</class>
+    	
+    	<class>org.cyk.system.sibua.server.persistence.entities.Destination</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.Title</class>
+    	
+    	<class>org.cyk.system.sibua.server.persistence.entities.ActivityDestination</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitDestination</class>    	
     	<class>org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitHierarchy</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitActivity</class>
+    	
 		<properties>
 			<property name="hibernate.hbm2ddl.auto" value="${hibernate.hbm2ddl.auto}"/>
 			<property name="hibernate.show_sql" value="false"/>

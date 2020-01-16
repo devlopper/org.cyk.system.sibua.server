@@ -13,10 +13,18 @@ import org.cyk.system.sibua.server.business.api.FunctionalClassificationBusiness
 import org.cyk.system.sibua.server.business.api.LocalisationBusiness;
 import org.cyk.system.sibua.server.business.api.SectionBusiness;
 import org.cyk.system.sibua.server.business.api.ServiceGroupBusiness;
+import org.cyk.system.sibua.server.business.api.user.FunctionBusiness;
+import org.cyk.system.sibua.server.business.api.user.FunctionCategoryBusiness;
+import org.cyk.system.sibua.server.business.api.user.FunctionTypeBusiness;
+import org.cyk.system.sibua.server.business.api.user.UserBusiness;
 import org.cyk.system.sibua.server.persistence.api.ActivityPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitActivityPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitHierarchyPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitPersistence;
+import org.cyk.system.sibua.server.persistence.api.LocalisationPersistence;
+import org.cyk.system.sibua.server.persistence.api.SectionPersistence;
+import org.cyk.system.sibua.server.persistence.api.user.FilePersistence;
+import org.cyk.system.sibua.server.persistence.api.user.FunctionPersistence;
 import org.cyk.system.sibua.server.persistence.entities.Activity;
 import org.cyk.system.sibua.server.persistence.entities.ActivityDestination;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
@@ -25,6 +33,12 @@ import org.cyk.system.sibua.server.persistence.entities.FunctionalClassification
 import org.cyk.system.sibua.server.persistence.entities.Localisation;
 import org.cyk.system.sibua.server.persistence.entities.Section;
 import org.cyk.system.sibua.server.persistence.entities.ServiceGroup;
+import org.cyk.system.sibua.server.persistence.entities.user.File;
+import org.cyk.system.sibua.server.persistence.entities.user.Function;
+import org.cyk.system.sibua.server.persistence.entities.user.FunctionCategory;
+import org.cyk.system.sibua.server.persistence.entities.user.FunctionType;
+import org.cyk.system.sibua.server.persistence.entities.user.User;
+import org.cyk.system.sibua.server.persistence.entities.user.UserFileType;
 import org.cyk.utility.__kernel__.properties.Properties;
 import org.cyk.utility.__kernel__.random.RandomHelper;
 import org.cyk.utility.server.business.test.arquillian.AbstractBusinessArquillianIntegrationTestWithDefaultDeployment;
@@ -32,6 +46,18 @@ import org.junit.Test;
 
 public class BusinessIntegrationTest extends AbstractBusinessArquillianIntegrationTestWithDefaultDeployment {
 	private static final long serialVersionUID = 1L;
+	
+	@Override
+	protected void __listenBefore__() {
+		super.__listenBefore__();
+		
+	}
+	
+	@Override
+	protected void __listenAfter__() {
+		super.__listenAfter__();
+		
+	}
 	
 	//@Test
 	public void administrativeUnit_generateCodesBySectionsCodes_section_one() throws Exception{
@@ -247,6 +273,92 @@ public class BusinessIntegrationTest extends AbstractBusinessArquillianIntegrati
 		assertThat(administrativeUnit.getChildren()).isEmpty();
 	}
 	
+	@Test
+	public void user_create_twoFilesCreated() throws Exception{
+		__inject__(SectionBusiness.class).createMany(List.of(new Section().setCode("1").setName("1"),new Section().setCode("2").setName("1"),new Section().setCode("3").setName("1")));
+		__inject__(LocalisationBusiness.class).createMany(List.of(new Localisation().setCode("1").setName("1"),new Localisation().setCode("2").setName("1"),new Localisation().setCode("3").setName("1")));
+		__inject__(ServiceGroupBusiness.class).create(new ServiceGroup().setCode("1").setName("1"));
+		__inject__(FunctionalClassificationBusiness.class).create(new FunctionalClassification().setCode("1").setName("1"));
+		__inject__(FunctionCategoryBusiness.class).create(new FunctionCategory().setCode("1").setName("1"));
+		__inject__(FunctionTypeBusiness.class).create(new FunctionType().setCode("1").setName("1").setCategoryFromCode("1"));
+		__inject__(FunctionBusiness.class).createMany(List.of(new Function().setCode("1").setName("1").setTypeFromCode("1")
+				,new Function().setCode("2").setName("1").setTypeFromCode("1"),new Function().setCode("3").setName("1").setTypeFromCode("1")));
+		__inject__(ActivityBusiness.class).createMany(List.of(new Activity().setCode("1").setName("1"),new Activity().setCode("2").setName("1"),new Activity().setCode("3").setName("1")));
+		__inject__(AdministrativeUnitBusiness.class).createMany(List.of(new AdministrativeUnit().setCode("1").setName("1").setSectionFromCode("1").setLocalisationFromCode("1").setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1").setOrderNumber(-1)
+				,new AdministrativeUnit().setCode("2").setName("1").setSectionFromCode("1").setLocalisationFromCode("1").setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1").setOrderNumber(-1)
+				,new AdministrativeUnit().setCode("3").setName("1").setSectionFromCode("1").setLocalisationFromCode("1").setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1").setOrderNumber(-1)));
+		User user = new User();
+		user.setIdentifier("1");
+		user.setElectronicMailAddress("kycdev@gmail.com");
+		user.setSections(List.of(__inject__(SectionPersistence.class).readByBusinessIdentifier("1")));
+		user.setLocalisations(List.of(__inject__(LocalisationPersistence.class).readByBusinessIdentifier("1")));
+		user.setFunctions(List.of(__inject__(FunctionPersistence.class).readByBusinessIdentifier("1")));
+		user.setActivities(List.of(__inject__(ActivityPersistence.class).readByBusinessIdentifier("1")));
+		user.setAdministrativeUnits(List.of(__inject__(AdministrativeUnitPersistence.class).readByBusinessIdentifier("1")));
+		user.setFiles(List.of(new File().setBytes("text01".getBytes()).setExtension("txt").setType(UserFileType.ADMINISTRATIVE_CERTIFICATE)
+				,new File().setBytes("text02".getBytes()).setExtension("txt").setType(UserFileType.BUDGETARY_CERTIFICATE)));
+		
+		__inject__(UserBusiness.class).create(user);
+		user = __inject__(UserBusiness.class).findBySystemIdentifier("1",new Properties().setFields(User.FIELD_SECTIONS+","+User.FIELD_LOCALISATIONS
+				+","+User.FIELD_FUNCTIONS+","+User.FIELD_ACTIVITIES+","+User.FIELD_ADMINISTRATIVE_UNITS));
+		assertThat(user.getSections()).hasSize(1);
+		assertThat(user.getLocalisations()).hasSize(1);
+		assertThat(user.getFunctions()).hasSize(1);
+		assertThat(user.getActivities()).hasSize(1);
+		assertThat(user.getAdministrativeUnits()).hasSize(1);
+		
+		assertThat(user.getSections().stream().map(Section::getCode).collect(Collectors.toList())).contains("1");
+		assertThat(user.getLocalisations().stream().map(Localisation::getCode).collect(Collectors.toList())).contains("1");
+		assertThat(user.getFunctions().stream().map(Function::getCode).collect(Collectors.toList())).contains("1");
+		assertThat(user.getActivities().stream().map(Activity::getCode).collect(Collectors.toList())).contains("1");
+		assertThat(user.getAdministrativeUnits().stream().map(AdministrativeUnit::getCode).collect(Collectors.toList())).contains("1");
+		
+		assertThat(__inject__(FilePersistence.class).count()).isEqualTo(2l);
+	}
+	
+	@Test
+	public void user_create_onlyOneFileCreated() throws Exception{
+		__inject__(SectionBusiness.class).createMany(List.of(new Section().setCode("1").setName("1"),new Section().setCode("2").setName("1"),new Section().setCode("3").setName("1")));
+		__inject__(LocalisationBusiness.class).createMany(List.of(new Localisation().setCode("1").setName("1"),new Localisation().setCode("2").setName("1"),new Localisation().setCode("3").setName("1")));
+		__inject__(ServiceGroupBusiness.class).create(new ServiceGroup().setCode("1").setName("1"));
+		__inject__(FunctionalClassificationBusiness.class).create(new FunctionalClassification().setCode("1").setName("1"));
+		__inject__(FunctionCategoryBusiness.class).create(new FunctionCategory().setCode("1").setName("1"));
+		__inject__(FunctionTypeBusiness.class).create(new FunctionType().setCode("1").setName("1").setCategoryFromCode("1"));
+		__inject__(FunctionBusiness.class).createMany(List.of(new Function().setCode("1").setName("1").setTypeFromCode("1")
+				,new Function().setCode("2").setName("1").setTypeFromCode("1"),new Function().setCode("3").setName("1").setTypeFromCode("1")));
+		__inject__(ActivityBusiness.class).createMany(List.of(new Activity().setCode("1").setName("1"),new Activity().setCode("2").setName("1"),new Activity().setCode("3").setName("1")));
+		__inject__(AdministrativeUnitBusiness.class).createMany(List.of(new AdministrativeUnit().setCode("1").setName("1").setSectionFromCode("1").setLocalisationFromCode("1").setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1").setOrderNumber(-1)
+				,new AdministrativeUnit().setCode("2").setName("1").setSectionFromCode("1").setLocalisationFromCode("1").setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1").setOrderNumber(-1)
+				,new AdministrativeUnit().setCode("3").setName("1").setSectionFromCode("1").setLocalisationFromCode("1").setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1").setOrderNumber(-1)));
+		User user = new User();
+		user.setIdentifier("1");
+		user.setElectronicMailAddress("kycdev@gmail.com");
+		user.setSections(List.of(__inject__(SectionPersistence.class).readByBusinessIdentifier("1")));
+		user.setLocalisations(List.of(__inject__(LocalisationPersistence.class).readByBusinessIdentifier("1")));
+		user.setFunctions(List.of(__inject__(FunctionPersistence.class).readByBusinessIdentifier("1")));
+		user.setActivities(List.of(__inject__(ActivityPersistence.class).readByBusinessIdentifier("1")));
+		user.setAdministrativeUnits(List.of(__inject__(AdministrativeUnitPersistence.class).readByBusinessIdentifier("1")));
+		user.setFiles(List.of(new File().setBytes("text01".getBytes()).setExtension("txt").setType(UserFileType.ADMINISTRATIVE_CERTIFICATE)
+				,new File().setBytes("text01".getBytes()).setExtension("txt").setType(UserFileType.BUDGETARY_CERTIFICATE)));
+		
+		__inject__(UserBusiness.class).create(user);
+		user = __inject__(UserBusiness.class).findBySystemIdentifier("1",new Properties().setFields(User.FIELD_SECTIONS+","+User.FIELD_LOCALISATIONS
+				+","+User.FIELD_FUNCTIONS+","+User.FIELD_ACTIVITIES+","+User.FIELD_ADMINISTRATIVE_UNITS));
+		assertThat(user.getSections()).hasSize(1);
+		assertThat(user.getLocalisations()).hasSize(1);
+		assertThat(user.getFunctions()).hasSize(1);
+		assertThat(user.getActivities()).hasSize(1);
+		assertThat(user.getAdministrativeUnits()).hasSize(1);
+		
+		assertThat(user.getSections().stream().map(Section::getCode).collect(Collectors.toList())).contains("1");
+		assertThat(user.getLocalisations().stream().map(Localisation::getCode).collect(Collectors.toList())).contains("1");
+		assertThat(user.getFunctions().stream().map(Function::getCode).collect(Collectors.toList())).contains("1");
+		assertThat(user.getActivities().stream().map(Activity::getCode).collect(Collectors.toList())).contains("1");
+		assertThat(user.getAdministrativeUnits().stream().map(AdministrativeUnit::getCode).collect(Collectors.toList())).contains("1");
+		
+		assertThat(__inject__(FilePersistence.class).count()).isEqualTo(2l);
+	}
+	
 	/* Create */
 	
 	//@Test
@@ -420,4 +532,6 @@ public class BusinessIntegrationTest extends AbstractBusinessArquillianIntegrati
 		
 		assertThat(__inject__(AdministrativeUnitBusiness.class).findByBusinessIdentifier("11000021",new Properties().setFields(AdministrativeUnit.FIELD_PARENT)).getParent()).isNull();
 	}
+
+	/* Mail */
 }

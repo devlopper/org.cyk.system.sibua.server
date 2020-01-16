@@ -6,11 +6,14 @@ import java.util.Collection;
 import javax.enterprise.context.ApplicationScoped;
 
 import org.cyk.system.sibua.server.persistence.api.ActivityPersistence;
+import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitPersistence;
 import org.cyk.system.sibua.server.persistence.api.DestinationPersistence;
 import org.cyk.system.sibua.server.persistence.api.query.ReadActivityByActions;
 import org.cyk.system.sibua.server.persistence.api.query.ReadActivityByAdministrativeUnits;
 import org.cyk.system.sibua.server.persistence.api.query.ReadActivityByPrograms;
 import org.cyk.system.sibua.server.persistence.api.query.ReadActivityBySections;
+import org.cyk.system.sibua.server.persistence.api.query.ReadActivityByUsers;
+import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitByActivities;
 import org.cyk.system.sibua.server.persistence.api.query.ReadDestinationByActivities;
 import org.cyk.system.sibua.server.persistence.entities.Action;
 import org.cyk.system.sibua.server.persistence.entities.Activity;
@@ -26,18 +29,20 @@ import org.cyk.utility.server.persistence.PersistenceFunctionReader;
 import org.cyk.utility.server.persistence.query.PersistenceQueryContext;
 
 @ApplicationScoped
-public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activity> implements ActivityPersistence,ReadActivityBySections,ReadActivityByPrograms,ReadActivityByActions,ReadActivityByAdministrativeUnits,Serializable {
+public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activity> implements ActivityPersistence,ReadActivityBySections,ReadActivityByPrograms,ReadActivityByActions,ReadActivityByAdministrativeUnits,ReadActivityByUsers,Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private static final String AND_PROGRAM_BUDGET_CATEGORY_CODE_IS_1_OR_3_OR_7 = " AND activity.action.program.budgetCategoryCode IN ('1','3','7') ";
 	
 	private String readWhereAdministrativeUnitDoesNotExistBySectionsCodes,readWhereAdministrativeUnitDoesNotExistByProgramsCodes
 	,readWhereAdministrativeUnitDoesNotExistByActionsCodes,readBySectionsCodes,readByProgramsCodes,readByActionsCodes,readByAdministrativeUnitsCodes
-	,readByFilters,readWhereCodeNotInByFilters,readWhereAdministrativeUnitDoesNotExistByFilters,readWhereCodeNotInAndAdministrativeUnitDoesNotExistByFilters;
+	,readByFilters,readWhereCodeNotInByFilters,readWhereAdministrativeUnitDoesNotExistByFilters,readWhereCodeNotInAndAdministrativeUnitDoesNotExistByFilters
+	,readByFiltersCodesLike,readByUsersIdentifiers;
 	
 	@Override
 	protected void __listenPostConstructPersistenceQueries__() {
 		super.__listenPostConstructPersistenceQueries__();
+		addQueryCollectInstances(readByUsersIdentifiers, "SELECT activity FROM Activity activity WHERE EXISTS (SELECT userActivity FROM UserActivity userActivity WHERE userActivity.activity = activity AND userActivity.user.identifier IN :usersIdentifiers)  ORDER BY activity.code ASC");
 		addQueryCollectInstances(readBySectionsCodes, "SELECT activity FROM Activity activity WHERE activity.action.program.section.code IN :sectionsCodes ORDER BY activity.code ASC");
 		addQueryCollectInstances(readByProgramsCodes, "SELECT activity FROM Activity activity WHERE activity.action.program.code IN :programsCodes  ORDER BY activity.code ASC");
 		addQueryCollectInstances(readByActionsCodes, "SELECT activity FROM Activity activity WHERE activity.action.code IN :actionsCodes  ORDER BY activity.code ASC");
@@ -56,6 +61,18 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 						+ AND_PROGRAM_BUDGET_CATEGORY_CODE_IS_1_OR_3_OR_7
 						//+ "AND NOT EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity) "
 						+ "ORDER BY activity.code ASC");
+		
+		addQueryCollectInstances(readByFiltersCodesLike, "SELECT activity FROM Activity activity "
+				+ "WHERE "
+				+ "LOWER(activity.code) LIKE LOWER(:code) "
+				+ "AND LOWER(activity.name) LIKE LOWER(:name) "
+				+ "AND activity.action.code LIKE LOWER(:actionCode) "
+				+ "AND activity.action.program.code LIKE LOWER(:programCode) "
+				+ "AND activity.action.program.section.code LIKE LOWER(:sectionCode) "
+				+ "AND (:anyAdministrativeUnit = true OR EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity AND administrativeUnitActivity.administrativeUnit.code LIKE LOWER(:administrativeUnitCode))) "
+				+ AND_PROGRAM_BUDGET_CATEGORY_CODE_IS_1_OR_3_OR_7
+				//+ "AND NOT EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity) "
+				+ "ORDER BY activity.code ASC");
 		
 		addQueryCollectInstances(readWhereCodeNotInByFilters, "SELECT activity FROM Activity activity "
 				+ "WHERE "
@@ -97,7 +114,21 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 		if(field.getName().equals(Activity.FIELD_DESTINATIONS)) {
 			activity.setDestinations(((ReadDestinationByActivities)__inject__(DestinationPersistence.class))
 					.readByActivities(activity));
+		}else if(field.getName().equals(Activity.FIELD_ADMINISTRATIVE_UNIT)) {
+			Collection<AdministrativeUnit> administrativeUnits = ((ReadAdministrativeUnitByActivities)__inject__(AdministrativeUnitPersistence.class)).readByActivities(activity);
+			if(CollectionHelper.isNotEmpty(administrativeUnits))
+				activity.setAdministrativeUnit(CollectionHelper.getFirst(administrativeUnits));
 		}
+	}
+	
+	@Override
+	public Collection<Activity> readByUsersIdentifiers(Collection<String> identifiers, Properties properties) {
+		if(CollectionHelper.isEmpty(identifiers))
+			return null;
+		if(properties == null)
+			properties = new Properties();
+		properties.setIfNull(Properties.QUERY_IDENTIFIER, readByUsersIdentifiers);
+		return __readMany__(properties, ____getQueryParameters____(properties,identifiers));
 	}
 	
 	@Override
@@ -183,6 +214,9 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 	
 	@Override
 	protected Object[] __getQueryParameters__(PersistenceQueryContext queryContext, Properties properties,Object... objects) {
+		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByUsersIdentifiers)) {
+			return new Object[]{"usersIdentifiers",objects[0]};
+		}
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readWhereAdministrativeUnitDoesNotExistBySectionsCodes)) {
 			if(ArrayHelper.isEmpty(objects))
 				objects = new Object[] {queryContext.getFilterByKeysValue(Activity.FIELD_SECTION)};

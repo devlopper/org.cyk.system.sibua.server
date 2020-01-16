@@ -23,8 +23,10 @@ import org.cyk.system.sibua.server.persistence.api.SectionPersistence;
 import org.cyk.system.sibua.server.persistence.api.ServiceGroupPersistence;
 import org.cyk.system.sibua.server.persistence.api.query.ReadActivityByAdministrativeUnits;
 import org.cyk.system.sibua.server.persistence.api.query.ReadActivityDestinationByAdministrativeUnits;
+import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitByActivities;
 import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitByPrograms;
 import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitBySections;
+import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitByUsers;
 import org.cyk.system.sibua.server.persistence.api.query.ReadDestinationByAdministrativeUnits;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitHierarchy;
@@ -43,19 +45,26 @@ import org.cyk.utility.server.persistence.query.PersistenceQueryContext;
 import org.cyk.utility.server.persistence.query.filter.Filter;
 
 @ApplicationScoped
-public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntityImpl<AdministrativeUnit> implements AdministrativeUnitPersistence,ReadAdministrativeUnitBySections,ReadAdministrativeUnitByPrograms,Serializable {
+public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntityImpl<AdministrativeUnit> implements AdministrativeUnitPersistence,ReadAdministrativeUnitBySections,ReadAdministrativeUnitByPrograms,ReadAdministrativeUnitByActivities,ReadAdministrativeUnitByUsers,Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private String readBySectionsCodes,readByProgramsCodes,readMaxOrderNumberByServiceGroupCode,readMaxOrderNumberByServiceGroupCodeByFunctionalClassificationCode,readByFilters,readWhereCodeNotInByFilters,readByServiceGroupCodeByFunctionalClassificationCode,readChildrenByCodes;
+	private String readBySectionsCodes,readByProgramsCodes,readByActivitiesCodes,readMaxOrderNumberByServiceGroupCode
+		,readMaxOrderNumberByServiceGroupCodeByFunctionalClassificationCode,readByFilters,readWhereCodeNotInByFilters,readByServiceGroupCodeByFunctionalClassificationCode
+		,readChildrenByCodes,readWhereCodeNotInByFiltersCodesLike,readByFiltersCodesLike,readByUsersIdentifiers;
 	
 	@Override
 	protected void __listenPostConstructPersistenceQueries__() {
 		super.__listenPostConstructPersistenceQueries__();
+		addQueryCollectInstances(readByUsersIdentifiers, "SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit WHERE EXISTS (SELECT userAdministrativeUnit FROM UserAdministrativeUnit userAdministrativeUnit WHERE userAdministrativeUnit.administrativeUnit = administrativeUnit AND userAdministrativeUnit.user.identifier IN :usersIdentifiers) ORDER BY administrativeUnit.code ASC");
 		addQueryCollectInstances(readBySectionsCodes, "SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit WHERE administrativeUnit.section.code IN :sectionsCodes ORDER BY administrativeUnit.code ASC");
 		addQueryCollectInstances(readByProgramsCodes, "SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit "
 				+ "WHERE EXISTS(SELECT activity FROM Activity activity WHERE activity.action.program.code IN :programsCodes AND EXISTS"
 				+ "(SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity "
 				+ "WHERE administrativeUnitActivity.administrativeUnit = administrativeUnit AND administrativeUnitActivity.activity = activity)) "
+				+ "ORDER BY administrativeUnit.code ASC");
+		addQueryCollectInstances(readByActivitiesCodes, "SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit "
+				+ "WHERE EXISTS(SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity "
+				+ "WHERE administrativeUnitActivity.administrativeUnit = administrativeUnit AND administrativeUnitActivity.activity.code IN :activitiesCodes)"
 				+ "ORDER BY administrativeUnit.code ASC");
 		addQueryCollectInstances(readByServiceGroupCodeByFunctionalClassificationCode, "SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit "
 				+ "WHERE administrativeUnit.serviceGroup.code = :serviceGroupCode AND administrativeUnit.functionalClassification.code = :functionalClassificationCode "
@@ -90,6 +99,17 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 				+ "AND (administrativeUnit.localisation.code IN :localisationsCodes01 OR administrativeUnit.localisation.code IN :localisationsCodes02) "//FIXME Because of orcale limitation : ora-01795 maximum number of expressions in a list is 1000
 				+ "ORDER BY administrativeUnit.code ASC");
 		
+		addQueryCollectInstances(readByFiltersCodesLike, 
+				"SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit "
+				+ "WHERE "
+				+ "LOWER(administrativeUnit.code) LIKE LOWER(:code) "
+				+ "AND LOWER(administrativeUnit.name) LIKE LOWER(:name) "
+				+ "AND LOWER(administrativeUnit.section.code) LIKE LOWER(:sectionCode) "
+				+ "AND LOWER(administrativeUnit.serviceGroup.code) LIKE LOWER(:serviceGroupCode) "
+				+ "AND LOWER(administrativeUnit.functionalClassification.code) LIKE LOWER(:functionalClassificationCode) "
+				+ "AND LOWER(administrativeUnit.localisation.code) LIKE LOWER(:localisationCode) "
+				+ "ORDER BY administrativeUnit.code ASC");
+		
 		addQueryCollectInstances(readWhereCodeNotInByFilters, 
 				"SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit "
 				+ "WHERE "
@@ -100,6 +120,28 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 				+ "AND administrativeUnit.functionalClassification.code IN :functionalClassificationsCodes "
 				+ "AND (administrativeUnit.localisation.code IN :localisationsCodes01 OR administrativeUnit.localisation.code IN :localisationsCodes02) "//FIXME Because of orcale limitation : ora-01795 maximum number of expressions in a list is 1000
 				+ "ORDER BY administrativeUnit.code ASC");
+		
+		addQueryCollectInstances(readWhereCodeNotInByFiltersCodesLike, 
+				"SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit "
+				+ "WHERE "
+				+ "administrativeUnit.code NOT IN :codes "
+				+ "AND LOWER(administrativeUnit.name) LIKE LOWER(:name) "
+				+ "AND LOWER(administrativeUnit.section.code) LIKE LOWER(:sectionCode) "
+				+ "AND LOWER(administrativeUnit.serviceGroup.code) LIKE LOWER(:serviceGroupCode) "
+				+ "AND LOWER(administrativeUnit.functionalClassification.code) LIKE LOWER(:functionalClassificationCode) "
+				+ "AND LOWER(administrativeUnit.localisation.code) LIKE LOWER(:localisationCode) "
+				+ "ORDER BY administrativeUnit.code ASC");
+		
+	}
+	
+	@Override
+	public Collection<AdministrativeUnit> readByUsersIdentifiers(Collection<String> identifiers, Properties properties) {
+		if(CollectionHelper.isEmpty(identifiers))
+			return null;
+		if(properties == null)
+			properties = new Properties();
+		properties.setIfNull(Properties.QUERY_IDENTIFIER, readByUsersIdentifiers);
+		return __readMany__(properties, ____getQueryParameters____(properties,identifiers));
 	}
 	
 	@Override
@@ -129,6 +171,16 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 		if(properties == null)
 			properties = new Properties();
 		properties.setIfNull(Properties.QUERY_IDENTIFIER, readByProgramsCodes);
+		return __readMany__(properties, ____getQueryParameters____(properties,codes));
+	}
+	
+	@Override
+	public Collection<AdministrativeUnit> readByActivitiesCodes(Collection<String> codes, Properties properties) {
+		if(CollectionHelper.isEmpty(codes))
+			return null;
+		if(properties == null)
+			properties = new Properties();
+		properties.setIfNull(Properties.QUERY_IDENTIFIER, readByActivitiesCodes);
 		return __readMany__(properties, ____getQueryParameters____(properties,codes));
 	}
 	
@@ -191,6 +243,9 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 	@SuppressWarnings("unchecked")
 	@Override
 	protected Object[] __getQueryParameters__(PersistenceQueryContext queryContext, Properties properties,Object... objects) {
+		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByUsersIdentifiers)) {
+			return new Object[]{"usersIdentifiers",objects[0]};
+		}
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readBySectionsCodes)) {
 			if(ArrayHelper.isEmpty(objects))
 				objects = new Object[] {queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_SECTION)};
@@ -200,6 +255,11 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 			if(ArrayHelper.isEmpty(objects))
 				objects = new Object[] {queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_PROGRAMS)};
 			return new Object[]{"programsCodes",objects[0]};
+		}
+		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByActivitiesCodes)) {
+			if(ArrayHelper.isEmpty(objects))
+				objects = new Object[] {queryContext.getFilterByKeysValue(AdministrativeUnit.FIELD_ACTIVITIES)};
+			return new Object[]{"activitiesCodes",objects[0]};
 		}
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByServiceGroupCodeByFunctionalClassificationCode)) {
 			return new Object[]{"serviceGroupCode",objects[0],"functionalClassificationCode",objects[1]};
@@ -283,6 +343,35 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 			return objects;
 		}
 		
+		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByFiltersCodesLike)) {
+			if(ArrayHelper.isEmpty(objects)) {
+				Object code = null;
+				org.cyk.utility.server.persistence.query.filter.Field codeField = queryContext.getFilterFieldByKeys(AdministrativeUnit.FIELD_CODE);				
+				if(codeField == null || codeField.getValue() == null || codeField.getValue() instanceof String) {
+					code = "%"+(codeField == null ? ConstantEmpty.STRING : StringUtils.trimToEmpty((String) codeField.getValue()))+"%";
+				}else if(codeField.getValue() instanceof Collection) {
+					code = codeField.getValue();
+				}
+								
+				Object name = null;
+				org.cyk.utility.server.persistence.query.filter.Field nameField = queryContext.getFilterFieldByKeys(AdministrativeUnit.FIELD_NAME);				
+				if(nameField == null || nameField.getValue() == null || nameField.getValue() instanceof String) {
+					name = "%"+(nameField == null ? ConstantEmpty.STRING : StringUtils.trimToEmpty((String) nameField.getValue()))+"%";
+				}			
+				
+				String sectionsCode = queryContext.getStringLike(AdministrativeUnit.FIELD_SECTION);
+				String serviceGroupsCode = queryContext.getStringLike(AdministrativeUnit.FIELD_SERVICE_GROUP);
+				String functionalClassificationsCode = queryContext.getStringLike(AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION);
+				String localisationsCode = queryContext.getStringLike(AdministrativeUnit.FIELD_LOCALISATION);
+				objects = new Object[] {code,name,sectionsCode,serviceGroupsCode,functionalClassificationsCode,localisationsCode};
+			}
+			
+			objects = new Object[]{AdministrativeUnit.FIELD_CODE,objects[0],AdministrativeUnit.FIELD_NAME,objects[1]
+					,"sectionCode",objects[2],"functionalClassificationCode",objects[3],"serviceGroupCode",objects[4],"localisationCode",objects[5]};
+			//System.out.println("AdministrativeUnitPersistenceImpl.__getQueryParameters__() : "+java.util.Arrays.deepToString(objects));
+			return objects;
+		}
+		
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readWhereCodeNotInByFilters)) {
 			if(ArrayHelper.isEmpty(objects)) {
 				Object code = null;
@@ -338,6 +427,37 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 			objects = new Object[]{"codes",objects[0],AdministrativeUnit.FIELD_NAME,objects[1]
 					,"sectionsCodes",objects[2],"functionalClassificationsCodes",objects[3],"serviceGroupsCodes",objects[4],"localisationsCodes01",objects[5]
 							,"localisationsCodes02",objects[6]};
+			//System.out.println("AdministrativeUnitPersistenceImpl.__getQueryParameters__() : "+java.util.Arrays.deepToString(objects));
+			return objects;
+		}
+		
+		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readWhereCodeNotInByFiltersCodesLike)) {
+			if(ArrayHelper.isEmpty(objects)) {
+				Object code = null;
+				org.cyk.utility.server.persistence.query.filter.Field codeField = queryContext.getFilterFieldByKeys(AdministrativeUnit.FIELD_CODE);				
+				if(codeField == null || codeField.getValue() == null) {
+					code = ConstantEmpty.STRINGS_WITH_ONE_ELEMENT;
+				}else if(codeField.getValue() instanceof Collection) {
+					code = codeField.getValue();
+					if(CollectionHelper.isEmpty((Collection<?>) code))
+						code = ConstantEmpty.STRINGS_WITH_ONE_ELEMENT;
+				}
+								
+				Object name = null;
+				org.cyk.utility.server.persistence.query.filter.Field nameField = queryContext.getFilterFieldByKeys(AdministrativeUnit.FIELD_NAME);				
+				if(nameField == null || nameField.getValue() == null || nameField.getValue() instanceof String) {
+					name = "%"+(nameField == null ? ConstantEmpty.STRING : StringUtils.trimToEmpty((String) nameField.getValue()))+"%";
+				}			
+				
+				String sectionsCode = queryContext.getStringLike(AdministrativeUnit.FIELD_SECTION);
+				String serviceGroupsCode = queryContext.getStringLike(AdministrativeUnit.FIELD_SERVICE_GROUP);
+				String functionalClassificationsCode = queryContext.getStringLike(AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION);
+				String localisationsCode = queryContext.getStringLike(AdministrativeUnit.FIELD_LOCALISATION);
+				objects = new Object[] {code,name,sectionsCode,serviceGroupsCode,functionalClassificationsCode,localisationsCode};
+			}
+			
+			objects = new Object[]{"codes",objects[0],AdministrativeUnit.FIELD_NAME,objects[1]
+					,"sectionCode",objects[2],"functionalClassificationCode",objects[3],"serviceGroupCode",objects[4],"localisationCode",objects[5]};
 			//System.out.println("AdministrativeUnitPersistenceImpl.__getQueryParameters__() : "+java.util.Arrays.deepToString(objects));
 			return objects;
 		}
