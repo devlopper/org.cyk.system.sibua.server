@@ -23,7 +23,8 @@ public class AdministrativeUnitDto extends AbstractIdentifiableSystemScalarStrin
 	
 	private ArrayList<AdministrativeUnitDto> parents;
 	private ArrayList<AdministrativeUnitDto> children;
-	private ArrayList<ActivityDto> activities;
+	private ArrayList<ActivityDto> activitiesGestionnaire;
+	private ArrayList<ActivityDto> activitiesBeneficiaire;
 	private ArrayList<DestinationDto> destinations;
 	private ArrayList<ActivityDestinationDto> activityDestinations;
 }

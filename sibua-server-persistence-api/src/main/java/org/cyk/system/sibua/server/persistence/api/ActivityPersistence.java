@@ -54,6 +54,11 @@ public interface ActivityPersistence extends PersistenceEntity<Activity> {
 	
 	/**/
 	
+	//Collection<Activity> readByAdministrativeUnitsCodesByAdministrativeUnitActivityTypesCodes(Collection<String> administrativeUnitsCodes
+	//		,Collection<String> administrativeUnitActivityTypesCodes,Properties properties);
+	
+	/**/
+	
 	String READ_WHERE_ADMINISTRATIVE_UNIT_DOES_NOT_EXIST_BY_SECTIONS_CODES = QueryIdentifierBuilder.getInstance().build(Activity.class,"readWhereAdministrativeUnitDoesNotExistBySectionsCodes");
 	String READ_WHERE_ADMINISTRATIVE_UNIT_DOES_NOT_EXIST_BY_PROGRAMS_CODES = QueryIdentifierBuilder.getInstance().build(Activity.class,"readWhereAdministrativeUnitDoesNotExistByProgramsCodes");
 	String READ_WHERE_ADMINISTRATIVE_UNIT_DOES_NOT_EXIST_BY_ACTIONS_CODES = QueryIdentifierBuilder.getInstance().build(Activity.class,"readWhereAdministrativeUnitDoesNotExistByActionsCodes");

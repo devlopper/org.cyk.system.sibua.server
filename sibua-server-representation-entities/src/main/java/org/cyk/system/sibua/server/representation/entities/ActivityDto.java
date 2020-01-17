@@ -17,5 +17,6 @@ public class ActivityDto extends AbstractIdentifiableSystemScalarStringIdentifia
 	private ActionDto action;
 	private SectionDto section;
 	private AdministrativeUnitDto administrativeUnit;
+	private AdministrativeUnitDto administrativeUnitBeneficiaire;
 	private ArrayList<DestinationDto> destinations;
 }

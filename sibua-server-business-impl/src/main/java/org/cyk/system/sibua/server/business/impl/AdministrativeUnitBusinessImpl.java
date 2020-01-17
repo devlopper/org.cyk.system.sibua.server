@@ -4,15 +4,18 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 
 import org.apache.commons.lang3.StringUtils;
+import org.cyk.system.sibua.server.business.api.AdministrativeUnitActivityBusiness;
 import org.cyk.system.sibua.server.business.api.AdministrativeUnitBusiness;
 import org.cyk.system.sibua.server.business.api.AdministrativeUnitHierarchyBusiness;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitActivityPersistence;
+import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitActivityTypePersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitDestinationPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitHierarchyPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitPersistence;
@@ -23,6 +26,7 @@ import org.cyk.system.sibua.server.persistence.entities.Activity;
 import org.cyk.system.sibua.server.persistence.entities.ActivityDestination;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitActivity;
+import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitActivityType;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitDestination;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitHierarchy;
 import org.cyk.system.sibua.server.persistence.entities.Destination;
@@ -203,16 +207,19 @@ public class AdministrativeUnitBusinessImpl extends AbstractBusinessEntityImpl<A
 		
 		if(CollectionHelper.isNotEmpty(administrativeUnit.getActivityDestinations())) {
 			//some new activity and destination might need to be created. find all new one having same code and make them using only one instance
+			/*
 			Collection<Activity> activitiesWhereIdentifierIsBlankAndCodeIsNotBlank = administrativeUnit.getActivityDestinations().stream()
 					.map(ActivityDestination::getActivity)
 					.filter(activity -> StringHelper.isBlank(activity.getIdentifier()) && StringHelper.isNotBlank(activity.getCode()))
 					.collect(Collectors.toList());
+			*/
 			//__createWhereIdentifierIsBlankAndCodeIsNotBlank__(administrativeUnit, activitiesWhereIdentifierIsBlankAndCodeIsNotBlank, __inject__(ActivityBusiness.class), ActivityDestination.FIELD_ACTIVITY);
-			
+			/*
 			Collection<Destination> destinationsWhereIdentifierIsBlankAndCodeIsNotBlank = administrativeUnit.getActivityDestinations().stream()
 					.map(ActivityDestination::getDestination)
 					.filter(destination -> StringHelper.isBlank(destination.getIdentifier()) && StringHelper.isNotBlank(destination.getCode()))
 					.collect(Collectors.toList());
+			*/
 			//__createWhereIdentifierIsBlankAndCodeIsNotBlank__(administrativeUnit, destinationsWhereIdentifierIsBlankAndCodeIsNotBlank, __inject__(DestinationBusiness.class), ActivityDestination.FIELD_DESTINATION);
 			
 			/*
@@ -231,7 +238,7 @@ public class AdministrativeUnitBusinessImpl extends AbstractBusinessEntityImpl<A
 					}
 			}
 			*/
-			Collection<Activity> activities = administrativeUnit.getActivityDestinations().stream().map(ActivityDestination::getActivity).collect(Collectors.toList());
+			//Collection<Activity> activities = administrativeUnit.getActivityDestinations().stream().map(ActivityDestination::getActivity).collect(Collectors.toList());
 			//create new activities
 			/*
 			Collection<Activity> newActivities = new HashSet<>();
@@ -306,10 +313,51 @@ public class AdministrativeUnitBusinessImpl extends AbstractBusinessEntityImpl<A
 				Collection<AdministrativeUnitActivity> databaseAdministrativeUnitActivities = ((ReadAdministrativeUnitActivityByAdministrativeUnits)__inject__(AdministrativeUnitActivityPersistence.class)).readByAdministrativeUnits(administrativeUnit);
 				Collection<Activity> databaseActivities = CollectionHelper.isEmpty(databaseAdministrativeUnitActivities) ? null : databaseAdministrativeUnitActivities.stream()
 						.map(AdministrativeUnitActivity::getActivity).collect(Collectors.toList());
+				//get delete able
+				Collection<AdministrativeUnitActivity> databaseAdministrativeUnitActivitiesDeletable = null;
+				if(CollectionHelper.isEmpty(administrativeUnit.getActivities())) {
+					//delete all
+					if(CollectionHelper.isNotEmpty(databaseAdministrativeUnitActivities)) {
+						if(databaseAdministrativeUnitActivitiesDeletable == null)
+							databaseAdministrativeUnitActivitiesDeletable = new ArrayList<>();
+						databaseAdministrativeUnitActivitiesDeletable.addAll(databaseAdministrativeUnitActivities);	
+					}					
+				}else {
+					if(CollectionHelper.isNotEmpty(databaseActivities)) {
+						databaseActivities.removeAll(administrativeUnit.getActivities());
+						if(databaseAdministrativeUnitActivitiesDeletable == null)
+							databaseAdministrativeUnitActivitiesDeletable = new ArrayList<>();
+						databaseAdministrativeUnitActivitiesDeletable.addAll(databaseAdministrativeUnitActivities.stream()
+								.filter(x -> databaseActivities.contains(x.getActivity())).collect(Collectors.toList()));
+					}
+				}
 				
-				__delete__(administrativeUnit.getActivities(), databaseAdministrativeUnitActivities,AdministrativeUnitActivity.FIELD_ACTIVITY);
-				__save__(AdministrativeUnitActivity.class,administrativeUnit.getActivities(), databaseActivities, AdministrativeUnitActivity.FIELD_ACTIVITY, administrativeUnit, AdministrativeUnitActivity.FIELD_ADMINISTRATIVE_UNIT);
-			}else if(AdministrativeUnit.FIELD_SERVICE_GROUP.equals(index) || AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION.equals(index)) {
+				Collection<Activity> _databaseActivities_ = CollectionHelper.isEmpty(databaseAdministrativeUnitActivities) ? null : databaseAdministrativeUnitActivities.stream()
+						.map(AdministrativeUnitActivity::getActivity).collect(Collectors.toList());
+				
+				if(CollectionHelper.isNotEmpty(databaseAdministrativeUnitActivitiesDeletable)) {
+					__inject__(AdministrativeUnitActivityBusiness.class).deleteMany(databaseAdministrativeUnitActivitiesDeletable);
+				}
+				//get save able
+				Collection<AdministrativeUnitActivity> administrativeUnitActivityCreatable = null;
+				if(CollectionHelper.isEmpty(administrativeUnit.getActivities())) {
+					//create nothing								
+				}else {
+					administrativeUnitActivityCreatable = administrativeUnit.getActivities().stream()
+							.filter(x -> CollectionHelper.isEmpty(_databaseActivities_) || !_databaseActivities_.contains(x))
+							.map(x -> new AdministrativeUnitActivity(administrativeUnit,x).setAdministrativeUnitBeneficiaire(x.getAdministrativeUnitBeneficiaire()))
+							.collect(Collectors.toList());
+					
+				}
+				if(CollectionHelper.isNotEmpty(administrativeUnitActivityCreatable)) {
+					__inject__(AdministrativeUnitActivityBusiness.class).createMany(administrativeUnitActivityCreatable);
+				}
+				//System.out.println("AdministrativeUnitBusinessImpl.__listenExecuteUpdateBefore__() DB : "+CollectionHelper.getSize(databaseActivities));
+				
+				//__delete__(administrativeUnit.getActivities(), databaseAdministrativeUnitActivities,AdministrativeUnitActivity.FIELD_ACTIVITY);
+				//System.out.println("AdministrativeUnitBusinessImpl.__listenExecuteUpdateBefore__() SAVE : "+CollectionHelper.getSize(administrativeUnit.getActivities()));
+				//__save__(AdministrativeUnitActivity.class,administrativeUnit.getActivities(), databaseActivities, AdministrativeUnitActivity.FIELD_ACTIVITY, administrativeUnit, AdministrativeUnitActivity.FIELD_ADMINISTRATIVE_UNIT);
+			}else if(AdministrativeUnit.FIELD_SERVICE_GROUP.equals(index)) {
 				administrativeUnit.setOrderNumber(-1);//need to be codify
 				//AdministrativeUnit database = __persistence__.readBySystemIdentifier(administrativeUnit.getSystemIdentifier());
 				//if(!database.getServiceGroup().equals(administrativeUnit.getServiceGroup()) || !database.getFunctionalClassification().equals(administrativeUnit.getFunctionalClassification())) {

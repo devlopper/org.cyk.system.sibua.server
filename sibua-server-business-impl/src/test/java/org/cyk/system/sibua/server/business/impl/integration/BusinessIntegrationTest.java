@@ -39,6 +39,7 @@ import org.cyk.system.sibua.server.persistence.entities.user.FunctionCategory;
 import org.cyk.system.sibua.server.persistence.entities.user.FunctionType;
 import org.cyk.system.sibua.server.persistence.entities.user.User;
 import org.cyk.system.sibua.server.persistence.entities.user.UserFileType;
+import org.cyk.system.sibua.server.persistence.impl.ApplicationScopeLifeCycleListener;
 import org.cyk.utility.__kernel__.properties.Properties;
 import org.cyk.utility.__kernel__.random.RandomHelper;
 import org.cyk.utility.server.business.test.arquillian.AbstractBusinessArquillianIntegrationTestWithDefaultDeployment;
@@ -203,13 +204,14 @@ public class BusinessIntegrationTest extends AbstractBusinessArquillianIntegrati
 		__inject__(LocalisationBusiness.class).create(new Localisation().setCode("1").setName("1"));
 		__inject__(AdministrativeUnitBusiness.class).createMany(List.of(
 				new AdministrativeUnit("1","1","1","1","1","1"),new AdministrativeUnit("2","1","1","1","1","1"),new AdministrativeUnit("3","1","1","1","1","1")
+				,new AdministrativeUnit("b1","1","1","1","1","1"),new AdministrativeUnit("b2","1","1","1","1","1"),new AdministrativeUnit("b3","1","1","1","1","1")
 				));
 		__inject__(ActivityBusiness.class).createMany(List.of(new Activity("1","1",null),new Activity("2","1",null),new Activity("3","1",null),new Activity("4","1",null),new Activity("5","1",null)));
 		AdministrativeUnit administrativeUnit = __inject__(AdministrativeUnitBusiness.class).findByBusinessIdentifier("1",new Properties().setFields(AdministrativeUnit.FIELD_ACTIVITIES));
 		assertThat(administrativeUnit.getActivities()).isEmpty();
 		administrativeUnit.addActivitiesByCodes("2");
 		assertThat(__inject__(AdministrativeUnitActivityPersistence.class).count()).isEqualTo(0l);
-		__inject__(AdministrativeUnitBusiness.class).update(administrativeUnit, new Properties().setFields(AdministrativeUnit.FIELD_ACTIVITIES));
+		__inject__(AdministrativeUnitBusiness.class).update(administrativeUnit, new Properties().setFields(AdministrativeUnit.FIELD_ACTIVITIES));		
 		assertThat(__inject__(AdministrativeUnitActivityPersistence.class).count()).isEqualTo(1l);
 		administrativeUnit = __inject__(AdministrativeUnitBusiness.class).findByBusinessIdentifier("1",new Properties().setFields(AdministrativeUnit.FIELD_ACTIVITIES));
 		assertThat(administrativeUnit.getActivities()).isNotEmpty();
@@ -217,19 +219,45 @@ public class BusinessIntegrationTest extends AbstractBusinessArquillianIntegrati
 		
 		administrativeUnit.addActivitiesByCodes("1");
 		__inject__(AdministrativeUnitBusiness.class).update(administrativeUnit, new Properties().setFields(AdministrativeUnit.FIELD_ACTIVITIES));
+		assertThat(__inject__(AdministrativeUnitActivityPersistence.class).count()).isEqualTo(2l);
 		administrativeUnit = __inject__(AdministrativeUnitBusiness.class).findByBusinessIdentifier("1",new Properties().setFields(AdministrativeUnit.FIELD_ACTIVITIES));
 		assertThat(administrativeUnit.getActivities()).isNotEmpty();
 		assertThat(administrativeUnit.getActivities().stream().map(Activity::getCode).collect(Collectors.toList())).containsExactlyInAnyOrder("1","2");
 		
 		administrativeUnit.setActivities(null);
 		__inject__(AdministrativeUnitBusiness.class).update(administrativeUnit, new Properties().setFields(AdministrativeUnit.FIELD_ACTIVITIES));
+		assertThat(__inject__(AdministrativeUnitActivityPersistence.class).count()).isEqualTo(0l);
 		administrativeUnit = __inject__(AdministrativeUnitBusiness.class).findByBusinessIdentifier("1",new Properties().setFields(AdministrativeUnit.FIELD_ACTIVITIES));
 		assertThat(administrativeUnit.getActivities()).isEmpty();
 		
 		administrativeUnit.addActivitiesByCodes("1","2","3");
 		__inject__(AdministrativeUnitBusiness.class).update(administrativeUnit, new Properties().setFields(AdministrativeUnit.FIELD_ACTIVITIES));
+		assertThat(__inject__(AdministrativeUnitActivityPersistence.class).count()).isEqualTo(3l);
 		administrativeUnit = __inject__(AdministrativeUnitBusiness.class).findByBusinessIdentifier("1",new Properties().setFields(AdministrativeUnit.FIELD_ACTIVITIES));
 		assertThat(administrativeUnit.getActivities().stream().map(Activity::getCode).collect(Collectors.toList())).containsExactlyInAnyOrder("1","2","3");
+		
+		administrativeUnit.setActivities(null);
+		__inject__(AdministrativeUnitBusiness.class).update(administrativeUnit, new Properties().setFields(AdministrativeUnit.FIELD_ACTIVITIES));
+		assertThat(__inject__(AdministrativeUnitActivityPersistence.class).count()).isEqualTo(0l);
+		administrativeUnit = __inject__(AdministrativeUnitBusiness.class).findByBusinessIdentifier("1",new Properties().setFields(AdministrativeUnit.FIELD_ACTIVITIES));
+		assertThat(administrativeUnit.getActivities()).isEmpty();
+		
+		Activity activity = __inject__(ActivityPersistence.class).readByBusinessIdentifier("1");
+		activity.setAdministrativeUnitBeneficiaire(__inject__(AdministrativeUnitPersistence.class).readByBusinessIdentifier("b2"));
+		administrativeUnit.getActivities(Boolean.TRUE).add(activity);
+		__inject__(AdministrativeUnitBusiness.class).update(administrativeUnit, new Properties().setFields(AdministrativeUnit.FIELD_ACTIVITIES));
+		assertThat(__inject__(AdministrativeUnitActivityPersistence.class).count()).isEqualTo(1l);
+		try {
+			administrativeUnit = __inject__(AdministrativeUnitBusiness.class).findByBusinessIdentifier("1",new Properties()
+					.setFields(AdministrativeUnit.FIELD_ACTIVITIES+","+AdministrativeUnit.FIELD_ACTIVITIES+"."+Activity.FIELD_ADMINISTRATIVE_UNIT_BENEFICIAIRE));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		assertThat(administrativeUnit.getActivities()).isNotEmpty();
+		assertThat(administrativeUnit.getActivities().stream().map(Activity::getCode).collect(Collectors.toList())).containsExactlyInAnyOrder("1");
+		assertThat(administrativeUnit.getActivities().stream().map(x -> x.getAdministrativeUnitBeneficiaire().getCode())
+				.collect(Collectors.toList())).containsExactlyInAnyOrder("b2");
 	}
 	
 	@Test
@@ -274,7 +302,81 @@ public class BusinessIntegrationTest extends AbstractBusinessArquillianIntegrati
 	}
 	
 	@Test
+	public void activity_update_administrativeUnits() throws Exception{
+		__inject__(SectionBusiness.class).createMany(List.of(new Section().setCode("1").setName("1")));
+		__inject__(ServiceGroupBusiness.class).createMany(List.of(new ServiceGroup().setCode("1").setName("1")));
+		__inject__(FunctionalClassificationBusiness.class).createMany(List.of(new FunctionalClassification().setCode("1").setName("1")));
+		__inject__(LocalisationBusiness.class).create(new Localisation().setCode("1").setName("1"));
+		__inject__(AdministrativeUnitBusiness.class).createMany(List.of(
+				new AdministrativeUnit("1","1","1","1","1","1"),new AdministrativeUnit("2","1","1","1","1","1"),new AdministrativeUnit("3","1","1","1","1","1")
+				,new AdministrativeUnit("b1","1","1","1","1","1"),new AdministrativeUnit("b2","1","1","1","1","1"),new AdministrativeUnit("b3","1","1","1","1","1")
+				));
+		__inject__(ActivityBusiness.class).createMany(List.of(new Activity("1","1",null),new Activity("2","1",null),new Activity("3","1",null),new Activity("4","1",null),new Activity("5","1",null)));
+		Activity activity = __inject__(ActivityBusiness.class).findByBusinessIdentifier("1",new Properties().setFields(Activity.FIELD_ADMINISTRATIVE_UNIT));
+		assertThat(activity.getAdministrativeUnit()).isNull();
+		assertThat(activity.getAdministrativeUnitBeneficiaire()).isNull();
+		activity.setAdministrativeUnitFromCode("1");
+		assertThat(__inject__(AdministrativeUnitActivityPersistence.class).count()).isEqualTo(0l);		
+		__inject__(ActivityBusiness.class).update(activity, new Properties().setFields(Activity.FIELD_ADMINISTRATIVE_UNIT));		
+		assertThat(__inject__(AdministrativeUnitActivityPersistence.class).count()).isEqualTo(1l);	
+		
+		activity = __inject__(ActivityBusiness.class).findByBusinessIdentifier("1",new Properties().setFields(Activity.FIELD_ADMINISTRATIVE_UNIT));
+		assertThat(activity.getAdministrativeUnit()).isNotNull();
+		assertThat(activity.getAdministrativeUnit().getCode()).isEqualTo("1");
+		assertThat(activity.getAdministrativeUnitBeneficiaire()).isNull();
+		
+		activity.setAdministrativeUnit(null);
+		__inject__(ActivityBusiness.class).update(activity, new Properties().setFields(Activity.FIELD_ADMINISTRATIVE_UNIT));	
+		assertThat(__inject__(AdministrativeUnitActivityPersistence.class).count()).isEqualTo(0l);	
+		activity = __inject__(ActivityBusiness.class).findByBusinessIdentifier("1",new Properties().setFields(Activity.FIELD_ADMINISTRATIVE_UNIT));
+		assertThat(activity.getAdministrativeUnit()).isNull();
+		assertThat(activity.getAdministrativeUnitBeneficiaire()).isNull();
+		
+		activity.setAdministrativeUnitFromCode("1").setAdministrativeUnitBeneficiaireFromCode("b2");
+		__inject__(ActivityBusiness.class).update(activity, new Properties().setFields(Activity.FIELD_ADMINISTRATIVE_UNIT));	
+		assertThat(__inject__(AdministrativeUnitActivityPersistence.class).count()).isEqualTo(1l);	
+		
+		activity = __inject__(ActivityBusiness.class).findByBusinessIdentifier("1",new Properties().setFields(Activity.FIELD_ADMINISTRATIVE_UNIT));
+		assertThat(activity.getAdministrativeUnit()).isNotNull();
+		assertThat(activity.getAdministrativeUnit().getCode()).isEqualTo("1");
+		assertThat(activity.getAdministrativeUnitBeneficiaire()).isNotNull();
+		assertThat(activity.getAdministrativeUnitBeneficiaire().getCode()).isEqualTo("b2");
+		
+		activity.setAdministrativeUnit(null);
+		__inject__(ActivityBusiness.class).update(activity, new Properties().setFields(Activity.FIELD_ADMINISTRATIVE_UNIT));	
+		assertThat(__inject__(AdministrativeUnitActivityPersistence.class).count()).isEqualTo(1l);	
+		activity = __inject__(ActivityBusiness.class).findByBusinessIdentifier("1",new Properties().setFields(Activity.FIELD_ADMINISTRATIVE_UNIT));
+		assertThat(activity.getAdministrativeUnit()).isNull();
+		assertThat(activity.getAdministrativeUnitBeneficiaire()).isNotNull();
+		
+		activity.setAdministrativeUnitFromCode("1");
+		__inject__(ActivityBusiness.class).update(activity, new Properties().setFields(Activity.FIELD_ADMINISTRATIVE_UNIT));	
+		assertThat(__inject__(AdministrativeUnitActivityPersistence.class).count()).isEqualTo(1l);	
+		activity = __inject__(ActivityBusiness.class).findByBusinessIdentifier("1",new Properties().setFields(Activity.FIELD_ADMINISTRATIVE_UNIT));
+		assertThat(activity.getAdministrativeUnit()).isNotNull();
+		assertThat(activity.getAdministrativeUnit().getCode()).isEqualTo("1");
+		assertThat(activity.getAdministrativeUnitBeneficiaire()).isNotNull();
+		assertThat(activity.getAdministrativeUnitBeneficiaire().getCode()).isEqualTo("b2");
+		
+		activity.setAdministrativeUnitBeneficiaire(null);
+		__inject__(ActivityBusiness.class).update(activity, new Properties().setFields(Activity.FIELD_ADMINISTRATIVE_UNIT));	
+		assertThat(__inject__(AdministrativeUnitActivityPersistence.class).count()).isEqualTo(1l);	
+		activity = __inject__(ActivityBusiness.class).findByBusinessIdentifier("1",new Properties().setFields(Activity.FIELD_ADMINISTRATIVE_UNIT));
+		assertThat(activity.getAdministrativeUnit()).isNotNull();
+		assertThat(activity.getAdministrativeUnitBeneficiaire()).isNull();
+		
+		activity.setAdministrativeUnit(null);
+		__inject__(ActivityBusiness.class).update(activity, new Properties().setFields(Activity.FIELD_ADMINISTRATIVE_UNIT));	
+		assertThat(__inject__(AdministrativeUnitActivityPersistence.class).count()).isEqualTo(0l);	
+		activity = __inject__(ActivityBusiness.class).findByBusinessIdentifier("1",new Properties().setFields(Activity.FIELD_ADMINISTRATIVE_UNIT));
+		assertThat(activity.getAdministrativeUnit()).isNull();
+		assertThat(activity.getAdministrativeUnitBeneficiaire()).isNull();
+	}
+	
+	@Test
 	public void user_create_twoFilesCreated() throws Exception{
+		if(!ApplicationScopeLifeCycleListener.isUserEnabled())
+			return;
 		__inject__(SectionBusiness.class).createMany(List.of(new Section().setCode("1").setName("1"),new Section().setCode("2").setName("1"),new Section().setCode("3").setName("1")));
 		__inject__(LocalisationBusiness.class).createMany(List.of(new Localisation().setCode("1").setName("1"),new Localisation().setCode("2").setName("1"),new Localisation().setCode("3").setName("1")));
 		__inject__(ServiceGroupBusiness.class).create(new ServiceGroup().setCode("1").setName("1"));
@@ -318,6 +420,8 @@ public class BusinessIntegrationTest extends AbstractBusinessArquillianIntegrati
 	
 	@Test
 	public void user_create_onlyOneFileCreated() throws Exception{
+		if(!ApplicationScopeLifeCycleListener.isUserEnabled())
+			return;
 		__inject__(SectionBusiness.class).createMany(List.of(new Section().setCode("1").setName("1"),new Section().setCode("2").setName("1"),new Section().setCode("3").setName("1")));
 		__inject__(LocalisationBusiness.class).createMany(List.of(new Localisation().setCode("1").setName("1"),new Localisation().setCode("2").setName("1"),new Localisation().setCode("3").setName("1")));
 		__inject__(ServiceGroupBusiness.class).create(new ServiceGroup().setCode("1").setName("1"));

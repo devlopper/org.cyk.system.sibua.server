@@ -1,6 +1,7 @@
 package org.cyk.system.sibua.server.persistence.impl;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -35,14 +36,22 @@ import org.cyk.utility.__kernel__.klass.PersistableClassesGetter;
 @ApplicationScoped
 public class ApplicationScopeLifeCycleListener extends AbstractApplicationScopeLifeCycleListener implements Serializable {
 	private static final long serialVersionUID = 1L;
-
+	
+	public static Boolean USER_ENABLED = Boolean.FALSE;
+	
 	@Override
 	public void __initialize__(Object object) {
-		PersistableClassesGetter.COLLECTION.set(List.of(AdministrativeUnitDestination.class
-				,UserFunction.class,UserLocalisation.class,UserSection.class,UserActivity.class,UserFile.class,UserAdministrativeUnit.class
+		ArrayList<Class<?>> classes = new ArrayList<>();
+		if(isUserEnabled()) {
+			classes.addAll(List.of(UserFunction.class,UserLocalisation.class,UserSection.class,UserActivity.class,UserFile.class,UserAdministrativeUnit.class
+					,User.class,Function.class,FunctionType.class,FunctionCategory.class));
+		}
+		classes.addAll(List.of(AdministrativeUnitDestination.class
 				,ActivityDestination.class,Destination.class,AdministrativeUnitHierarchy.class
-				,AdministrativeUnitActivity.class,AdministrativeUnit.class,Activity.class,Action.class,Program.class,Section.class,ServiceGroup.class,Localisation.class
-				,FunctionalClassification.class,Title.class,User.class,Function.class,FunctionType.class,FunctionCategory.class));
+				,AdministrativeUnitActivity.class,AdministrativeUnit.class
+				,Activity.class,Action.class,Program.class,Section.class,ServiceGroup.class,Localisation.class
+				,FunctionalClassification.class,Title.class));
+		PersistableClassesGetter.COLLECTION.set(classes);
 		__inject__(org.cyk.utility.server.persistence.impl.ApplicationScopeLifeCycleListener.class).initialize(null);
 		__inject__(org.cyk.system.sibua.server.persistence.entities.ApplicationScopeLifeCycleListener.class).initialize(null);
 	}
@@ -50,4 +59,9 @@ public class ApplicationScopeLifeCycleListener extends AbstractApplicationScopeL
 	@Override
 	public void __destroy__(Object object) {}
 	
+	/**/
+	
+	public static Boolean isUserEnabled() {
+		return Boolean.TRUE.equals(USER_ENABLED);
+	}
 }

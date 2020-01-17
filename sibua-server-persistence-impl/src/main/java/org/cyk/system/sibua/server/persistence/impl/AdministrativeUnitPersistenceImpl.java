@@ -14,6 +14,7 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.cyk.system.sibua.server.persistence.api.ActivityDestinationPersistence;
 import org.cyk.system.sibua.server.persistence.api.ActivityPersistence;
+import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitActivityPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitHierarchyPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitPersistence;
 import org.cyk.system.sibua.server.persistence.api.DestinationPersistence;
@@ -23,12 +24,15 @@ import org.cyk.system.sibua.server.persistence.api.SectionPersistence;
 import org.cyk.system.sibua.server.persistence.api.ServiceGroupPersistence;
 import org.cyk.system.sibua.server.persistence.api.query.ReadActivityByAdministrativeUnits;
 import org.cyk.system.sibua.server.persistence.api.query.ReadActivityDestinationByAdministrativeUnits;
+import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitActivityByAdministrativeUnits;
 import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitByActivities;
 import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitByPrograms;
 import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitBySections;
 import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitByUsers;
 import org.cyk.system.sibua.server.persistence.api.query.ReadDestinationByAdministrativeUnits;
+import org.cyk.system.sibua.server.persistence.entities.Activity;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
+import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitActivity;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitHierarchy;
 import org.cyk.system.sibua.server.persistence.entities.FunctionalClassification;
 import org.cyk.system.sibua.server.persistence.entities.Localisation;
@@ -55,7 +59,8 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 	@Override
 	protected void __listenPostConstructPersistenceQueries__() {
 		super.__listenPostConstructPersistenceQueries__();
-		addQueryCollectInstances(readByUsersIdentifiers, "SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit WHERE EXISTS (SELECT userAdministrativeUnit FROM UserAdministrativeUnit userAdministrativeUnit WHERE userAdministrativeUnit.administrativeUnit = administrativeUnit AND userAdministrativeUnit.user.identifier IN :usersIdentifiers) ORDER BY administrativeUnit.code ASC");
+		if(ApplicationScopeLifeCycleListener.isUserEnabled())
+			addQueryCollectInstances(readByUsersIdentifiers, "SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit WHERE EXISTS (SELECT userAdministrativeUnit FROM UserAdministrativeUnit userAdministrativeUnit WHERE userAdministrativeUnit.administrativeUnit = administrativeUnit AND userAdministrativeUnit.user.identifier IN :usersIdentifiers) ORDER BY administrativeUnit.code ASC");
 		addQueryCollectInstances(readBySectionsCodes, "SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit WHERE administrativeUnit.section.code IN :sectionsCodes ORDER BY administrativeUnit.code ASC");
 		addQueryCollectInstances(readByProgramsCodes, "SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit "
 				+ "WHERE EXISTS(SELECT activity FROM Activity activity WHERE activity.action.program.code IN :programsCodes AND EXISTS"
@@ -228,6 +233,26 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 		}else if(field.getName().equals(AdministrativeUnit.FIELD_CHILDREN)) {
 			administrativeUnit.setChildren(read(new Properties().setQueryIdentifier(AdministrativeUnitPersistence.READ_CHILDREN_BY_CODES)
 					.setQueryFilters(__inject__(Filter.class).addField(AdministrativeUnit.FIELD_CODE, List.of(administrativeUnit.getCode())))));
+		}
+	}
+	
+	@Override
+	protected void __listenExecuteReadAfterSetFieldValue__(AdministrativeUnit administrativeUnit, String fieldName,Properties properties) {
+		super.__listenExecuteReadAfterSetFieldValue__(administrativeUnit, fieldName, properties);
+		if(fieldName.equals(AdministrativeUnit.FIELD_ACTIVITIES+"."+Activity.FIELD_ADMINISTRATIVE_UNIT_BENEFICIAIRE)) {
+			if(administrativeUnit.getActivities() != null) {
+				Collection<AdministrativeUnitActivity> administrativeUnitActivities = 
+						((ReadAdministrativeUnitActivityByAdministrativeUnits)__inject__(AdministrativeUnitActivityPersistence.class)).readByAdministrativeUnits(administrativeUnit);
+				if(CollectionHelper.isNotEmpty(administrativeUnitActivities)) {
+					for(Activity activity : administrativeUnit.getActivities()) {
+						for(AdministrativeUnitActivity administrativeUnitActivity : administrativeUnitActivities)
+							if(administrativeUnitActivity.getActivity().equals(activity)) {
+								activity.setAdministrativeUnitBeneficiaire(administrativeUnitActivity.getAdministrativeUnitBeneficiaire());
+								break;
+							}	
+					}	
+				}				
+			}			
 		}
 	}
 	

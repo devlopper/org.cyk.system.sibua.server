@@ -7,6 +7,7 @@ import javax.enterprise.context.ApplicationScoped;
 import org.cyk.system.sibua.server.persistence.api.query.ReadFunctionByUsers;
 import org.cyk.system.sibua.server.persistence.api.user.FunctionPersistence;
 import org.cyk.system.sibua.server.persistence.entities.user.Function;
+import org.cyk.system.sibua.server.persistence.impl.ApplicationScopeLifeCycleListener;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.properties.Properties;
 import org.cyk.utility.server.persistence.AbstractPersistenceEntityImpl;
@@ -21,7 +22,8 @@ public class FunctionPersistenceImpl extends AbstractPersistenceEntityImpl<Funct
 	@Override
 	protected void __listenPostConstructPersistenceQueries__() {
 		super.__listenPostConstructPersistenceQueries__();
-		addQueryCollectInstances(readByUsersIdentifiers, "SELECT function FROM Function function WHERE EXISTS (SELECT userFunction FROM UserFunction userFunction WHERE userFunction.function = function AND userFunction.user.identifier IN :usersIdentifiers)  ORDER BY function.code ASC");
+		if(ApplicationScopeLifeCycleListener.isUserEnabled())
+			addQueryCollectInstances(readByUsersIdentifiers, "SELECT function FROM Function function WHERE EXISTS (SELECT userFunction FROM UserFunction userFunction WHERE userFunction.function = function AND userFunction.user.identifier IN :usersIdentifiers)  ORDER BY function.code ASC");
 	}
 	
 	@Override

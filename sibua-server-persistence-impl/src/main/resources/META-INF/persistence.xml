@@ -4,6 +4,7 @@
     	<jta-data-source>${data.source.jndi.name}</jta-data-source>
     	<exclude-unlisted-classes>true</exclude-unlisted-classes>
     	
+    	<!--
     	<class>org.cyk.system.sibua.server.persistence.entities.user.FunctionCategory</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.user.FunctionType</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.user.Function</class>
@@ -17,6 +18,7 @@
     	<class>org.cyk.system.sibua.server.persistence.entities.user.UserAdministrativeUnit</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.user.UserLocalisation</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.user.UserActivity</class>
+    	-->
     	
     	<class>org.cyk.system.sibua.server.persistence.entities.Section</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit</class>
@@ -34,6 +36,9 @@
     	<class>org.cyk.system.sibua.server.persistence.entities.ActivityDestination</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitDestination</class>    	
     	<class>org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitHierarchy</class>
+    	<!--
+    	<class>org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitActivityType</class>
+    	-->
     	<class>org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitActivity</class>
     	
 		<properties>

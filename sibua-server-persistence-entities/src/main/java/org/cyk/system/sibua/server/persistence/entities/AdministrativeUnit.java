@@ -25,11 +25,7 @@ import lombok.experimental.Accessors;
 
 @Getter @Setter @Accessors(chain=true) @NoArgsConstructor
 @Entity
-@Table(name=AdministrativeUnit.TABLE_NAME/*,
-uniqueConstraints= {
-		@UniqueConstraint(name=AdministrativeUnit.UNIQUE_CONSTRAINT_SERVICE_GROUP_FUNCTIONAL_CLASSIFICATION_ORDER_NUMBER
-				,columnNames= {AdministrativeUnit.COLUMN_SERVICE_GROUP,AdministrativeUnit.COLUMN_FUNCTIONAL_CLASSIFICATION,AdministrativeUnit.FIELD_ORDER_NUMBER}
-		)}*/)
+@Table(name=AdministrativeUnit.TABLE_NAME)
 public class AdministrativeUnit extends AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -41,11 +37,14 @@ public class AdministrativeUnit extends AbstractIdentifiableSystemScalarStringId
 	
 	@Transient private Collection<Program> programs;
 	@Transient private Collection<Activity> activities;
+	//@Transient private Collection<Activity> activitiesGestionnaire;
+	//@Transient private Collection<Activity> activitiesBeneficiaire;
 	@Transient private AdministrativeUnit parent;
 	@Transient private Collection<AdministrativeUnit> parents;
 	@Transient private Collection<AdministrativeUnit> children;
 	@Transient private Collection<Destination> destinations;
 	@Transient private Collection<ActivityDestination> activityDestinations;
+	@Transient private Collection<AdministrativeUnitActivity> administrativeUnitActivities;
 	
 	public AdministrativeUnit(String code,String name,String sectionCode,String serviceGroupCode,String functionalClassificationCode,String localisationCode) {
 		super(code, name);
@@ -135,6 +134,8 @@ public class AdministrativeUnit extends AbstractIdentifiableSystemScalarStringId
 	public static final String FIELD_LOCALISATION = "localisation";
 	public static final String FIELD_ORDER_NUMBER = "orderNumber";
 	public static final String FIELD_ACTIVITIES = "activities";
+	//public static final String FIELD_ACTIVITIES_GESTIONNAIRE = "activitiesGestionnaire";
+	//public static final String FIELD_ACTIVITIES_BENEFICIAIRE = "activitiesBeneficiaire";
 	public static final String FIELD_PROGRAMS = "programs";
 	public static final String FIELD_DESTINATIONS = "destinations";
 	public static final String FIELD_PARENT = "parent";

@@ -32,6 +32,8 @@ public class Activity extends AbstractIdentifiableSystemScalarStringIdentifiable
 	@Transient private Section section;
 	@Transient private Program program;
 	@Transient private AdministrativeUnit administrativeUnit;
+	@Transient private AdministrativeUnit administrativeUnitGestionnaire;
+	@Transient private AdministrativeUnit administrativeUnitBeneficiaire;
 	@Transient private Collection<Destination> destinations;
 	
 	public Activity(String code,String name,String actionCode) {
@@ -57,6 +59,22 @@ public class Activity extends AbstractIdentifiableSystemScalarStringIdentifiable
 		return this;
 	}
 	
+	public Activity setAdministrativeUnitFromCode(String code) {
+		if(StringHelper.isBlank(code))
+			this.administrativeUnit = null;
+		else
+			this.administrativeUnit = InstanceGetter.getInstance().getByBusinessIdentifier(AdministrativeUnit.class, code);
+		return this;
+	}
+	
+	public Activity setAdministrativeUnitBeneficiaireFromCode(String code) {
+		if(StringHelper.isBlank(code))
+			this.administrativeUnitBeneficiaire = null;
+		else
+			this.administrativeUnitBeneficiaire = InstanceGetter.getInstance().getByBusinessIdentifier(AdministrativeUnit.class, code);
+		return this;
+	}
+	
 	public static final String FIELD_ACTION = "action";
 	public static final String FIELD_YEAR = "year";
 	public static final String FIELD_AMOUNT_AE = "amountAE";
@@ -64,6 +82,8 @@ public class Activity extends AbstractIdentifiableSystemScalarStringIdentifiable
 	public static final String FIELD_SECTION = "section";
 	public static final String FIELD_PROGRAM = "program";
 	public static final String FIELD_ADMINISTRATIVE_UNIT = "administrativeUnit";
+	public static final String FIELD_ADMINISTRATIVE_UNIT_GESTIONNAIRE = "administrativeUnitGestionnaire";
+	public static final String FIELD_ADMINISTRATIVE_UNIT_BENEFICIAIRE = "administrativeUnitBeneficiaire";
 	public static final String FIELD_DESTINATIONS = "destinations";
 	
 	public static final String COLUMN_ACTION = FIELD_ACTION;

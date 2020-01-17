@@ -331,10 +331,10 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 		activities = __inject__(ActivityPersistence.class).read(new Properties().setQueryIdentifier(ActivityPersistence.READ_BY_FILTERS).setQueryFilters(__inject__(Filter.class)));
 		assertThat(activities.stream().map(Activity::getCode).collect(Collectors.toList())).containsExactly("atv1","atv2","atv3","atv4","atv5","atv6","atv7");
 		
-		activities = __inject__(ActivityPersistence.class).read(new Properties().setQueryIdentifier(ActivityPersistence.READ_BY_FILTERS).setQueryFilters(__inject__(Filter.class).addField(Activity.FIELD_ADMINISTRATIVE_UNIT, List.of("ua1"))));
+		activities = __inject__(ActivityPersistence.class).read(new Properties().setQueryIdentifier(ActivityPersistence.READ_BY_FILTERS).setQueryFilters(__inject__(Filter.class).addField(Activity.FIELD_ADMINISTRATIVE_UNIT_GESTIONNAIRE, List.of("ua1"))));
 		assertThat(activities.stream().map(Activity::getCode).collect(Collectors.toList())).containsExactly("atv1");
 		
-		activities = __inject__(ActivityPersistence.class).read(new Properties().setQueryIdentifier(ActivityPersistence.READ_BY_FILTERS).setQueryFilters(__inject__(Filter.class).addField(Activity.FIELD_ADMINISTRATIVE_UNIT, List.of("ua2"))));
+		activities = __inject__(ActivityPersistence.class).read(new Properties().setQueryIdentifier(ActivityPersistence.READ_BY_FILTERS).setQueryFilters(__inject__(Filter.class).addField(Activity.FIELD_ADMINISTRATIVE_UNIT_GESTIONNAIRE, List.of("ua2"))));
 		assertThat(activities).isEmpty();		
 	}
 	
