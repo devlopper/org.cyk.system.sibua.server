@@ -46,6 +46,8 @@ public class AdministrativeUnit extends AbstractIdentifiableSystemScalarStringId
 	@Transient private Collection<ActivityDestination> activityDestinations;
 	@Transient private Collection<AdministrativeUnitActivity> administrativeUnitActivities;
 	
+	@Transient private AdministrativeUnit administrativeUnit;
+	
 	public AdministrativeUnit(String code,String name,String sectionCode,String serviceGroupCode,String functionalClassificationCode,String localisationCode) {
 		super(code, name);
 		setSectionFromCode(sectionCode);
@@ -141,6 +143,7 @@ public class AdministrativeUnit extends AbstractIdentifiableSystemScalarStringId
 	public static final String FIELD_PARENT = "parent";
 	public static final String FIELD_CHILDREN = "children";
 	public static final String FIELD_ACTIVITY_DESTINATIONS = "activityDestinations";
+	public static final String FIELD_ADMINISTRATIVE_UNIT = "administrativeUnit";
 	
 	public static final String COLUMN_SECTION = Section.TABLE_NAME;	
 	public static final String COLUMN_SERVICE_GROUP = ServiceGroup.TABLE_NAME;	
@@ -151,4 +154,6 @@ public class AdministrativeUnit extends AbstractIdentifiableSystemScalarStringId
 	public static final String TABLE_NAME = "unite_administrative";	
 	
 	public static final String UNIQUE_CONSTRAINT_SERVICE_GROUP_FUNCTIONAL_CLASSIFICATION_ORDER_NUMBER = COLUMN_SERVICE_GROUP+COLUMN_FUNCTIONAL_CLASSIFICATION+COLUMN_ORDER_NUMBER;
+
+	public static final String __VARIABLE_NAME__ = StringHelper.getVariableNameFrom(AdministrativeUnit.class.getSimpleName());	
 }

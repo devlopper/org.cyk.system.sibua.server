@@ -5,6 +5,7 @@ import java.util.Collection;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
 import org.cyk.system.sibua.server.persistence.entities.FunctionalClassification;
 import org.cyk.system.sibua.server.persistence.entities.ServiceGroup;
+import org.cyk.utility.__kernel__.persistence.PersistenceHelper;
 import org.cyk.utility.__kernel__.persistence.QueryIdentifierBuilder;
 import org.cyk.utility.__kernel__.properties.Properties;
 import org.cyk.utility.__kernel__.string.StringHelper;
@@ -69,6 +70,9 @@ public interface AdministrativeUnitPersistence extends PersistenceEntity<Adminis
 	String READ_BY_FILTERS = QueryIdentifierBuilder.getInstance().build(AdministrativeUnit.class,"readByFilters");
 	String COUNT_BY_FILTERS = QueryIdentifierBuilder.getInstance().build(AdministrativeUnit.class,"countByFilters");
 	
+	String READ_BY_FILTERS_LIKE = QueryIdentifierBuilder.getInstance().build(AdministrativeUnit.class,"readByFiltersLike");
+	String COUNT_BY_FILTERS_LIKE = QueryIdentifierBuilder.getInstance().build(AdministrativeUnit.class,"countByFiltersLike");
+	
 	String READ_BY_FILTERS_CODES_LIKE = QueryIdentifierBuilder.getInstance().build(AdministrativeUnit.class,"readByFiltersCodesLike");
 	String COUNT_BY_FILTERS_CODES_LIKE = QueryIdentifierBuilder.getInstance().build(AdministrativeUnit.class,"countByFiltersCodesLike");
 	
@@ -83,4 +87,7 @@ public interface AdministrativeUnitPersistence extends PersistenceEntity<Adminis
 	
 	String READ_CHILDREN_BY_CODES = QueryIdentifierBuilder.getInstance().build(AdministrativeUnit.class,"readChildrenByCodes");
 	String COUNT_CHILDREN_BY_CODES = QueryIdentifierBuilder.getInstance().build(AdministrativeUnit.class,"countChildrenByCodes");
+	
+	String READ_WHERE_CODE_OR_NAME_CONTAINS_AND_SECTION_CODE_LIKES = PersistenceHelper.getQueryIdentifier(AdministrativeUnit.class,"readWhereCodeOrNameContainsAndSectionCodeLikes");
+	String COUNT_WHERE_CODE_OR_NAME_CONTAINS_AND_SECTION_CODE_LIKES = PersistenceHelper.getQueryIdentifier(AdministrativeUnit.class,"countWhereCodeOrNameContainsAndSectionCodeLikes");
 }

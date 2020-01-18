@@ -6,7 +6,6 @@ import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import org.apache.commons.lang3.StringUtils;
 import org.cyk.system.sibua.server.persistence.api.ActivityPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitActivityPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitPersistence;
@@ -28,6 +27,7 @@ import org.cyk.system.sibua.server.persistence.entities.Section;
 import org.cyk.utility.__kernel__.array.ArrayHelper;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.constant.ConstantEmpty;
+import org.cyk.utility.__kernel__.persistence.QueryHelper;
 import org.cyk.utility.__kernel__.properties.Properties;
 import org.cyk.utility.server.persistence.AbstractPersistenceEntityImpl;
 import org.cyk.utility.server.persistence.PersistenceFunctionReader;
@@ -42,7 +42,7 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 	private String readWhereAdministrativeUnitDoesNotExistBySectionsCodes,readWhereAdministrativeUnitDoesNotExistByProgramsCodes
 	,readWhereAdministrativeUnitDoesNotExistByActionsCodes,readBySectionsCodes,readByProgramsCodes,readByActionsCodes,readByAdministrativeUnitsCodes
 	,readByFilters,readWhereCodeNotInByFilters,readWhereAdministrativeUnitDoesNotExistByFilters,readWhereCodeNotInAndAdministrativeUnitDoesNotExistByFilters
-	,readByFiltersCodesLike,readByUsersIdentifiers;
+	,readByFiltersCodesLike,readByUsersIdentifiers,readWhereCodeOrNameContainsAndSectionCodeLikes;
 	
 	@Override
 	protected void __listenPostConstructPersistenceQueries__() {
@@ -58,6 +58,8 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 				+ "(SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity "
 				+ "AND administrativeUnitActivity.administrativeUnit.code IN :administrativeUnitsCodes AND administrativeUnitActivity.type.code IN :administrativeUnitActivityTypesCodes) ORDER BY activity.code ASC");
 		*/
+		
+		addQueryCollectInstances(readWhereCodeOrNameContainsAndSectionCodeLikes, "SELECT activity FROM Activity activity WHERE activity.code LIKE :code OR activity.name LIKE :name AND activity.action.program.section.code LIKE :sectionCode ORDER BY activity.code ASC");
 		addQueryCollectInstances(readWhereAdministrativeUnitDoesNotExistBySectionsCodes, "SELECT activity FROM Activity activity WHERE activity.action.program.section.code IN :sectionsCodes AND NOT EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity)  ORDER BY activity.code ASC");
 		addQueryCollectInstances(readWhereAdministrativeUnitDoesNotExistByProgramsCodes, "SELECT activity FROM Activity activity WHERE activity.action.program.code IN :programsCodes AND NOT EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity)  ORDER BY activity.code ASC");
 		addQueryCollectInstances(readWhereAdministrativeUnitDoesNotExistByActionsCodes, "SELECT activity FROM Activity activity WHERE activity.action.code IN :actionsCodes AND NOT EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity)  ORDER BY activity.code ASC");
@@ -80,7 +82,13 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 				+ "AND activity.action.code LIKE LOWER(:actionCode) "
 				+ "AND activity.action.program.code LIKE LOWER(:programCode) "
 				+ "AND activity.action.program.section.code LIKE LOWER(:sectionCode) "
-				+ "AND (:anyAdministrativeUnit = true OR EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity AND administrativeUnitActivity.administrativeUnit.code LIKE LOWER(:administrativeUnitCode))) "
+				+ "AND (:anyAdministrativeUnit = true OR EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity"
+				+ " WHERE administrativeUnitActivity.activity = activity AND "
+				+ "administrativeUnitActivity.administrativeUnit.code LIKE :administrativeUnitCode "
+				+ "OR administrativeUnitActivity.administrativeUnit.name LIKE LOWER(:administrativeUnitName) "
+				+ "OR administrativeUnitActivity.administrativeUnitBeneficiaire.code LIKE :administrativeUnitBeneficiaireCode "
+				+ "OR administrativeUnitActivity.administrativeUnitBeneficiaire.name LIKE LOWER(:administrativeUnitBeneficiaireName) "
+				+ ")) "
 				+ AND_PROGRAM_BUDGET_CATEGORY_CODE_IS_1_OR_3_OR_7
 				//+ "AND NOT EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity) "
 				+ "ORDER BY activity.code ASC");
@@ -94,6 +102,29 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 				+ "AND activity.action.code IN :actionsCodes "
 				+ AND_PROGRAM_BUDGET_CATEGORY_CODE_IS_1_OR_3_OR_7
 				//+ "AND NOT EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity) "
+				+ "ORDER BY activity.code ASC");
+		
+		addQueryCollectInstances(readByFiltersLike, 
+				"SELECT activity FROM Activity activity "
+				+ "WHERE "
+				+ "("+QueryHelper.formatTupleFieldLike("activity", "code","activity") + " OR " + QueryHelper.formatTupleFieldLike("activity", "name","activity")+")"
+				+ " AND ("+QueryHelper.formatTupleFieldLike("activity", "action.code","action") + " OR " + QueryHelper.formatTupleFieldLike("activity", "action.name","action")+")"
+				+ " AND ("+QueryHelper.formatTupleFieldLike("activity", "action.program.code","program") + " OR " + QueryHelper.formatTupleFieldLike("activity", "action.program.name","program")+")"
+				+ " AND ("+QueryHelper.formatTupleFieldLike("activity", "action.program.section.code","section") + " OR " + QueryHelper.formatTupleFieldLike("activity", "action.program.section.name","section")+")"
+				
+				+ " AND (EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity AND "
+				+ " (LOWER(administrativeUnitActivity.administrativeUnit.code) LIKE LOWER(:administrativeUnit) OR administrativeUnitActivity.administrativeUnit.name LIKE LOWER(:administrativeUnit) "
+				+ "))) "
+				
+				+ " AND (EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity AND "
+				+ " (LOWER(administrativeUnitActivity.administrativeUnitBeneficiaire.code) LIKE LOWER(:administrativeUnitBeneficiaire) OR administrativeUnitActivity.administrativeUnitBeneficiaire.name LIKE LOWER(:administrativeUnitBeneficiaire)"
+				+ "))) "
+				
+				//+ " AND ("+QueryHelper.formatTupleFieldLike("activity", "administrativeUnit.code","administrativeUnit") + " OR " + QueryHelper.formatTupleFieldLike("activity", "administrativeUnit.name","administrativeUnit")+")"
+				//+ " AND ("+QueryHelper.formatTupleFieldLike("activity", "administrativeUnitBeneficiaire.code","administrativeUnitBeneficiaire") + " OR " + QueryHelper.formatTupleFieldLike("activity", "administrativeUnitBeneficiaire.name","administrativeUnitBeneficiaire")+")"
+				
+				+ " AND ("+QueryHelper.formatTupleFieldLike("activity", "catAtvCode")+")"
+				
 				+ "ORDER BY activity.code ASC");
 		
 		addQueryCollectInstances(readWhereAdministrativeUnitDoesNotExistByFilters, "SELECT activity FROM Activity activity "
@@ -298,6 +329,12 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 				objects = new Object[] {queryContext.getFilterByKeysValue(Activity.FIELD_ADMINISTRATIVE_UNIT_GESTIONNAIRE)};
 			return new Object[]{"administrativeUnitsCodes",objects[0]};
 		}
+		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readWhereCodeOrNameContainsAndSectionCodeLikes)) {
+			if(ArrayHelper.isEmpty(objects))
+				objects = new Object[] {queryContext.getStringLike(Activity.FIELD_CODE),queryContext.getStringLike(Activity.FIELD_NAME)
+						,queryContext.getStringLike(Activity.FIELD_SECTION)};
+			return new Object[]{"code",objects[0],"name",objects[1],"sectionCode",objects[2]};
+		}
 		/*
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByAdministrativeUnitsCodesByAdministrativeUnitActivityTypesCodes)) {
 			if(ArrayHelper.isEmpty(objects))
@@ -332,10 +369,12 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 			if(ArrayHelper.isEmpty(objects)) {
 				objects = new Object[] {queryContext.getStringLike(Activity.FIELD_CODE),queryContext.getStringLike(Activity.FIELD_NAME)
 						,queryContext.getStringLike(Activity.FIELD_SECTION),queryContext.getStringLike(Activity.FIELD_PROGRAM)
-						,queryContext.getStringLike(Activity.FIELD_ACTION),queryContext.getStringLike(Activity.FIELD_ADMINISTRATIVE_UNIT_GESTIONNAIRE)};
+						,queryContext.getStringLike(Activity.FIELD_ACTION),queryContext.getStringLike(Activity.FIELD_ADMINISTRATIVE_UNIT)
+						,queryContext.getStringLike(Activity.FIELD_ADMINISTRATIVE_UNIT_BENEFICIAIRE)};
 			}			
 			objects = new Object[]{Activity.FIELD_CODE,objects[0],Activity.FIELD_NAME,objects[1],"sectionCode",objects[2],"programCode",objects[3],"actionCode",objects[4]
-					,"anyAdministrativeUnit",Boolean.TRUE,"administrativeUnitCode",objects[5]};
+					,"anyAdministrativeUnit",Boolean.TRUE,"administrativeUnitCode",objects[5],"administrativeUnitName",objects[5]
+							,"administrativeUnitBeneficiaireCode",objects[6],"administrativeUnitBeneficiaireName",objects[6]};
 			return objects;
 		}
 		
@@ -345,6 +384,20 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 				objects = new Object[] {queryContext.getStrings(Activity.FIELD_CODE),queryContext.getStringLike(Activity.FIELD_NAME)
 						,queryContext.getCodes(Section.class),queryContext.getCodes(Program.class),queryContext.getCodes(Action.class)};
 			objects = new Object[]{"codes",objects[0],Activity.FIELD_NAME,objects[1],"sectionsCodes",objects[2],"programsCodes",objects[3],"actionsCodes",objects[4]};
+			return objects;
+		}
+		
+		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByFiltersLike)) {
+			if(ArrayHelper.isEmpty(objects)) {
+				objects = new Object[] {queryContext.getStringLike(Activity.FIELD_ACTIVITY),queryContext.getStringLike(Activity.FIELD_ACTION)
+						,queryContext.getStringLike(Activity.FIELD_PROGRAM),queryContext.getStringLike(Activity.FIELD_SECTION)
+						,queryContext.getStringLike(Activity.FIELD_CAT_ATV_CODE),queryContext.getStringLike(Activity.FIELD_ADMINISTRATIVE_UNIT)
+						,queryContext.getStringLike(Activity.FIELD_ADMINISTRATIVE_UNIT_BENEFICIAIRE)};
+			}			
+			objects = new Object[]{Activity.FIELD_ACTIVITY,objects[0],Activity.FIELD_ACTION,objects[1],Activity.FIELD_PROGRAM,objects[2],Activity.FIELD_SECTION,objects[3]
+					,Activity.FIELD_CAT_ATV_CODE,objects[4],Activity.FIELD_ADMINISTRATIVE_UNIT,objects[5],Activity.FIELD_ADMINISTRATIVE_UNIT_BENEFICIAIRE,objects[6]
+				};
+			//System.out.println("P ::: "+Arrays.deepToString(objects));
 			return objects;
 		}
 		

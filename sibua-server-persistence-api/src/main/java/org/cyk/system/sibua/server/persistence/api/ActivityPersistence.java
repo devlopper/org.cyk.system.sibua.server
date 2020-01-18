@@ -69,9 +69,16 @@ public interface ActivityPersistence extends PersistenceEntity<Activity> {
 	String READ_BY_FILTERS_CODES_LIKE = QueryIdentifierBuilder.getInstance().build(Activity.class,"readByFiltersCodesLike");
 	String COUNT_BY_FILTERS_CODES_LIKE = QueryIdentifierBuilder.getInstance().build(Activity.class,"countByFiltersCodesLike");
 	
+	String READ_BY_FILTERS_LIKE = QueryIdentifierBuilder.getInstance().build(Activity.class,"readByFiltersLike");
+	String COUNT_BY_FILTERS_LIKE = QueryIdentifierBuilder.getInstance().build(Activity.class,"countByFiltersLike");
+	
 	String READ_WHERE_ADMINISTRATIVE_UNIT_DOES_NOT_EXIST_BY_FILTERS = PersistenceHelper.getQueryIdentifier(Activity.class,"readWhereAdministrativeUnitDoesNotExistByFilters");
 	
 	String READ_WHERE_CODE_NOT_IN_AND_ADMINISTRATIVEUNIT_DOES_NOT_EXIST_BY_FILTERS = PersistenceHelper.getQueryIdentifier(Activity.class,"readWhereCodeNotInAndAdministrativeUnitDoesNotExistByFilters");
 	String COUNT_WHERE_CODE_NOT_IN_AND_ADMINISTRATIVEUNIT_DOES_NOT_EXIST_BY_FILTERS = PersistenceHelper.getQueryIdentifier(Activity.class,"countWhereCodeNotInAndAdministrativeUnitDoesNotExistByFilters");
+	
+	String READ_WHERE_CODE_OR_NAME_CONTAINS_AND_SECTION_CODE_LIKES = PersistenceHelper.getQueryIdentifier(Activity.class,"readWhereCodeOrNameContainsAndSectionCodeLikes");
+	String COUNT_WHERE_CODE_OR_NAME_CONTAINS_AND_SECTION_CODE_LIKES = PersistenceHelper.getQueryIdentifier(Activity.class,"countWhereCodeOrNameContainsAndSectionCodeLikes");
+
 	
 }

@@ -28,6 +28,9 @@ public class Activity extends AbstractIdentifiableSystemScalarStringIdentifiable
 	@Column(name = COLUMN_YEAR) private Integer year;
 	@Column(name = COLUMN_AMOUNT_AE) private Long amountAE;
 	@Column(name = COLUMN_AMOUNT_CP) private Long amountCP;
+	@Column(name = COLUMN_NAT_DEP_CODE) private String natDepCode;
+	@Column(name = COLUMN_CAT_USB_CODE) private String catUsbCode;
+	@Column(name = COLUMN_CAT_ATV_CODE) private String catAtvCode;
 	
 	@Transient private Section section;
 	@Transient private Program program;
@@ -35,6 +38,7 @@ public class Activity extends AbstractIdentifiableSystemScalarStringIdentifiable
 	@Transient private AdministrativeUnit administrativeUnitGestionnaire;
 	@Transient private AdministrativeUnit administrativeUnitBeneficiaire;
 	@Transient private Collection<Destination> destinations;
+	@Transient private String activity;
 	
 	public Activity(String code,String name,String actionCode) {
 		super(code,name);
@@ -85,11 +89,16 @@ public class Activity extends AbstractIdentifiableSystemScalarStringIdentifiable
 	public static final String FIELD_ADMINISTRATIVE_UNIT_GESTIONNAIRE = "administrativeUnitGestionnaire";
 	public static final String FIELD_ADMINISTRATIVE_UNIT_BENEFICIAIRE = "administrativeUnitBeneficiaire";
 	public static final String FIELD_DESTINATIONS = "destinations";
+	public static final String FIELD_CAT_ATV_CODE = "catAtvCode";
+	public static final String FIELD_ACTIVITY = "activity";
 	
 	public static final String COLUMN_ACTION = FIELD_ACTION;
 	public static final String COLUMN_YEAR = "ANNEE";
 	public static final String COLUMN_AMOUNT_AE = "MONTANT_AE";
 	public static final String COLUMN_AMOUNT_CP = "MONTANT_CP";
+	public static final String COLUMN_NAT_DEP_CODE = "NAT_DEP_CODE";
+	public static final String COLUMN_CAT_USB_CODE = "CAT_USB_CODE";
+	public static final String COLUMN_CAT_ATV_CODE = "CAT_ATV_CODE";
 	
 	public static final String TABLE_NAME = "activite";	
 	

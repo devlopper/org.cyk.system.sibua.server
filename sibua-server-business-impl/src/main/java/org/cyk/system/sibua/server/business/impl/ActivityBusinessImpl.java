@@ -58,7 +58,6 @@ public class ActivityBusinessImpl extends AbstractBusinessEntityImpl<Activity, A
 							administrativeUnitActivity = new AdministrativeUnitActivity();
 						}
 						administrativeUnitActivity.setActivity(activity).setAdministrativeUnit(activity.getAdministrativeUnit()).setAdministrativeUnitBeneficiaire(activity.getAdministrativeUnitBeneficiaire());
-						System.out.println("ActivityBusinessImpl.__listenExecuteUpdateBefore__() "+administrativeUnitActivity.getAdministrativeUnit()+" ::: "+administrativeUnitActivity.getAdministrativeUnitBeneficiaire());
 						__inject__(AdministrativeUnitActivityBusiness.class).save(administrativeUnitActivity);
 					}else {
 						//delete link

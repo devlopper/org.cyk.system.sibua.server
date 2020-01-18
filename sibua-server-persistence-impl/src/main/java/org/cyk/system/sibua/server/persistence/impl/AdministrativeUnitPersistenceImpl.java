@@ -41,6 +41,7 @@ import org.cyk.system.sibua.server.persistence.entities.ServiceGroup;
 import org.cyk.utility.__kernel__.array.ArrayHelper;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.constant.ConstantEmpty;
+import org.cyk.utility.__kernel__.persistence.QueryHelper;
 import org.cyk.utility.__kernel__.properties.Properties;
 import org.cyk.utility.__kernel__.string.StringHelper;
 import org.cyk.utility.server.persistence.AbstractPersistenceEntityImpl;
@@ -54,13 +55,15 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 
 	private String readBySectionsCodes,readByProgramsCodes,readByActivitiesCodes,readMaxOrderNumberByServiceGroupCode
 		,readMaxOrderNumberByServiceGroupCodeByFunctionalClassificationCode,readByFilters,readWhereCodeNotInByFilters,readByServiceGroupCodeByFunctionalClassificationCode
-		,readChildrenByCodes,readWhereCodeNotInByFiltersCodesLike,readByFiltersCodesLike,readByUsersIdentifiers;
+		,readChildrenByCodes,readWhereCodeNotInByFiltersCodesLike,readByFiltersCodesLike,readByUsersIdentifiers,readWhereCodeOrNameContainsAndSectionCodeLikes;
 	
 	@Override
 	protected void __listenPostConstructPersistenceQueries__() {
 		super.__listenPostConstructPersistenceQueries__();
 		if(ApplicationScopeLifeCycleListener.isUserEnabled())
 			addQueryCollectInstances(readByUsersIdentifiers, "SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit WHERE EXISTS (SELECT userAdministrativeUnit FROM UserAdministrativeUnit userAdministrativeUnit WHERE userAdministrativeUnit.administrativeUnit = administrativeUnit AND userAdministrativeUnit.user.identifier IN :usersIdentifiers) ORDER BY administrativeUnit.code ASC");
+		
+		addQueryCollectInstances(readWhereCodeOrNameContainsAndSectionCodeLikes, "SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit WHERE LOWER(administrativeUnit.code) LIKE LOWER(:code) OR LOWER(administrativeUnit.name) LIKE LOWER(:name) AND LOWER(administrativeUnit.section.code) LIKE LOWER(:sectionCode) ORDER BY administrativeUnit.code ASC");
 		addQueryCollectInstances(readBySectionsCodes, "SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit WHERE administrativeUnit.section.code IN :sectionsCodes ORDER BY administrativeUnit.code ASC");
 		addQueryCollectInstances(readByProgramsCodes, "SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit "
 				+ "WHERE EXISTS(SELECT activity FROM Activity activity WHERE activity.action.program.code IN :programsCodes AND EXISTS"
@@ -113,6 +116,16 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 				+ "AND LOWER(administrativeUnit.serviceGroup.code) LIKE LOWER(:serviceGroupCode) "
 				+ "AND LOWER(administrativeUnit.functionalClassification.code) LIKE LOWER(:functionalClassificationCode) "
 				+ "AND LOWER(administrativeUnit.localisation.code) LIKE LOWER(:localisationCode) "
+				+ "ORDER BY administrativeUnit.code ASC");
+		
+		addQueryCollectInstances(readByFiltersLike, 
+				"SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit "
+				+ "WHERE "
+				+ "("+QueryHelper.formatTupleFieldLike("administrativeUnit", "code","administrativeUnit") + " OR " + QueryHelper.formatTupleFieldLike("administrativeUnit", "name","administrativeUnit")+")"
+				+ " AND ("+QueryHelper.formatTupleFieldLike("administrativeUnit", "section.code","section") + " OR " + QueryHelper.formatTupleFieldLike("administrativeUnit", "section.name","section")+")"
+				+ " AND ("+QueryHelper.formatTupleFieldLike("administrativeUnit", "serviceGroup.code","serviceGroup") + " OR " + QueryHelper.formatTupleFieldLike("administrativeUnit", "serviceGroup.name","serviceGroup")+")"
+				+ " AND ("+QueryHelper.formatTupleFieldLike("administrativeUnit", "functionalClassification.code","functionalClassification") + " OR " + QueryHelper.formatTupleFieldLike("administrativeUnit", "functionalClassification.name","functionalClassification")+")"
+				+ " AND ("+QueryHelper.formatTupleFieldLike("administrativeUnit", "localisation.code","localisation") + " OR " + QueryHelper.formatTupleFieldLike("administrativeUnit", "localisation.name","localisation")+")"
 				+ "ORDER BY administrativeUnit.code ASC");
 		
 		addQueryCollectInstances(readWhereCodeNotInByFilters, 
@@ -368,6 +381,20 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 			return objects;
 		}
 		
+		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByFiltersLike)) {
+			if(ArrayHelper.isEmpty(objects)) {
+				objects = new Object[] {queryContext.getStringLike(AdministrativeUnit.FIELD_ADMINISTRATIVE_UNIT),queryContext.getStringLike(AdministrativeUnit.FIELD_SECTION)
+						,queryContext.getStringLike(AdministrativeUnit.FIELD_SERVICE_GROUP),queryContext.getStringLike(AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION)
+						,queryContext.getStringLike(AdministrativeUnit.FIELD_LOCALISATION)};
+			}			
+			objects = new Object[]{AdministrativeUnit.FIELD_ADMINISTRATIVE_UNIT,objects[0],AdministrativeUnit.FIELD_SECTION,objects[1]
+					,AdministrativeUnit.FIELD_SERVICE_GROUP,objects[2],AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION,objects[3]
+					,AdministrativeUnit.FIELD_LOCALISATION,objects[4]
+				};
+			//System.out.println("P ::: "+Arrays.deepToString(objects));
+			return objects;
+		}
+		
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByFiltersCodesLike)) {
 			if(ArrayHelper.isEmpty(objects)) {
 				Object code = null;
@@ -485,6 +512,13 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 					,"sectionCode",objects[2],"functionalClassificationCode",objects[3],"serviceGroupCode",objects[4],"localisationCode",objects[5]};
 			//System.out.println("AdministrativeUnitPersistenceImpl.__getQueryParameters__() : "+java.util.Arrays.deepToString(objects));
 			return objects;
+		}
+		
+		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readWhereCodeOrNameContainsAndSectionCodeLikes)) {
+			if(ArrayHelper.isEmpty(objects))
+				objects = new Object[] {queryContext.getStringLike(Activity.FIELD_CODE),queryContext.getStringLike(Activity.FIELD_NAME)
+						,queryContext.getStringLike(Activity.FIELD_SECTION)};
+			return new Object[]{"code",objects[0],"name",objects[1],"sectionCode",objects[2]};
 		}
 		
 		return super.__getQueryParameters__(queryContext, properties, objects);
