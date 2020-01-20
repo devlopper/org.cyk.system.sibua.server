@@ -8,7 +8,7 @@ import org.cyk.system.sibua.server.representation.api.AdministrativeUnitActivity
 import org.cyk.system.sibua.server.representation.entities.AdministrativeUnitActivityTypeDto;
 import org.cyk.utility.server.representation.AbstractRepresentationEntityImpl;
 
-@ApplicationScoped
+@ApplicationScoped @Deprecated
 public class AdministrativeUnitActivityTypeRepresentationImpl extends AbstractRepresentationEntityImpl<AdministrativeUnitActivityTypeDto> implements AdministrativeUnitActivityTypeRepresentation,Serializable {
 	private static final long serialVersionUID = 1L;
 	

@@ -8,9 +8,9 @@ import org.cyk.system.sibua.server.persistence.api.LocalisationPersistence;
 import org.cyk.system.sibua.server.persistence.api.query.ReadLocalisationByUsers;
 import org.cyk.system.sibua.server.persistence.entities.Localisation;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
+import org.cyk.utility.__kernel__.persistence.query.QueryContext;
 import org.cyk.utility.__kernel__.properties.Properties;
 import org.cyk.utility.server.persistence.AbstractPersistenceEntityImpl;
-import org.cyk.utility.server.persistence.query.PersistenceQueryContext;
 
 @ApplicationScoped
 public class LocalisationPersistenceImpl extends AbstractPersistenceEntityImpl<Localisation> implements LocalisationPersistence,ReadLocalisationByUsers,Serializable {
@@ -36,7 +36,7 @@ public class LocalisationPersistenceImpl extends AbstractPersistenceEntityImpl<L
 	}
 	
 	@Override
-	protected Object[] __getQueryParameters__(PersistenceQueryContext queryContext, Properties properties, Object... objects) {
+	protected Object[] __getQueryParameters__(QueryContext queryContext, Properties properties, Object... objects) {
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByUsersIdentifiers)) {
 			return new Object[]{"usersIdentifiers",objects[0]};
 		}

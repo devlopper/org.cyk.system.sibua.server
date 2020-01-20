@@ -10,10 +10,10 @@ import org.cyk.system.sibua.server.persistence.api.query.ReadDestinationByAdmini
 import org.cyk.system.sibua.server.persistence.entities.Destination;
 import org.cyk.utility.__kernel__.array.ArrayHelper;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
+import org.cyk.utility.__kernel__.persistence.query.QueryContext;
 import org.cyk.utility.__kernel__.properties.Properties;
 import org.cyk.utility.server.persistence.AbstractPersistenceEntityImpl;
 import org.cyk.utility.server.persistence.PersistenceFunctionReader;
-import org.cyk.utility.server.persistence.query.PersistenceQueryContext;
 
 @ApplicationScoped
 public class DestinationPersistenceImpl extends AbstractPersistenceEntityImpl<Destination> implements DestinationPersistence,ReadDestinationByAdministrativeUnits,ReadDestinationByActivities,Serializable {
@@ -82,7 +82,7 @@ public class DestinationPersistenceImpl extends AbstractPersistenceEntityImpl<De
 	}
 	
 	@Override
-	protected Object[] __getQueryParameters__(PersistenceQueryContext queryContext, Properties properties,Object... objects) {
+	protected Object[] __getQueryParameters__(QueryContext queryContext, Properties properties,Object... objects) {
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readWhereAdministrativeUnitDoesNotExistBySectionsCodes)) {
 			if(ArrayHelper.isEmpty(objects))
 				objects = new Object[] {queryContext.getFilterByKeysValue(Destination.FIELD_SECTION)};

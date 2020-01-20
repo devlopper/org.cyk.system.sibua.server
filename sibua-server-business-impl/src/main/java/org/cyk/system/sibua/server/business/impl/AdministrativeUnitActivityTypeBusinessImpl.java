@@ -9,7 +9,7 @@ import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitActivityTyp
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitActivityType;
 import org.cyk.utility.server.business.AbstractBusinessEntityImpl;
 
-@ApplicationScoped
+@ApplicationScoped @Deprecated
 public class AdministrativeUnitActivityTypeBusinessImpl extends AbstractBusinessEntityImpl<AdministrativeUnitActivityType, AdministrativeUnitActivityTypePersistence> implements AdministrativeUnitActivityTypeBusiness,Serializable {
 	private static final long serialVersionUID = 1L;
 		

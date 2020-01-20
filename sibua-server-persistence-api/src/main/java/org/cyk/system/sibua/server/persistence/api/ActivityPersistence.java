@@ -5,8 +5,8 @@ import java.util.Collection;
 import org.cyk.system.sibua.server.persistence.entities.Activity;
 import org.cyk.utility.__kernel__.array.ArrayHelper;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
-import org.cyk.utility.__kernel__.persistence.PersistenceHelper;
-import org.cyk.utility.__kernel__.persistence.QueryIdentifierBuilder;
+import org.cyk.utility.__kernel__.persistence.query.QueryHelper;
+import org.cyk.utility.__kernel__.persistence.query.QueryIdentifierBuilder;
 import org.cyk.utility.__kernel__.properties.Properties;
 import org.cyk.utility.server.persistence.PersistenceEntity;
 
@@ -72,13 +72,13 @@ public interface ActivityPersistence extends PersistenceEntity<Activity> {
 	String READ_BY_FILTERS_LIKE = QueryIdentifierBuilder.getInstance().build(Activity.class,"readByFiltersLike");
 	String COUNT_BY_FILTERS_LIKE = QueryIdentifierBuilder.getInstance().build(Activity.class,"countByFiltersLike");
 	
-	String READ_WHERE_ADMINISTRATIVE_UNIT_DOES_NOT_EXIST_BY_FILTERS = PersistenceHelper.getQueryIdentifier(Activity.class,"readWhereAdministrativeUnitDoesNotExistByFilters");
+	String READ_WHERE_ADMINISTRATIVE_UNIT_DOES_NOT_EXIST_BY_FILTERS = QueryHelper.getIdentifier(Activity.class,"readWhereAdministrativeUnitDoesNotExistByFilters");
 	
-	String READ_WHERE_CODE_NOT_IN_AND_ADMINISTRATIVEUNIT_DOES_NOT_EXIST_BY_FILTERS = PersistenceHelper.getQueryIdentifier(Activity.class,"readWhereCodeNotInAndAdministrativeUnitDoesNotExistByFilters");
-	String COUNT_WHERE_CODE_NOT_IN_AND_ADMINISTRATIVEUNIT_DOES_NOT_EXIST_BY_FILTERS = PersistenceHelper.getQueryIdentifier(Activity.class,"countWhereCodeNotInAndAdministrativeUnitDoesNotExistByFilters");
+	String READ_WHERE_CODE_NOT_IN_AND_ADMINISTRATIVEUNIT_DOES_NOT_EXIST_BY_FILTERS = QueryHelper.getIdentifier(Activity.class,"readWhereCodeNotInAndAdministrativeUnitDoesNotExistByFilters");
+	String COUNT_WHERE_CODE_NOT_IN_AND_ADMINISTRATIVEUNIT_DOES_NOT_EXIST_BY_FILTERS = QueryHelper.getIdentifier(Activity.class,"countWhereCodeNotInAndAdministrativeUnitDoesNotExistByFilters");
 	
-	String READ_WHERE_CODE_OR_NAME_CONTAINS_AND_SECTION_CODE_LIKES = PersistenceHelper.getQueryIdentifier(Activity.class,"readWhereCodeOrNameContainsAndSectionCodeLikes");
-	String COUNT_WHERE_CODE_OR_NAME_CONTAINS_AND_SECTION_CODE_LIKES = PersistenceHelper.getQueryIdentifier(Activity.class,"countWhereCodeOrNameContainsAndSectionCodeLikes");
+	String READ_WHERE_CODE_OR_NAME_CONTAINS_AND_SECTION_CODE_LIKES = QueryHelper.getIdentifier(Activity.class,"readWhereCodeOrNameContainsAndSectionCodeLikes");
+	String COUNT_WHERE_CODE_OR_NAME_CONTAINS_AND_SECTION_CODE_LIKES = QueryHelper.getIdentifier(Activity.class,"countWhereCodeOrNameContainsAndSectionCodeLikes");
 
 	
 }

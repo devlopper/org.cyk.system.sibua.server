@@ -40,14 +40,15 @@ import org.cyk.system.sibua.server.persistence.entities.Section;
 import org.cyk.system.sibua.server.persistence.entities.ServiceGroup;
 import org.cyk.utility.__kernel__.array.ArrayHelper;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
+import org.cyk.utility.__kernel__.computation.LogicalOperator;
 import org.cyk.utility.__kernel__.constant.ConstantEmpty;
-import org.cyk.utility.__kernel__.persistence.QueryHelper;
+import org.cyk.utility.__kernel__.persistence.query.QueryContext;
+import org.cyk.utility.__kernel__.persistence.query.QueryStringHelper;
+import org.cyk.utility.__kernel__.persistence.query.filter.Filter;
 import org.cyk.utility.__kernel__.properties.Properties;
 import org.cyk.utility.__kernel__.string.StringHelper;
 import org.cyk.utility.server.persistence.AbstractPersistenceEntityImpl;
 import org.cyk.utility.server.persistence.PersistenceFunctionReader;
-import org.cyk.utility.server.persistence.query.PersistenceQueryContext;
-import org.cyk.utility.server.persistence.query.filter.Filter;
 
 @ApplicationScoped
 public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntityImpl<AdministrativeUnit> implements AdministrativeUnitPersistence,ReadAdministrativeUnitBySections,ReadAdministrativeUnitByPrograms,ReadAdministrativeUnitByActivities,ReadAdministrativeUnitByUsers,Serializable {
@@ -121,11 +122,11 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 		addQueryCollectInstances(readByFiltersLike, 
 				"SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit "
 				+ "WHERE "
-				+ "("+QueryHelper.formatTupleFieldLike("administrativeUnit", "code","administrativeUnit") + " OR " + QueryHelper.formatTupleFieldLike("administrativeUnit", "name","administrativeUnit")+")"
-				+ " AND ("+QueryHelper.formatTupleFieldLike("administrativeUnit", "section.code","section") + " OR " + QueryHelper.formatTupleFieldLike("administrativeUnit", "section.name","section")+")"
-				+ " AND ("+QueryHelper.formatTupleFieldLike("administrativeUnit", "serviceGroup.code","serviceGroup") + " OR " + QueryHelper.formatTupleFieldLike("administrativeUnit", "serviceGroup.name","serviceGroup")+")"
-				+ " AND ("+QueryHelper.formatTupleFieldLike("administrativeUnit", "functionalClassification.code","functionalClassification") + " OR " + QueryHelper.formatTupleFieldLike("administrativeUnit", "functionalClassification.name","functionalClassification")+")"
-				+ " AND ("+QueryHelper.formatTupleFieldLike("administrativeUnit", "localisation.code","localisation") + " OR " + QueryHelper.formatTupleFieldLike("administrativeUnit", "localisation.name","localisation")+")"
+				+ "("+QueryStringHelper.formatTupleFieldLike("administrativeUnit", "code","administrativeUnit") + " OR " + QueryStringHelper.formatTupleFieldLikeOrTokens("administrativeUnit", "name","administrativeUnitName",4,LogicalOperator.AND)+")"
+				+ " AND ("+QueryStringHelper.formatTupleFieldLike("administrativeUnit", "section.code","section") + " OR " + QueryStringHelper.formatTupleFieldLike("administrativeUnit", "section.name","section")+")"
+				+ " AND ("+QueryStringHelper.formatTupleFieldLike("administrativeUnit", "serviceGroup.code","serviceGroup") + " OR " + QueryStringHelper.formatTupleFieldLike("administrativeUnit", "serviceGroup.name","serviceGroup")+")"
+				+ " AND ("+QueryStringHelper.formatTupleFieldLike("administrativeUnit", "functionalClassification.code","functionalClassification") + " OR " + QueryStringHelper.formatTupleFieldLike("administrativeUnit", "functionalClassification.name","functionalClassification")+")"
+				+ " AND ("+QueryStringHelper.formatTupleFieldLike("administrativeUnit", "localisation.code","localisation") + " OR " + QueryStringHelper.formatTupleFieldLike("administrativeUnit", "localisation.name","localisation")+")"
 				+ "ORDER BY administrativeUnit.code ASC");
 		
 		addQueryCollectInstances(readWhereCodeNotInByFilters, 
@@ -280,7 +281,7 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected Object[] __getQueryParameters__(PersistenceQueryContext queryContext, Properties properties,Object... objects) {
+	protected Object[] __getQueryParameters__(QueryContext queryContext, Properties properties,Object... objects) {
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByUsersIdentifiers)) {
 			return new Object[]{"usersIdentifiers",objects[0]};
 		}
@@ -328,7 +329,7 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByFilters)) {
 			if(ArrayHelper.isEmpty(objects)) {
 				Object code = null;
-				org.cyk.utility.server.persistence.query.filter.Field codeField = queryContext.getFilterFieldByKeys(AdministrativeUnit.FIELD_CODE);				
+				org.cyk.utility.__kernel__.persistence.query.filter.Field codeField = queryContext.getFilterFieldByKeys(AdministrativeUnit.FIELD_CODE);				
 				if(codeField == null || codeField.getValue() == null || codeField.getValue() instanceof String) {
 					code = "%"+(codeField == null ? ConstantEmpty.STRING : StringUtils.trimToEmpty((String) codeField.getValue()))+"%";
 				}else if(codeField.getValue() instanceof Collection) {
@@ -336,7 +337,7 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 				}
 								
 				Object name = null;
-				org.cyk.utility.server.persistence.query.filter.Field nameField = queryContext.getFilterFieldByKeys(AdministrativeUnit.FIELD_NAME);				
+				org.cyk.utility.__kernel__.persistence.query.filter.Field nameField = queryContext.getFilterFieldByKeys(AdministrativeUnit.FIELD_NAME);				
 				if(nameField == null || nameField.getValue() == null || nameField.getValue() instanceof String) {
 					name = "%"+(nameField == null ? ConstantEmpty.STRING : StringUtils.trimToEmpty((String) nameField.getValue()))+"%";
 				}			
@@ -383,13 +384,19 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 		
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByFiltersLike)) {
 			if(ArrayHelper.isEmpty(objects)) {
-				objects = new Object[] {queryContext.getStringLike(AdministrativeUnit.FIELD_ADMINISTRATIVE_UNIT),queryContext.getStringLike(AdministrativeUnit.FIELD_SECTION)
+				List<String> administrativeUnitTokens = queryContext.getFieldValueLikes(AdministrativeUnit.FIELD_ADMINISTRATIVE_UNIT,5);
+				objects = new Object[] {administrativeUnitTokens.get(0),administrativeUnitTokens.get(0),administrativeUnitTokens.get(1),administrativeUnitTokens.get(2)
+						,administrativeUnitTokens.get(3),administrativeUnitTokens.get(4),queryContext.getStringLike(AdministrativeUnit.FIELD_SECTION)
 						,queryContext.getStringLike(AdministrativeUnit.FIELD_SERVICE_GROUP),queryContext.getStringLike(AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION)
 						,queryContext.getStringLike(AdministrativeUnit.FIELD_LOCALISATION)};
-			}			
-			objects = new Object[]{AdministrativeUnit.FIELD_ADMINISTRATIVE_UNIT,objects[0],AdministrativeUnit.FIELD_SECTION,objects[1]
-					,AdministrativeUnit.FIELD_SERVICE_GROUP,objects[2],AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION,objects[3]
-					,AdministrativeUnit.FIELD_LOCALISATION,objects[4]
+				//System.out.println("AdministrativeUnitPersistenceImpl.__getQueryParameters__() : "+Arrays.deepToString(objects));
+			}
+			int index = 0;
+			objects = new Object[]{AdministrativeUnit.FIELD_ADMINISTRATIVE_UNIT,objects[index++],"administrativeUnitName",objects[index++]
+					,"administrativeUnitName1",objects[index++],"administrativeUnitName2",objects[index++]
+					,"administrativeUnitName3",objects[index++],"administrativeUnitName4",objects[index++],AdministrativeUnit.FIELD_SECTION,objects[index++]
+					,AdministrativeUnit.FIELD_SERVICE_GROUP,objects[index++],AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION,objects[index++]
+					,AdministrativeUnit.FIELD_LOCALISATION,objects[index++]
 				};
 			//System.out.println("P ::: "+Arrays.deepToString(objects));
 			return objects;
@@ -398,7 +405,7 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByFiltersCodesLike)) {
 			if(ArrayHelper.isEmpty(objects)) {
 				Object code = null;
-				org.cyk.utility.server.persistence.query.filter.Field codeField = queryContext.getFilterFieldByKeys(AdministrativeUnit.FIELD_CODE);				
+				org.cyk.utility.__kernel__.persistence.query.filter.Field codeField = queryContext.getFilterFieldByKeys(AdministrativeUnit.FIELD_CODE);				
 				if(codeField == null || codeField.getValue() == null || codeField.getValue() instanceof String) {
 					code = "%"+(codeField == null ? ConstantEmpty.STRING : StringUtils.trimToEmpty((String) codeField.getValue()))+"%";
 				}else if(codeField.getValue() instanceof Collection) {
@@ -406,7 +413,7 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 				}
 								
 				Object name = null;
-				org.cyk.utility.server.persistence.query.filter.Field nameField = queryContext.getFilterFieldByKeys(AdministrativeUnit.FIELD_NAME);				
+				org.cyk.utility.__kernel__.persistence.query.filter.Field nameField = queryContext.getFilterFieldByKeys(AdministrativeUnit.FIELD_NAME);				
 				if(nameField == null || nameField.getValue() == null || nameField.getValue() instanceof String) {
 					name = "%"+(nameField == null ? ConstantEmpty.STRING : StringUtils.trimToEmpty((String) nameField.getValue()))+"%";
 				}			
@@ -427,7 +434,7 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readWhereCodeNotInByFilters)) {
 			if(ArrayHelper.isEmpty(objects)) {
 				Object code = null;
-				org.cyk.utility.server.persistence.query.filter.Field codeField = queryContext.getFilterFieldByKeys(AdministrativeUnit.FIELD_CODE);				
+				org.cyk.utility.__kernel__.persistence.query.filter.Field codeField = queryContext.getFilterFieldByKeys(AdministrativeUnit.FIELD_CODE);				
 				if(codeField == null || codeField.getValue() == null) {
 					code = ConstantEmpty.STRINGS_WITH_ONE_ELEMENT;
 				}else if(codeField.getValue() instanceof Collection) {
@@ -437,7 +444,7 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 				}
 								
 				Object name = null;
-				org.cyk.utility.server.persistence.query.filter.Field nameField = queryContext.getFilterFieldByKeys(AdministrativeUnit.FIELD_NAME);				
+				org.cyk.utility.__kernel__.persistence.query.filter.Field nameField = queryContext.getFilterFieldByKeys(AdministrativeUnit.FIELD_NAME);				
 				if(nameField == null || nameField.getValue() == null || nameField.getValue() instanceof String) {
 					name = "%"+(nameField == null ? ConstantEmpty.STRING : StringUtils.trimToEmpty((String) nameField.getValue()))+"%";
 				}			
@@ -486,7 +493,7 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readWhereCodeNotInByFiltersCodesLike)) {
 			if(ArrayHelper.isEmpty(objects)) {
 				Object code = null;
-				org.cyk.utility.server.persistence.query.filter.Field codeField = queryContext.getFilterFieldByKeys(AdministrativeUnit.FIELD_CODE);				
+				org.cyk.utility.__kernel__.persistence.query.filter.Field codeField = queryContext.getFilterFieldByKeys(AdministrativeUnit.FIELD_CODE);				
 				if(codeField == null || codeField.getValue() == null) {
 					code = ConstantEmpty.STRINGS_WITH_ONE_ELEMENT;
 				}else if(codeField.getValue() instanceof Collection) {
@@ -496,7 +503,7 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 				}
 								
 				Object name = null;
-				org.cyk.utility.server.persistence.query.filter.Field nameField = queryContext.getFilterFieldByKeys(AdministrativeUnit.FIELD_NAME);				
+				org.cyk.utility.__kernel__.persistence.query.filter.Field nameField = queryContext.getFilterFieldByKeys(AdministrativeUnit.FIELD_NAME);				
 				if(nameField == null || nameField.getValue() == null || nameField.getValue() instanceof String) {
 					name = "%"+(nameField == null ? ConstantEmpty.STRING : StringUtils.trimToEmpty((String) nameField.getValue()))+"%";
 				}			

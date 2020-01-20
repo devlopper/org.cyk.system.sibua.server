@@ -26,12 +26,13 @@ import org.cyk.system.sibua.server.persistence.entities.Program;
 import org.cyk.system.sibua.server.persistence.entities.Section;
 import org.cyk.utility.__kernel__.array.ArrayHelper;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
+import org.cyk.utility.__kernel__.computation.LogicalOperator;
 import org.cyk.utility.__kernel__.constant.ConstantEmpty;
-import org.cyk.utility.__kernel__.persistence.QueryHelper;
+import org.cyk.utility.__kernel__.persistence.query.QueryContext;
+import org.cyk.utility.__kernel__.persistence.query.QueryStringHelper;
 import org.cyk.utility.__kernel__.properties.Properties;
 import org.cyk.utility.server.persistence.AbstractPersistenceEntityImpl;
 import org.cyk.utility.server.persistence.PersistenceFunctionReader;
-import org.cyk.utility.server.persistence.query.PersistenceQueryContext;
 
 @ApplicationScoped
 public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activity> implements ActivityPersistence,ReadActivityBySections,ReadActivityByPrograms,ReadActivityByActions,ReadActivityByAdministrativeUnits,ReadActivityByUsers,Serializable {
@@ -107,10 +108,10 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 		addQueryCollectInstances(readByFiltersLike, 
 				"SELECT activity FROM Activity activity "
 				+ "WHERE "
-				+ "("+QueryHelper.formatTupleFieldLike("activity", "code","activity") + " OR " + QueryHelper.formatTupleFieldLike("activity", "name","activity")+")"
-				+ " AND ("+QueryHelper.formatTupleFieldLike("activity", "action.code","action") + " OR " + QueryHelper.formatTupleFieldLike("activity", "action.name","action")+")"
-				+ " AND ("+QueryHelper.formatTupleFieldLike("activity", "action.program.code","program") + " OR " + QueryHelper.formatTupleFieldLike("activity", "action.program.name","program")+")"
-				+ " AND ("+QueryHelper.formatTupleFieldLike("activity", "action.program.section.code","section") + " OR " + QueryHelper.formatTupleFieldLike("activity", "action.program.section.name","section")+")"
+				+ "("+QueryStringHelper.formatTupleFieldLike("activity", "code","activity") + " OR " + QueryStringHelper.formatTupleFieldLikeOrTokens("activity", "name","activityName",4,LogicalOperator.AND)+")"
+				+ " AND ("+QueryStringHelper.formatTupleFieldLike("activity", "action.code","action") + " OR " + QueryStringHelper.formatTupleFieldLike("activity", "action.name","action")+")"
+				+ " AND ("+QueryStringHelper.formatTupleFieldLike("activity", "action.program.code","program") + " OR " + QueryStringHelper.formatTupleFieldLike("activity", "action.program.name","program")+")"
+				+ " AND ("+QueryStringHelper.formatTupleFieldLike("activity", "action.program.section.code","section") + " OR " + QueryStringHelper.formatTupleFieldLike("activity", "action.program.section.name","section")+")"
 				
 				+ " AND (EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity AND "
 				+ " (LOWER(administrativeUnitActivity.administrativeUnit.code) LIKE LOWER(:administrativeUnit) OR administrativeUnitActivity.administrativeUnit.name LIKE LOWER(:administrativeUnit) "
@@ -120,10 +121,7 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 				+ " (LOWER(administrativeUnitActivity.administrativeUnitBeneficiaire.code) LIKE LOWER(:administrativeUnitBeneficiaire) OR administrativeUnitActivity.administrativeUnitBeneficiaire.name LIKE LOWER(:administrativeUnitBeneficiaire)"
 				+ "))) "
 				
-				//+ " AND ("+QueryHelper.formatTupleFieldLike("activity", "administrativeUnit.code","administrativeUnit") + " OR " + QueryHelper.formatTupleFieldLike("activity", "administrativeUnit.name","administrativeUnit")+")"
-				//+ " AND ("+QueryHelper.formatTupleFieldLike("activity", "administrativeUnitBeneficiaire.code","administrativeUnitBeneficiaire") + " OR " + QueryHelper.formatTupleFieldLike("activity", "administrativeUnitBeneficiaire.name","administrativeUnitBeneficiaire")+")"
-				
-				+ " AND ("+QueryHelper.formatTupleFieldLike("activity", "catAtvCode")+")"
+				+ " AND ("+QueryStringHelper.formatTupleFieldLike("activity", "catAtvCode")+")"
 				
 				+ "ORDER BY activity.code ASC");
 		
@@ -290,7 +288,7 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 	}
 	
 	@Override
-	protected Object[] __getQueryParameters__(PersistenceQueryContext queryContext, Properties properties,Object... objects) {
+	protected Object[] __getQueryParameters__(QueryContext queryContext, Properties properties,Object... objects) {
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByUsersIdentifiers)) {
 			return new Object[]{"usersIdentifiers",objects[0]};
 		}
@@ -389,13 +387,17 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 		
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByFiltersLike)) {
 			if(ArrayHelper.isEmpty(objects)) {
-				objects = new Object[] {queryContext.getStringLike(Activity.FIELD_ACTIVITY),queryContext.getStringLike(Activity.FIELD_ACTION)
-						,queryContext.getStringLike(Activity.FIELD_PROGRAM),queryContext.getStringLike(Activity.FIELD_SECTION)
+				List<String> activityTokens = queryContext.getFieldValueLikes(Activity.FIELD_ACTIVITY,5);
+				objects = new Object[] {activityTokens.get(0),activityTokens.get(0),activityTokens.get(1),activityTokens.get(2),activityTokens.get(3),activityTokens.get(4)
+						,queryContext.getStringLike(Activity.FIELD_ACTION),queryContext.getStringLike(Activity.FIELD_PROGRAM),queryContext.getStringLike(Activity.FIELD_SECTION)
 						,queryContext.getStringLike(Activity.FIELD_CAT_ATV_CODE),queryContext.getStringLike(Activity.FIELD_ADMINISTRATIVE_UNIT)
 						,queryContext.getStringLike(Activity.FIELD_ADMINISTRATIVE_UNIT_BENEFICIAIRE)};
-			}			
-			objects = new Object[]{Activity.FIELD_ACTIVITY,objects[0],Activity.FIELD_ACTION,objects[1],Activity.FIELD_PROGRAM,objects[2],Activity.FIELD_SECTION,objects[3]
-					,Activity.FIELD_CAT_ATV_CODE,objects[4],Activity.FIELD_ADMINISTRATIVE_UNIT,objects[5],Activity.FIELD_ADMINISTRATIVE_UNIT_BENEFICIAIRE,objects[6]
+			}
+			int index = 0;
+			objects = new Object[]{Activity.FIELD_ACTIVITY,objects[index++],"activityName",objects[index++],"activityName1",objects[index++],"activityName2",objects[index++]
+					,"activityName3",objects[index++],"activityName4",objects[index++],Activity.FIELD_ACTION,objects[index++],Activity.FIELD_PROGRAM,objects[index++]
+					,Activity.FIELD_SECTION,objects[index++],Activity.FIELD_CAT_ATV_CODE,objects[index++],Activity.FIELD_ADMINISTRATIVE_UNIT
+					,objects[index++],Activity.FIELD_ADMINISTRATIVE_UNIT_BENEFICIAIRE,objects[index++]
 				};
 			//System.out.println("P ::: "+Arrays.deepToString(objects));
 			return objects;

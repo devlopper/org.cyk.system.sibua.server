@@ -8,10 +8,10 @@ import org.cyk.system.sibua.server.persistence.api.query.ReadFileByUsers;
 import org.cyk.system.sibua.server.persistence.api.user.FilePersistence;
 import org.cyk.system.sibua.server.persistence.entities.user.File;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
+import org.cyk.utility.__kernel__.persistence.query.QueryContext;
 import org.cyk.utility.__kernel__.properties.Properties;
 import org.cyk.utility.__kernel__.string.StringHelper;
 import org.cyk.utility.server.persistence.AbstractPersistenceEntityImpl;
-import org.cyk.utility.server.persistence.query.PersistenceQueryContext;
 
 @ApplicationScoped
 public class FilePersistenceImpl extends AbstractPersistenceEntityImpl<File> implements FilePersistence,ReadFileByUsers,Serializable {
@@ -47,7 +47,7 @@ public class FilePersistenceImpl extends AbstractPersistenceEntityImpl<File> imp
 	}
 	
 	@Override
-	protected Object[] __getQueryParameters__(PersistenceQueryContext queryContext, Properties properties, Object... objects) {
+	protected Object[] __getQueryParameters__(QueryContext queryContext, Properties properties, Object... objects) {
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByUsersIdentifiers)) {
 			return new Object[]{"usersIdentifiers",objects[0]};
 		}

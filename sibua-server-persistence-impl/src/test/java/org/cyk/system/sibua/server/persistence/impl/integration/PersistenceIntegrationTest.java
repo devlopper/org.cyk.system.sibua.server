@@ -36,7 +36,7 @@ import org.cyk.system.sibua.server.persistence.entities.Title;
 import org.cyk.utility.__kernel__.array.ArrayHelper;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.properties.Properties;
-import org.cyk.utility.server.persistence.query.filter.Filter;
+import org.cyk.utility.__kernel__.persistence.query.filter.Filter;
 import org.cyk.utility.server.persistence.test.arquillian.AbstractPersistenceArquillianIntegrationTestWithDefaultDeployment;
 import org.junit.Test;
 
@@ -304,7 +304,7 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 				.setQueryFilters(__inject__(Filter.class).addField(AdministrativeUnit.FIELD_CODE, List.of("2"))))).isEqualTo(0l);		
 	}
 	
-	@Test
+	//@Test
 	public void activity_readByFilters() throws Exception{
 		userTransaction.begin();
 		__inject__(ServiceGroupPersistence.class).create(new ServiceGroup().setCode("1").setName("1"));
@@ -328,6 +328,7 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 		
 		userTransaction.commit();
 		Collection<Activity> activities = null;
+		
 		activities = __inject__(ActivityPersistence.class).read(new Properties().setQueryIdentifier(ActivityPersistence.READ_BY_FILTERS).setQueryFilters(__inject__(Filter.class)));
 		assertThat(activities.stream().map(Activity::getCode).collect(Collectors.toList())).containsExactly("atv1","atv2","atv3","atv4","atv5","atv6","atv7");
 		
@@ -335,7 +336,7 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 		assertThat(activities.stream().map(Activity::getCode).collect(Collectors.toList())).containsExactly("atv1");
 		
 		activities = __inject__(ActivityPersistence.class).read(new Properties().setQueryIdentifier(ActivityPersistence.READ_BY_FILTERS).setQueryFilters(__inject__(Filter.class).addField(Activity.FIELD_ADMINISTRATIVE_UNIT_GESTIONNAIRE, List.of("ua2"))));
-		assertThat(activities).isEmpty();		
+		assertThat(activities).isEmpty();
 	}
 	
 	//@Test

@@ -4,7 +4,7 @@ import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitActivi
 import org.cyk.utility.server.representation.AbstractMapperSourceDestinationImpl;
 import org.mapstruct.Mapper;
 
-@Mapper
+@Mapper @Deprecated
 public abstract class AdministrativeUnitActivityTypeDtoMapper extends AbstractMapperSourceDestinationImpl<AdministrativeUnitActivityTypeDto, AdministrativeUnitActivityType> {
 	private static final long serialVersionUID = 1L;
      

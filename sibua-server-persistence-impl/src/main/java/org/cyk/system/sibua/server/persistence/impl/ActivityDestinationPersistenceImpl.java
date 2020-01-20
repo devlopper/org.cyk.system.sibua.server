@@ -9,10 +9,10 @@ import org.cyk.system.sibua.server.persistence.api.query.ReadActivityDestination
 import org.cyk.system.sibua.server.persistence.api.query.ReadActivityDestinationByAdministrativeUnits;
 import org.cyk.system.sibua.server.persistence.entities.ActivityDestination;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
+import org.cyk.utility.__kernel__.persistence.query.QueryContext;
 import org.cyk.utility.__kernel__.properties.Properties;
 import org.cyk.utility.server.persistence.AbstractPersistenceEntityImpl;
 import org.cyk.utility.server.persistence.PersistenceFunctionReader;
-import org.cyk.utility.server.persistence.query.PersistenceQueryContext;
 
 @ApplicationScoped
 public class ActivityDestinationPersistenceImpl extends AbstractPersistenceEntityImpl<ActivityDestination> implements ActivityDestinationPersistence,ReadActivityDestinationByAdministrativeUnits,ReadActivityDestinationByActivities,Serializable {
@@ -59,7 +59,7 @@ public class ActivityDestinationPersistenceImpl extends AbstractPersistenceEntit
 	}
 	
 	@Override
-	protected Object[] __getQueryParameters__(PersistenceQueryContext queryContext, Properties properties,Object... objects) {
+	protected Object[] __getQueryParameters__(QueryContext queryContext, Properties properties,Object... objects) {
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByActivitiesCodes)) {
 			return new Object[]{"activitiesCodes",objects[0]};
 		}

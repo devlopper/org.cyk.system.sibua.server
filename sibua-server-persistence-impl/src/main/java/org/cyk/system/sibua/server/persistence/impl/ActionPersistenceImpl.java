@@ -10,10 +10,10 @@ import org.cyk.system.sibua.server.persistence.api.query.ReadActionBySections;
 import org.cyk.system.sibua.server.persistence.entities.Action;
 import org.cyk.utility.__kernel__.array.ArrayHelper;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
+import org.cyk.utility.__kernel__.persistence.query.QueryContext;
 import org.cyk.utility.__kernel__.properties.Properties;
 import org.cyk.utility.server.persistence.AbstractPersistenceEntityImpl;
 import org.cyk.utility.server.persistence.PersistenceFunctionReader;
-import org.cyk.utility.server.persistence.query.PersistenceQueryContext;
 
 @ApplicationScoped
 public class ActionPersistenceImpl extends AbstractPersistenceEntityImpl<Action> implements ActionPersistence,ReadActionBySections,ReadActionByPrograms,Serializable {
@@ -62,7 +62,7 @@ public class ActionPersistenceImpl extends AbstractPersistenceEntityImpl<Action>
 	}
 	
 	@Override
-	protected Object[] __getQueryParameters__(PersistenceQueryContext queryContext, Properties properties,Object... objects) {
+	protected Object[] __getQueryParameters__(QueryContext queryContext, Properties properties,Object... objects) {
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readBySectionsCodes)) {
 			if(ArrayHelper.isEmpty(objects))
 				objects = new Object[] {queryContext.getFilterByKeysValue(Action.FIELD_SECTION)};

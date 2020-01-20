@@ -9,10 +9,10 @@ import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitD
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitDestination;
 import org.cyk.utility.__kernel__.array.ArrayHelper;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
+import org.cyk.utility.__kernel__.persistence.query.QueryContext;
 import org.cyk.utility.__kernel__.properties.Properties;
 import org.cyk.utility.server.persistence.AbstractPersistenceEntityImpl;
 import org.cyk.utility.server.persistence.PersistenceFunctionReader;
-import org.cyk.utility.server.persistence.query.PersistenceQueryContext;
 
 @ApplicationScoped
 public class AdministrativeUnitDestinationPersistenceImpl extends AbstractPersistenceEntityImpl<AdministrativeUnitDestination> implements AdministrativeUnitDestinationPersistence,ReadAdministrativeUnitDestinationByAdministrativeUnits,Serializable {
@@ -46,7 +46,7 @@ public class AdministrativeUnitDestinationPersistenceImpl extends AbstractPersis
 	}
 	
 	@Override
-	protected Object[] __getQueryParameters__(PersistenceQueryContext queryContext, Properties properties,Object... objects) {
+	protected Object[] __getQueryParameters__(QueryContext queryContext, Properties properties,Object... objects) {
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByAdministrativeUnitsCodes)) {
 			if(ArrayHelper.isEmpty(objects))
 				objects = new Object[] {queryContext.getFilterByKeysValue(AdministrativeUnitDestination.FIELD_ADMINISTRATIVE_UNIT)};
