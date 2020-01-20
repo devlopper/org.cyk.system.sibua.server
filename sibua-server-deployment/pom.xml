@@ -66,6 +66,16 @@
 		</profile>
 		
 		<profile>
+			<id>oracle.10.3.4.37.test</id>
+			<properties>
+				<data.base.management.system.host>10.3.4.37</data.base.management.system.host>
+				<data.base.management.system.sid>prodoc</data.base.management.system.sid>
+				<data.source.user>testbasculement</data.source.user>
+				<data.source.password>testbasculement</data.source.password>
+			</properties>
+		</profile>
+		
+		<profile>
 			<id>deployment.common</id>
 			<properties>
 				<cyk.variable.system.name>Module de gestion des unités administratives</cyk.variable.system.name>
@@ -115,6 +125,17 @@
 				<data.base.management.system.sid>prodoc</data.base.management.system.sid>
 				<data.source.user>basculement</data.source.user>
 				<data.source.password>basculement</data.source.password>
+				<cyk.variable.system.host>10.3.4.37</cyk.variable.system.host>
+			</properties>
+		</profile>
+		
+		<profile>
+			<id>deployment.remote.10.3.4.37.test</id>
+			<properties>
+				<data.base.management.system.host>10.3.4.37</data.base.management.system.host>
+				<data.base.management.system.sid>prodoc</data.base.management.system.sid>
+				<data.source.user>testbasculement</data.source.user>
+				<data.source.password>testbasculement</data.source.password>
 				<cyk.variable.system.host>10.3.4.37</cyk.variable.system.host>
 			</properties>
 		</profile>
