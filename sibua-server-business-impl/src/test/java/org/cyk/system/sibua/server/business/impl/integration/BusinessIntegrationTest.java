@@ -261,6 +261,101 @@ public class BusinessIntegrationTest extends AbstractBusinessArquillianIntegrati
 	}
 	
 	@Test
+	public void administrativeUnit_mergeByCodes() throws Exception{
+		__inject__(SectionBusiness.class).createMany(List.of(new Section().setCode("1").setName("1")));
+		__inject__(ServiceGroupBusiness.class).createMany(List.of(new ServiceGroup().setCode("1").setName("1")));
+		__inject__(FunctionalClassificationBusiness.class).createMany(List.of(new FunctionalClassification().setCode("1").setName("1")));
+		__inject__(LocalisationBusiness.class).create(new Localisation().setCode("1").setName("1"));
+		__inject__(ActivityBusiness.class).createMany(List.of(new Activity("1","1",null),new Activity("2","1",null),new Activity("3","1",null),new Activity("4","1",null)
+				,new Activity("5","1",null)));
+		
+		__inject__(AdministrativeUnitBusiness.class).createMany(List.of(
+				new AdministrativeUnit("1","1","1","1","1","1").addActivitiesByCodes("1","2"),new AdministrativeUnit("2","1","1","1","1","1").addActivitiesByCodes("3")
+				,new AdministrativeUnit("3","1","1","1","1","1")
+				,new AdministrativeUnit("b1","1","1","1","1","1").addActivitiesByCodes("4","5"),new AdministrativeUnit("b2","1","1","1","1","1")
+				,new AdministrativeUnit("b3","1","1","1","1","1")
+				));
+		assertThat(__inject__(AdministrativeUnitBusiness.class).count()).isEqualTo(6);
+		
+		AdministrativeUnit administrativeUnit = __inject__(AdministrativeUnitBusiness.class).findByBusinessIdentifier("1",new Properties().setFields(AdministrativeUnit.FIELD_ACTIVITIES));
+		assertThat(administrativeUnit.getActivities()).isNotEmpty();
+		assertThat(administrativeUnit.getActivities().stream().map(Activity::getCode).collect(Collectors.toList())).containsExactlyInAnyOrder("1","2");
+		
+		administrativeUnit = __inject__(AdministrativeUnitBusiness.class).findByBusinessIdentifier("2",new Properties().setFields(AdministrativeUnit.FIELD_ACTIVITIES));
+		assertThat(administrativeUnit.getActivities()).isNotEmpty();
+		assertThat(administrativeUnit.getActivities().stream().map(Activity::getCode).collect(Collectors.toList())).containsExactlyInAnyOrder("3");
+		
+		administrativeUnit = __inject__(AdministrativeUnitBusiness.class).findByBusinessIdentifier("3",new Properties().setFields(AdministrativeUnit.FIELD_ACTIVITIES));
+		assertThat(administrativeUnit.getActivities()).isEmpty();
+		
+		administrativeUnit = __inject__(AdministrativeUnitBusiness.class).findByBusinessIdentifier("b1",new Properties().setFields(AdministrativeUnit.FIELD_ACTIVITIES));
+		assertThat(administrativeUnit.getActivities()).isNotEmpty();
+		assertThat(administrativeUnit.getActivities().stream().map(Activity::getCode).collect(Collectors.toList())).containsExactlyInAnyOrder("4","5");
+		
+		administrativeUnit = __inject__(AdministrativeUnitBusiness.class).findByBusinessIdentifier("b2",new Properties().setFields(AdministrativeUnit.FIELD_ACTIVITIES));
+		assertThat(administrativeUnit.getActivities()).isEmpty();
+		
+		administrativeUnit = __inject__(AdministrativeUnitBusiness.class).findByBusinessIdentifier("b3",new Properties().setFields(AdministrativeUnit.FIELD_ACTIVITIES));
+		assertThat(administrativeUnit.getActivities()).isEmpty();
+		
+		__inject__(AdministrativeUnitBusiness.class).mergeByCodes(List.of("2"), "1");
+		
+		assertThat(__inject__(AdministrativeUnitBusiness.class).findByBusinessIdentifier("2")).isNull();
+		assertThat(__inject__(AdministrativeUnitBusiness.class).count()).isEqualTo(5);
+		
+		administrativeUnit = __inject__(AdministrativeUnitBusiness.class).findByBusinessIdentifier("1",new Properties().setFields(AdministrativeUnit.FIELD_ACTIVITIES));
+		assertThat(administrativeUnit.getActivities()).isNotEmpty();
+		assertThat(administrativeUnit.getActivities().stream().map(Activity::getCode).collect(Collectors.toList())).containsExactlyInAnyOrder("1","2","3");
+		
+		administrativeUnit = __inject__(AdministrativeUnitBusiness.class).findByBusinessIdentifier("2",new Properties().setFields(AdministrativeUnit.FIELD_ACTIVITIES));
+		assertThat(administrativeUnit).isNull();
+		
+		__inject__(AdministrativeUnitBusiness.class).mergeByCodes(List.of("3"), "1");
+		assertThat(__inject__(AdministrativeUnitBusiness.class).findByBusinessIdentifier("3")).isNull();
+		assertThat(__inject__(AdministrativeUnitBusiness.class).count()).isEqualTo(4);
+
+		administrativeUnit = __inject__(AdministrativeUnitBusiness.class).findByBusinessIdentifier("1",new Properties().setFields(AdministrativeUnit.FIELD_ACTIVITIES));
+		assertThat(administrativeUnit.getActivities()).isNotEmpty();
+		assertThat(administrativeUnit.getActivities().stream().map(Activity::getCode).collect(Collectors.toList())).containsExactlyInAnyOrder("1","2","3");
+		
+		__inject__(AdministrativeUnitBusiness.class).mergeByCodes(List.of("1"), "b2");
+		assertThat(__inject__(AdministrativeUnitBusiness.class).findByBusinessIdentifier("1")).isNull();
+		assertThat(__inject__(AdministrativeUnitBusiness.class).count()).isEqualTo(3);
+
+		administrativeUnit = __inject__(AdministrativeUnitBusiness.class).findByBusinessIdentifier("b2",new Properties().setFields(AdministrativeUnit.FIELD_ACTIVITIES));
+		assertThat(administrativeUnit.getActivities()).isNotEmpty();
+		assertThat(administrativeUnit.getActivities().stream().map(Activity::getCode).collect(Collectors.toList())).containsExactlyInAnyOrder("1","2","3");
+		
+		
+	}
+	
+	@Test
+	public void administrativeUnit_delete() throws Exception{
+		__inject__(SectionBusiness.class).createMany(List.of(new Section().setCode("1").setName("1")));
+		__inject__(ServiceGroupBusiness.class).createMany(List.of(new ServiceGroup().setCode("1").setName("1")));
+		__inject__(FunctionalClassificationBusiness.class).createMany(List.of(new FunctionalClassification().setCode("1").setName("1")));
+		__inject__(LocalisationBusiness.class).create(new Localisation().setCode("1").setName("1"));
+		__inject__(ActivityBusiness.class).createMany(List.of(new Activity("1","1",null),new Activity("2","1",null),new Activity("3","1",null),new Activity("4","1",null)
+				,new Activity("5","1",null)));
+		__inject__(DestinationBusiness.class).createMany(List.of(new Destination("1","1","1"),new Destination("2","1","1"),new Destination("3","1","1"),new Destination("4","1","1")
+				,new Destination("5","1","1")));
+		
+		__inject__(AdministrativeUnitBusiness.class).createMany(List.of(
+				new AdministrativeUnit("1","1","1","1","1","1").addActivitiesByCodes("1","2").addDestinationsByCodes("1")
+				,new AdministrativeUnit("2","1","1","1","1","1").addActivitiesByCodes("3")
+				,new AdministrativeUnit("3","1","1","1","1","1").addDestinationsByCodes("1")
+				,new AdministrativeUnit("b1","1","1","1","1","1").addActivitiesByCodes("4","5")
+				,new AdministrativeUnit("b2","1","1","1","1","1")
+				,new AdministrativeUnit("b3","1","1","1","1","1")
+				));
+		assertThat(__inject__(AdministrativeUnitBusiness.class).count()).isEqualTo(6);
+		
+		__inject__(AdministrativeUnitBusiness.class).deleteByBusinessIdentifier("3");
+		
+		assertThat(__inject__(AdministrativeUnitBusiness.class).count()).isEqualTo(5);
+	}
+	
+	@Test
 	public void administrativeUnit_readChildren() {
 		__inject__(ServiceGroupBusiness.class).create(new ServiceGroup().setCode("1").setName("1"));
 		__inject__(FunctionalClassificationBusiness.class).create(new FunctionalClassification().setCode("1").setName("1"));

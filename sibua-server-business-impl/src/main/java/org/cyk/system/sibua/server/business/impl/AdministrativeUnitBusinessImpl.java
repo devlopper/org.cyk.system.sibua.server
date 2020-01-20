@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -13,9 +14,9 @@ import javax.enterprise.context.ApplicationScoped;
 import org.apache.commons.lang3.StringUtils;
 import org.cyk.system.sibua.server.business.api.AdministrativeUnitActivityBusiness;
 import org.cyk.system.sibua.server.business.api.AdministrativeUnitBusiness;
+import org.cyk.system.sibua.server.business.api.AdministrativeUnitDestinationBusiness;
 import org.cyk.system.sibua.server.business.api.AdministrativeUnitHierarchyBusiness;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitActivityPersistence;
-import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitActivityTypePersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitDestinationPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitHierarchyPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitPersistence;
@@ -23,34 +24,80 @@ import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitA
 import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitBySections;
 import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitDestinationByAdministrativeUnits;
 import org.cyk.system.sibua.server.persistence.entities.Activity;
-import org.cyk.system.sibua.server.persistence.entities.ActivityDestination;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitActivity;
-import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitActivityType;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitDestination;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitHierarchy;
 import org.cyk.system.sibua.server.persistence.entities.Destination;
 import org.cyk.system.sibua.server.persistence.entities.FunctionalClassification;
 import org.cyk.system.sibua.server.persistence.entities.ServiceGroup;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
-import org.cyk.utility.__kernel__.collection.CollectionInstance;
 import org.cyk.utility.__kernel__.constant.ConstantCharacter;
-import org.cyk.utility.__kernel__.field.FieldHelper;
 import org.cyk.utility.__kernel__.log.LogHelper;
-import org.cyk.utility.__kernel__.object.__static__.persistence.AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl;
 import org.cyk.utility.__kernel__.properties.Properties;
 import org.cyk.utility.__kernel__.random.RandomHelper;
 import org.cyk.utility.__kernel__.string.StringHelper;
 import org.cyk.utility.__kernel__.string.Strings;
 import org.cyk.utility.server.business.AbstractBusinessEntityImpl;
-import org.cyk.utility.server.business.BusinessEntity;
 import org.cyk.utility.server.business.BusinessFunctionCreator;
 import org.cyk.utility.server.business.BusinessFunctionModifier;
+import org.cyk.utility.server.business.BusinessFunctionRemover;
 
 @ApplicationScoped
 public class AdministrativeUnitBusinessImpl extends AbstractBusinessEntityImpl<AdministrativeUnit, AdministrativeUnitPersistence> implements AdministrativeUnitBusiness,Serializable {
 	private static final long serialVersionUID = 1L;
 
+	@Override
+	public void mergeByCodes(Collection<String> administrativeUnitSourcesCodes,String administrativeUnitDestinationCode) {
+		if(CollectionHelper.isEmpty(administrativeUnitSourcesCodes) || StringHelper.isBlank(administrativeUnitDestinationCode))
+			return;
+		//source and destination must be not joined
+		Collection<String> temp = administrativeUnitSourcesCodes;
+		administrativeUnitSourcesCodes = new ArrayList<String>();
+		administrativeUnitSourcesCodes.addAll(temp);
+		administrativeUnitSourcesCodes.remove(administrativeUnitDestinationCode);
+		if(CollectionHelper.isEmpty(administrativeUnitSourcesCodes))
+			return;
+		//get source information
+		Collection<AdministrativeUnit> administrativeUnitsSources = __inject__(AdministrativeUnitPersistence.class)
+				.readByBusinessIdentifiers(CollectionHelper.cast(Object.class,administrativeUnitSourcesCodes));
+		if(CollectionHelper.isEmpty(administrativeUnitsSources))
+			return;
+		//get destination
+		AdministrativeUnit administrativeUnitDestination = __inject__(AdministrativeUnitPersistence.class).readByBusinessIdentifier(administrativeUnitDestinationCode);
+		if(administrativeUnitDestination == null)
+			return;
+		//Collection<AdministrativeUnitActivity> administrativeUnitActivitiesSources = __inject__(AdministrativeUnitActivityPersistence.class)
+		//		.readWhereIsGestionnaireOrBeneficiaireByAdministrativeUnitsCodes(administrativeUnitSourcesCodes, null);
+		
+		Collection<AdministrativeUnitActivity> administrativeUnitActivitiesSources = new HashSet<>();
+		Collection<AdministrativeUnitActivity> __administrativeUnitActivitiesSources__ = ((ReadAdministrativeUnitActivityByAdministrativeUnits)__inject__(AdministrativeUnitActivityPersistence.class)).readByAdministrativeUnits(administrativeUnitsSources);
+		if(CollectionHelper.isNotEmpty(__administrativeUnitActivitiesSources__))
+			administrativeUnitActivitiesSources.addAll(__administrativeUnitActivitiesSources__);
+		
+		__administrativeUnitActivitiesSources__ = __inject__(AdministrativeUnitActivityPersistence.class).readByAdministrativeUnitBeneficiairesCodes(administrativeUnitSourcesCodes, null);
+		if(CollectionHelper.isNotEmpty(__administrativeUnitActivitiesSources__))
+			administrativeUnitActivitiesSources.addAll(__administrativeUnitActivitiesSources__);
+		
+		//update link
+		//System.out.println(" 0001 LINKS : "+administrativeUnitSourcesCodes+" ::: "+administrativeUnitActivitiesSources);
+		if(CollectionHelper.isNotEmpty(administrativeUnitActivitiesSources)) {
+			//System.out.println(" 0002 LINKS : "+administrativeUnitActivitiesSources.size());
+			for(AdministrativeUnitActivity administrativeUnitActivitySource : administrativeUnitActivitiesSources) {
+				if(administrativeUnitsSources.contains(administrativeUnitActivitySource.getAdministrativeUnit())) {
+					administrativeUnitActivitySource.setAdministrativeUnit(administrativeUnitDestination);
+					//System.out.println("Gest updated");
+				}
+				if(administrativeUnitsSources.contains(administrativeUnitActivitySource.getAdministrativeUnitBeneficiaire())) {
+					administrativeUnitActivitySource.setAdministrativeUnitBeneficiaire(administrativeUnitDestination);
+					//System.out.println("Ben updated");
+				}
+			}
+			__inject__(AdministrativeUnitActivityBusiness.class).updateMany(administrativeUnitActivitiesSources);
+		}		
+		__inject__(AdministrativeUnitBusiness.class).deleteMany(administrativeUnitsSources);
+	}
+	
 	@Override
 	public void generateCodesBySectionsCodes(Collection<String> codes) {
 		if(CollectionHelper.isEmpty(codes))
@@ -58,13 +105,11 @@ public class AdministrativeUnitBusinessImpl extends AbstractBusinessEntityImpl<A
 		Collection<AdministrativeUnit> administrativeUnits = ((ReadAdministrativeUnitBySections)__inject__(AdministrativeUnitPersistence.class)).readBySectionsCodes(codes);
 		if(CollectionHelper.isEmpty(administrativeUnits))
 			return;
-		//Map<String,Map<String,Integer>> latestOrderNumberMap = new HashMap<>();
 		Map<String,Integer> latestOrderNumberMap = new HashMap<>();
 		Collection<AdministrativeUnit> administrativeUnitsWithCodeGenerated = null;
 		for(AdministrativeUnit administrativeUnit : administrativeUnits) {
 			if(administrativeUnit.getOrderNumber() == null || administrativeUnit.getOrderNumber() > 0)
 				continue;
-			//Integer orderNumber = __getNextOrderNumber__(administrativeUnit, latestOrderNumberMap);
 			Integer orderNumber = __getNextOrderNumber__(administrativeUnit.getServiceGroup(), latestOrderNumberMap);
 			if(orderNumber == null) {
 				LogHelper.logSevere("Erreur lors de la génération du code de l'unité administrative de la section "+administrativeUnit.getSection().getCode()
@@ -84,29 +129,6 @@ public class AdministrativeUnitBusinessImpl extends AbstractBusinessEntityImpl<A
 			administrativeUnitsWithCodeGenerated.add(administrativeUnit);
 		}
 		updateMany(administrativeUnitsWithCodeGenerated);
-	}
-	
-	private Integer __getNextOrderNumber__(AdministrativeUnit administrativeUnit,Map<String,Map<String,Integer>> latestOrderNumberMap) {
-		if(administrativeUnit == null)
-			return null;
-		return __getNextOrderNumber__(administrativeUnit.getServiceGroup(), administrativeUnit.getFunctionalClassification(), latestOrderNumberMap);
-	}
-	
-	private Integer __getNextOrderNumber__(ServiceGroup serviceGroup,FunctionalClassification functionalClassification,Map<String,Map<String,Integer>> latestOrderNumberMap) {
-		if(functionalClassification == null || functionalClassification.getCode().equals(FunctionalClassification.CODE_NOT_SET)
-			|| serviceGroup == null || serviceGroup.getCode().equals(ServiceGroup.CODE_NOT_SET))
-			return null;
-		Map<String,Integer> map = latestOrderNumberMap.get(serviceGroup.getCode());
-		if(map == null)
-			latestOrderNumberMap.put(serviceGroup.getCode(), map = new HashMap<>());
-		Integer latestOrderNumber = map.get(functionalClassification.getCode());
-		if(latestOrderNumber == null) {
-			Integer value = __persistence__.readMaxOrderNumberByServiceGroupByFunctionalClassification(serviceGroup, functionalClassification);
-			latestOrderNumber = value == null || value < 1 ? 0 : value;
-		}
-		latestOrderNumber = latestOrderNumber + 1;
-		map.put(functionalClassification.getCode(), latestOrderNumber);
-		return latestOrderNumber;
 	}
 	
 	private Integer __getNextOrderNumber__(ServiceGroup serviceGroup,Map<String,Integer> latestOrderNumberMap) {
@@ -173,37 +195,14 @@ public class AdministrativeUnitBusinessImpl extends AbstractBusinessEntityImpl<A
 		super.__listenExecuteCreateAfter__(administrativeUnits, properties, function);
 	}
 	
-	private <T extends AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl> void __createWhereIdentifierIsBlankAndCodeIsNotBlank__(AdministrativeUnit administrativeUnit,Collection<T> collection,BusinessEntity<T> business,String fieldName) {
-		//some new activity and destination might need to be created. find all new one having same code and make them using only one instance
-		/*
-		Collection<T> activitiesWhereIdentifierIsBlankAndCodeIsNotBlank = administrativeUnit.getActivityDestinations().stream()
-				.map(ActivityDestination::getActivity)
-				.filter(activity -> StringHelper.isBlank(activity.getIdentifier()) && StringHelper.isNotBlank(activity.getCode()))
-				.collect(Collectors.toList());
-		*/
-		if(CollectionHelper.isEmpty(collection))
-			return;
-		collection = CollectionHelper.removeDuplicate(collection, entity -> entity.getCode());
-		if(CollectionHelper.isEmpty(collection))
-			return;		
-		business.createMany(collection);
-		//update instance where those codes are used
-		for(ActivityDestination activityDestination : administrativeUnit.getActivityDestinations()) {
-			AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl fieldValue = (AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl) FieldHelper.read(activityDestination, fieldName);
-			if(StringHelper.isBlank(fieldValue.getIdentifier()) && StringHelper.isNotBlank(fieldValue.getCode())) {
-				for(T index : collection) {
-					if(index.getCode().equals(fieldValue.getCode())) {
-						FieldHelper.write(activityDestination, fieldName, index);
-						break;
-					}
-				}
-			}	
-		}
-	}
-	
 	@Override
 	protected void __listenExecuteCreateAfter__(AdministrativeUnit administrativeUnit, Properties properties,BusinessFunctionCreator function) {
 		super.__listenExecuteCreateAfter__(administrativeUnit, properties, function);
+		
+		if(CollectionHelper.isNotEmpty(administrativeUnit.getActivities())) {
+			__inject__(AdministrativeUnitActivityBusiness.class).createMany(administrativeUnit.getActivities().stream()
+					.map(x -> new AdministrativeUnitActivity(administrativeUnit,x).setAdministrativeUnitBeneficiaire(administrativeUnit)).collect(Collectors.toList()));
+		}
 		
 		if(CollectionHelper.isNotEmpty(administrativeUnit.getActivityDestinations())) {
 			//some new activity and destination might need to be created. find all new one having same code and make them using only one instance
@@ -412,5 +411,33 @@ public class AdministrativeUnitBusinessImpl extends AbstractBusinessEntityImpl<A
 				}
 			}
 		}
+	}
+
+	@Override
+	protected void __listenExecuteDeleteBefore__(AdministrativeUnit administrativeUnit, Properties properties,BusinessFunctionRemover function) {
+		super.__listenExecuteDeleteBefore__(administrativeUnit, properties, function);
+		
+		Collection<AdministrativeUnitActivity> administrativeUnitActivitiesSources = new HashSet<>();
+		Collection<AdministrativeUnitActivity> __administrativeUnitActivitiesSources__ = ((ReadAdministrativeUnitActivityByAdministrativeUnits)__inject__(AdministrativeUnitActivityPersistence.class)).readByAdministrativeUnits(administrativeUnit);
+		if(CollectionHelper.isNotEmpty(__administrativeUnitActivitiesSources__))
+			administrativeUnitActivitiesSources.addAll(__administrativeUnitActivitiesSources__);
+		
+		__administrativeUnitActivitiesSources__ = __inject__(AdministrativeUnitActivityPersistence.class).readByAdministrativeUnitBeneficiairesCodes(List.of(administrativeUnit.getCode()), null);
+		if(CollectionHelper.isNotEmpty(__administrativeUnitActivitiesSources__))
+			administrativeUnitActivitiesSources.addAll(__administrativeUnitActivitiesSources__);
+		
+		if(CollectionHelper.isNotEmpty(administrativeUnitActivitiesSources)) {
+			throw new RuntimeException("L'unité administrative est rattachée à "+administrativeUnitActivitiesSources.size()+" activités. Veuillez dabord détacher les activités avant la suppression.");
+		}
+		
+		Collection<AdministrativeUnitDestination> administrativeUnitDestinations =  ((ReadAdministrativeUnitDestinationByAdministrativeUnits) __inject__(AdministrativeUnitDestinationPersistence.class))
+				.readByAdministrativeUnits(administrativeUnit);
+		if(CollectionHelper.isNotEmpty(administrativeUnitDestinations))
+			__inject__(AdministrativeUnitDestinationBusiness.class).deleteMany(administrativeUnitDestinations);
+	}
+	
+	@Override
+	protected Boolean __isCallDeleteByInstanceOnDeleteByIdentifier__() {
+		return Boolean.TRUE;
 	}
 }

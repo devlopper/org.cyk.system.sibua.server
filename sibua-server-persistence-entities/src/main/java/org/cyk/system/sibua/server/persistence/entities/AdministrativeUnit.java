@@ -130,6 +130,30 @@ public class AdministrativeUnit extends AbstractIdentifiableSystemScalarStringId
 		return addActivitiesByCodes(CollectionHelper.listOf(codes));
 	}
 	
+	public Collection<Destination> getDestinations(Boolean injectIfNull) {
+		if(destinations == null && Boolean.TRUE.equals(injectIfNull))
+			destinations = new ArrayList<>();
+		return this.destinations;
+	}
+	
+	public AdministrativeUnit addDestinationsByCodes(Collection<String> codes) {
+		if(CollectionHelper.isEmpty(codes))
+			return this;
+		for(String code : codes) {
+			Destination destination = InstanceGetter.getInstance().getByBusinessIdentifier(Destination.class, code);
+			if(destination == null)
+				continue;
+			getDestinations(Boolean.TRUE).add(destination);
+		}
+		return this;
+	}
+	
+	public AdministrativeUnit addDestinationsByCodes(String...codes) {
+		if(ArrayHelper.isEmpty(codes))
+			return this;
+		return addDestinationsByCodes(CollectionHelper.listOf(codes));
+	}
+	
 	public static final String FIELD_SECTION = "section";
 	public static final String FIELD_SERVICE_GROUP = "serviceGroup";
 	public static final String FIELD_FUNCTIONAL_CLASSIFICATION = "functionalClassification";

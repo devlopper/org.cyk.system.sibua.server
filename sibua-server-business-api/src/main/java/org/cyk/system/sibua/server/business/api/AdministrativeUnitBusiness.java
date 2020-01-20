@@ -30,4 +30,50 @@ public interface AdministrativeUnitBusiness extends BusinessEntity<Administrativ
 			return;
 		generateCodesBySections(CollectionHelper.listOf(sections));
 	}
+	
+	/**/
+	/*
+	void moveActivitiesByCodes(Collection<String> activitiesCodes,String administrativeUnitCode);
+	
+	default void moveActivitiesByCodes(String administrativeUnitCode,String...activitiesCodes) {
+		if(StringHelper.isBlank(administrativeUnitCode) || ArrayHelper.isEmpty(activitiesCodes))
+			return;
+		moveActivitiesByCodes(CollectionHelper.listOf(activitiesCodes),administrativeUnitCode);
+	}
+	
+	default void moveActivities(String administrativeUnitCode,Collection<Activity> activities) {
+		if(StringHelper.isBlank(administrativeUnitCode) || CollectionHelper.isEmpty(activities))
+			return;
+		moveActivitiesByCodes(activities.stream().map(Activity::getCode).collect(Collectors.toList()),administrativeUnitCode);
+	}
+	
+	default void moveActivities(String administrativeUnitCode,Activity...activities) {
+		if(StringHelper.isBlank(administrativeUnitCode) || ArrayHelper.isEmpty(activities))
+			return;
+		moveActivities(administrativeUnitCode,CollectionHelper.listOf(activities));
+	}
+	*/
+	/**/
+	
+	void mergeByCodes(Collection<String> administrativeUnitsSourcesCodes,String administrativeUnitDestinationCode);
+	/*
+	default void mergeByCodes(String...codes) {
+		if(ArrayHelper.isEmpty(codes))
+			return;
+		mergeByCodes(CollectionHelper.listOf(codes));
+	}
+	
+	default void merge(Collection<AdministrativeUnit> administrativeUnits) {
+		if(CollectionHelper.isEmpty(administrativeUnits))
+			return;
+		mergeByCodes(administrativeUnits.stream().map(AdministrativeUnit::getCode).collect(Collectors.toList()));
+	}
+	
+	default void merge(AdministrativeUnit...administrativeUnits) {
+		if(ArrayHelper.isEmpty(administrativeUnits))
+			return;
+		merge(CollectionHelper.listOf(administrativeUnits));
+	}
+	*/
+	
 }

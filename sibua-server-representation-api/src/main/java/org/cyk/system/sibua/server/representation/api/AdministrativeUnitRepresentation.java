@@ -19,6 +19,12 @@ public interface AdministrativeUnitRepresentation extends RepresentationEntity<A
 	@ApiOperation(value = "Generate administratives units codes by sections codes")
 	Response generateCodesBySectionsCodes(@QueryParam("section") List<String> sectionsCodes);
 	
+	@POST
+	@Path("mergebycodes")
+	@ApiOperation(value = "Merge administratives units")
+	Response mergeByCodes(@QueryParam("administrativeUnitsSourcesCodes") List<String> administrativeUnitsSourcesCodes
+			,@QueryParam("administrativeUnitDestinationCode") String administrativeUnitDestinationCode);
+	
 	String PATH = "/administrativeunit";
 	
 }

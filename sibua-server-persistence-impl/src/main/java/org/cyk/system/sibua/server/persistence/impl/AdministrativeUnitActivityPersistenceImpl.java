@@ -19,16 +19,19 @@ import org.cyk.utility.server.persistence.PersistenceFunctionReader;
 public class AdministrativeUnitActivityPersistenceImpl extends AbstractPersistenceEntityImpl<AdministrativeUnitActivity> implements AdministrativeUnitActivityPersistence,ReadAdministrativeUnitActivityByAdministrativeUnits,ReadAdministrativeUnitActivityByActivities,Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private String readByAdministrativeUnitsCodes,readByActivitiesCodes,readByAdministrativeUnitsCodesByActivitiesCodes;
+	private String readByAdministrativeUnitsCodes,readByAdministrativeUnitBeneficiairesCodes,readByActivitiesCodes,readByAdministrativeUnitsCodesByActivitiesCodes,readWhereIsGestionnaireOrBeneficiaireByAdministrativeUnitsCodes;
 	
 	@Override
 	protected void __listenPostConstructPersistenceQueries__() {
 		super.__listenPostConstructPersistenceQueries__();
 		addQueryCollectInstances(readByAdministrativeUnitsCodes, "SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.administrativeUnit.code IN :administrativeUnitsCodes");
+		addQueryCollectInstances(readByAdministrativeUnitBeneficiairesCodes, "SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.administrativeUnitBeneficiaire.code IN :administrativeUnitsBeneficiairesCodes");
 		addQueryCollectInstances(readByActivitiesCodes, "SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity.code IN :activitiesCodes");
 		addQueryCollectInstances(readByAdministrativeUnitsCodesByActivitiesCodes
 				, "SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity "
 						+ "WHERE administrativeUnitActivity.administrativeUnit.code IN :administrativeUnitsCodes AND administrativeUnitActivity.activity.code IN :activitiesCodes");
+		addQueryCollectInstances(readWhereIsGestionnaireOrBeneficiaireByAdministrativeUnitsCodes, "SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity "
+				+ "WHERE administrativeUnitActivity.administrativeUnit.code IN :administrativeUnitsCodes OR (administrativeUnitActivity.administrativeUnitBeneficiaire IS NOT NULL AND administrativeUnitActivity.administrativeUnitBeneficiaire.code IN :administrativeUnitsCodes)");
 	}
 	
 	@Override
@@ -39,6 +42,26 @@ public class AdministrativeUnitActivityPersistenceImpl extends AbstractPersisten
 			properties = new Properties();
 		properties.setIfNull(Properties.QUERY_IDENTIFIER, readByAdministrativeUnitsCodes);
 		return __readMany__(properties, ____getQueryParameters____(properties,codes));
+	}
+	
+	@Override
+	public Collection<AdministrativeUnitActivity> readByAdministrativeUnitBeneficiairesCodes(Collection<String> codes, Properties properties) {
+		if(CollectionHelper.isEmpty(codes))
+			return null;
+		if(properties == null)
+			properties = new Properties();
+		properties.setIfNull(Properties.QUERY_IDENTIFIER, readByAdministrativeUnitBeneficiairesCodes);
+		return __readMany__(properties, ____getQueryParameters____(properties,codes));
+	}
+	
+	@Override
+	public Collection<AdministrativeUnitActivity> readWhereIsGestionnaireOrBeneficiaireByAdministrativeUnitsCodes(Collection<String> administrativeUnitsCodes, Properties properties) {
+		if(CollectionHelper.isEmpty(administrativeUnitsCodes))
+			return null;
+		if(properties == null)
+			properties = new Properties();
+		properties.setIfNull(Properties.QUERY_IDENTIFIER, readWhereIsGestionnaireOrBeneficiaireByAdministrativeUnitsCodes);
+		return __readMany__(properties, ____getQueryParameters____(properties,administrativeUnitsCodes));
 	}
 	
 	@Override
@@ -75,6 +98,18 @@ public class AdministrativeUnitActivityPersistenceImpl extends AbstractPersisten
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByAdministrativeUnitsCodes)) {
 			if(ArrayHelper.isEmpty(objects))
 				objects = new Object[] {queryContext.getFilterByKeysValue(AdministrativeUnitActivity.FIELD_ADMINISTRATIVE_UNIT)};
+			return new Object[]{"administrativeUnitsCodes",objects[0]};
+		}
+		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByAdministrativeUnitBeneficiairesCodes)) {
+			if(ArrayHelper.isEmpty(objects))
+				objects = new Object[] {queryContext.getFilterByKeysValue(AdministrativeUnitActivity.FIELD_ADMINISTRATIVE_UNIT)};
+			return new Object[]{"administrativeUnitsBeneficiairesCodes",objects[0]};
+		}
+		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readWhereIsGestionnaireOrBeneficiaireByAdministrativeUnitsCodes)) {
+			if(ArrayHelper.isEmpty(objects))
+				objects = new Object[] {queryContext.getFilterByKeysValue(AdministrativeUnitActivity.FIELD_ADMINISTRATIVE_UNIT)};
+			System.out.println(queryContext.getQuery().getValue());
+			System.out.println("AdministrativeUnitActivityPersistenceImpl.__getQueryParameters__() : "+objects[0]);
 			return new Object[]{"administrativeUnitsCodes",objects[0]};
 		}
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByActivitiesCodes)) {

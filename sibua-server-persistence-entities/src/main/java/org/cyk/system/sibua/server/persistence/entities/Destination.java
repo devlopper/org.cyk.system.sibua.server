@@ -29,6 +29,11 @@ public class Destination extends AbstractIdentifiableSystemScalarStringIdentifia
 	@Transient private AdministrativeUnit administrativeUnit;
 	@Transient private Activity activity;
 	
+	public Destination(String code,String name,String sectionCode) {
+		super(code, name);
+		setSectionFromCode(sectionCode);
+	}
+	
 	@Override
 	public Destination setCode(String code) {
 		return (Destination) super.setCode(code);

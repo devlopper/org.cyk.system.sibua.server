@@ -10,4 +10,7 @@ public interface AdministrativeUnitActivityPersistence extends PersistenceEntity
 
 	Collection<AdministrativeUnitActivity> readByAdministrativeUnitsCodesByActivitiesCodes(Collection<String> administrativeUnitsCodes,Collection<String> activitiesCodes,Properties properties);
 	
+	Collection<AdministrativeUnitActivity> readWhereIsGestionnaireOrBeneficiaireByAdministrativeUnitsCodes(Collection<String> administrativeUnitsCodes,Properties properties);
+	
+	Collection<AdministrativeUnitActivity> readByAdministrativeUnitBeneficiairesCodes(Collection<String> codes, Properties properties);
 }

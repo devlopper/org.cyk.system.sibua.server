@@ -10,6 +10,7 @@ import org.cyk.system.sibua.server.business.api.AdministrativeUnitBusiness;
 import org.cyk.system.sibua.server.representation.api.AdministrativeUnitRepresentation;
 import org.cyk.system.sibua.server.representation.entities.AdministrativeUnitDto;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
+import org.cyk.utility.__kernel__.string.StringHelper;
 import org.cyk.utility.server.representation.AbstractRepresentationEntityImpl;
 
 @ApplicationScoped
@@ -23,4 +24,10 @@ public class AdministrativeUnitRepresentationImpl extends AbstractRepresentation
 		return Response.ok().build();
 	}
 	
+	@Override
+	public Response mergeByCodes(List<String> administrativeUnitsSourcesCodes,String administrativeUnitDestinationCode) {
+		if(CollectionHelper.isNotEmpty(administrativeUnitsSourcesCodes) && StringHelper.isNotBlank(administrativeUnitDestinationCode))
+			__inject__(AdministrativeUnitBusiness.class).mergeByCodes(administrativeUnitsSourcesCodes,administrativeUnitDestinationCode);
+		return Response.ok().build();
+	}
 }
