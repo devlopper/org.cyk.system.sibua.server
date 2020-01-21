@@ -55,6 +55,14 @@ public class AdministrativeUnitActivity extends AbstractIdentifiableSystemScalar
 		return this;
 	}
 	
+	public AdministrativeUnitActivity setAdministrativeUnitBeneficiaireFromCode(String code) {
+		if(StringHelper.isBlank(code))
+			this.administrativeUnitBeneficiaire = null;
+		else
+			this.administrativeUnitBeneficiaire = InstanceGetter.getInstance().getByBusinessIdentifier(AdministrativeUnit.class, code);
+		return this;
+	}
+	
 	public static final String FIELD_ADMINISTRATIVE_UNIT = "administrativeUnit";
 	public static final String FIELD_ACTIVITY = "activity";
 	public static final String FIELD_ADMINISTRATIVE_UNIT_BENEFICIAIRE = "administrativeUnitBeneficiaire";

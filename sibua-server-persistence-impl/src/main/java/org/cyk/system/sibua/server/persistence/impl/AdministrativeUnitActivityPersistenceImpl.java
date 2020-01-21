@@ -19,7 +19,8 @@ import org.cyk.utility.server.persistence.PersistenceFunctionReader;
 public class AdministrativeUnitActivityPersistenceImpl extends AbstractPersistenceEntityImpl<AdministrativeUnitActivity> implements AdministrativeUnitActivityPersistence,ReadAdministrativeUnitActivityByAdministrativeUnits,ReadAdministrativeUnitActivityByActivities,Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private String readByAdministrativeUnitsCodes,readByAdministrativeUnitBeneficiairesCodes,readByActivitiesCodes,readByAdministrativeUnitsCodesByActivitiesCodes,readWhereIsGestionnaireOrBeneficiaireByAdministrativeUnitsCodes;
+	private String readByAdministrativeUnitsCodes,countByAdministrativeUnitsCodes,readByAdministrativeUnitBeneficiairesCodes,countByAdministrativeUnitBeneficiairesCodes
+	,readByActivitiesCodes,readByAdministrativeUnitsCodesByActivitiesCodes,readWhereIsGestionnaireOrBeneficiaireByAdministrativeUnitsCodes;
 	
 	@Override
 	protected void __listenPostConstructPersistenceQueries__() {
@@ -45,6 +46,16 @@ public class AdministrativeUnitActivityPersistenceImpl extends AbstractPersisten
 	}
 	
 	@Override
+	public Long countByAdministrativeUnitsCodes(Collection<String> codes, Properties properties) {
+		if(CollectionHelper.isEmpty(codes))
+			return null;
+		if(properties == null)
+			properties = new Properties();
+		properties.setIfNull(Properties.QUERY_IDENTIFIER, countByAdministrativeUnitsCodes);
+		return __count__(properties, ____getQueryParameters____(properties,codes));
+	}
+	
+	@Override
 	public Collection<AdministrativeUnitActivity> readByAdministrativeUnitBeneficiairesCodes(Collection<String> codes, Properties properties) {
 		if(CollectionHelper.isEmpty(codes))
 			return null;
@@ -52,6 +63,16 @@ public class AdministrativeUnitActivityPersistenceImpl extends AbstractPersisten
 			properties = new Properties();
 		properties.setIfNull(Properties.QUERY_IDENTIFIER, readByAdministrativeUnitBeneficiairesCodes);
 		return __readMany__(properties, ____getQueryParameters____(properties,codes));
+	}
+	
+	@Override
+	public Long countByAdministrativeUnitBeneficiairesCodes(Collection<String> codes, Properties properties) {
+		if(CollectionHelper.isEmpty(codes))
+			return null;
+		if(properties == null)
+			properties = new Properties();
+		properties.setIfNull(Properties.QUERY_IDENTIFIER, countByAdministrativeUnitBeneficiairesCodes);
+		return __count__(properties, ____getQueryParameters____(properties,codes));
 	}
 	
 	@Override

@@ -41,7 +41,7 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 	private static final String AND_PROGRAM_BUDGET_CATEGORY_CODE_IS_1_OR_3_OR_7 = " AND activity.action.program.budgetCategoryCode IN ('1','3','7') ";
 	
 	private String readWhereAdministrativeUnitDoesNotExistBySectionsCodes,readWhereAdministrativeUnitDoesNotExistByProgramsCodes
-	,readWhereAdministrativeUnitDoesNotExistByActionsCodes,readBySectionsCodes,readByProgramsCodes,readByActionsCodes,readByAdministrativeUnitsCodes
+	,readWhereAdministrativeUnitDoesNotExistByActionsCodes,readBySectionsCodes,readByProgramsCodes,readByActionsCodes,readByAdministrativeUnitsCodes,countByAdministrativeUnitsCodes
 	,readByFilters,readWhereCodeNotInByFilters,readWhereAdministrativeUnitDoesNotExistByFilters,readWhereCodeNotInAndAdministrativeUnitDoesNotExistByFilters
 	,readByFiltersCodesLike,readByUsersIdentifiers,readWhereCodeOrNameContainsAndSectionCodeLikes;
 	
@@ -265,6 +265,16 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 		properties.setIfNull(Properties.QUERY_IDENTIFIER, readByAdministrativeUnitsCodes);
 		return __readMany__(properties, ____getQueryParameters____(properties,codes));
 	}
+	
+	@Override
+	public Long countByAdministrativeUnitsCodes(Collection<String> codes, Properties properties) {
+		if(CollectionHelper.isEmpty(codes))
+			return null;
+		if(properties == null)
+			properties = new Properties();
+		properties.setIfNull(Properties.QUERY_IDENTIFIER, countByAdministrativeUnitsCodes);
+		return __count__(properties, ____getQueryParameters____(properties,codes));
+	}
 
 	@Override
 	protected String __getQueryIdentifier__(Class<?> klass, Properties properties, Object... objects) {
@@ -399,7 +409,7 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 					,Activity.FIELD_SECTION,objects[index++],Activity.FIELD_CAT_ATV_CODE,objects[index++],Activity.FIELD_ADMINISTRATIVE_UNIT
 					,objects[index++],Activity.FIELD_ADMINISTRATIVE_UNIT_BENEFICIAIRE,objects[index++]
 				};
-			//System.out.println("P ::: "+Arrays.deepToString(objects));
+			System.out.println("P ::: "+java.util.Arrays.deepToString(objects));//" SELECT person FROM Person person WHERE person.adresses = 2"
 			return objects;
 		}
 		

@@ -247,6 +247,10 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 		}else if(field.getName().equals(AdministrativeUnit.FIELD_CHILDREN)) {
 			administrativeUnit.setChildren(read(new Properties().setQueryIdentifier(AdministrativeUnitPersistence.READ_CHILDREN_BY_CODES)
 					.setQueryFilters(__inject__(Filter.class).addField(AdministrativeUnit.FIELD_CODE, List.of(administrativeUnit.getCode())))));
+		}else if(field.getName().equals(AdministrativeUnit.FIELD_NUMBER_OF_ACTIVITIES)) {
+			administrativeUnit.setNumberOfActivities( ((ReadAdministrativeUnitActivityByAdministrativeUnits)__inject__(AdministrativeUnitActivityPersistence.class)).countByAdministrativeUnits(administrativeUnit).intValue());
+		}else if(field.getName().equals(AdministrativeUnit.FIELD_NUMBER_OF_ACTIVITIES_BENEFICIAIRE)) {
+			administrativeUnit.setNumberOfActivitiesBeneficiaire(__inject__(AdministrativeUnitActivityPersistence.class).countByAdministrativeUnitBeneficiairesCodes(List.of(administrativeUnit.getCode()), null).intValue());
 		}
 	}
 	

@@ -10,6 +10,8 @@ import org.cyk.utility.__kernel__.properties.Properties;
 
 public interface ReadByAdministrativeUnits<ENTITY> {
 
+	/* read */
+	
 	Collection<ENTITY> readByAdministrativeUnitsCodes(Collection<String> codes,Properties properties);
 	
 	default Collection<ENTITY> readByAdministrativeUnitsCodes(Collection<String> codes) {
@@ -53,4 +55,51 @@ public interface ReadByAdministrativeUnits<ENTITY> {
 			return null;
 		return readByAdministrativeUnits(CollectionHelper.listOf(administrativeUnits),null);
 	}
+	
+	/* count */
+	
+	Long countByAdministrativeUnitsCodes(Collection<String> codes,Properties properties);
+	
+	default Long countByAdministrativeUnitsCodes(Collection<String> codes) {
+		if(CollectionHelper.isEmpty(codes))
+			return null;
+		return countByAdministrativeUnitsCodes(codes,null);
+	}
+	
+	default Long countByAdministrativeUnitsCodes(Properties properties,String...codes) {
+		if(ArrayHelper.isEmpty(codes))
+			return null;
+		return countByAdministrativeUnitsCodes(CollectionHelper.listOf(codes),properties);
+	}
+	
+	default Long countByAdministrativeUnitsCodes(String...codes) {
+		if(ArrayHelper.isEmpty(codes))
+			return null;
+		return countByAdministrativeUnitsCodes(CollectionHelper.listOf(codes),null);
+	}
+	
+	default Long countByAdministrativeUnits(Collection<AdministrativeUnit> administrativeUnits,Properties properties) {
+		if(CollectionHelper.isEmpty(administrativeUnits))
+			return null;
+		return countByAdministrativeUnitsCodes(administrativeUnits.stream().map(AdministrativeUnit::getCode).collect(Collectors.toList()), properties);
+	}
+	
+	default Long countByAdministrativeUnits(Collection<AdministrativeUnit> administrativeUnits) {
+		if(CollectionHelper.isEmpty(administrativeUnits))
+			return null;
+		return countByAdministrativeUnits(administrativeUnits,null);
+	}
+	
+	default Long countByAdministrativeUnits(Properties properties,AdministrativeUnit...administrativeUnits) {
+		if(ArrayHelper.isEmpty(administrativeUnits))
+			return null;
+		return countByAdministrativeUnits(CollectionHelper.listOf(administrativeUnits),properties);
+	}
+	
+	default Long countByAdministrativeUnits(AdministrativeUnit...administrativeUnits) {
+		if(ArrayHelper.isEmpty(administrativeUnits))
+			return null;
+		return countByAdministrativeUnits(CollectionHelper.listOf(administrativeUnits),null);
+	}
+	
 }

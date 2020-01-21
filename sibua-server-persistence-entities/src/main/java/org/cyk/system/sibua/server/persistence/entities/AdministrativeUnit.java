@@ -35,6 +35,9 @@ public class AdministrativeUnit extends AbstractIdentifiableSystemScalarStringId
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_LOCALISATION) private Localisation localisation;
 	@NotNull @Column(name = COLUMN_ORDER_NUMBER) private Integer orderNumber;
 	
+	@Transient private Integer numberOfActivities;
+	@Transient private Integer numberOfActivitiesBeneficiaire;
+	
 	@Transient private Collection<Program> programs;
 	@Transient private Collection<Activity> activities;
 	//@Transient private Collection<Activity> activitiesGestionnaire;
@@ -168,6 +171,8 @@ public class AdministrativeUnit extends AbstractIdentifiableSystemScalarStringId
 	public static final String FIELD_CHILDREN = "children";
 	public static final String FIELD_ACTIVITY_DESTINATIONS = "activityDestinations";
 	public static final String FIELD_ADMINISTRATIVE_UNIT = "administrativeUnit";
+	public static final String FIELD_NUMBER_OF_ACTIVITIES = "numberOfActivities";
+	public static final String FIELD_NUMBER_OF_ACTIVITIES_BENEFICIAIRE = "numberOfActivitiesBeneficiaire";
 	
 	public static final String COLUMN_SECTION = Section.TABLE_NAME;	
 	public static final String COLUMN_SERVICE_GROUP = ServiceGroup.TABLE_NAME;	

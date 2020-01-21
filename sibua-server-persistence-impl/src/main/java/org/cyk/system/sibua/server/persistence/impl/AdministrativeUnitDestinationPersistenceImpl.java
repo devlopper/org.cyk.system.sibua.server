@@ -35,6 +35,11 @@ public class AdministrativeUnitDestinationPersistenceImpl extends AbstractPersis
 		properties.setIfNull(Properties.QUERY_IDENTIFIER, readByAdministrativeUnitsCodes);
 		return __readMany__(properties, ____getQueryParameters____(properties,codes));
 	}
+	
+	@Override
+	public Long countByAdministrativeUnitsCodes(Collection<String> codes, Properties properties) {
+		return null;
+	}
 
 	@Override
 	protected String __getQueryIdentifier__(Class<?> klass, Properties properties, Object... objects) {

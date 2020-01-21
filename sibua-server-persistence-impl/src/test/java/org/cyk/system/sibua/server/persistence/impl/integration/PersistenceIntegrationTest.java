@@ -290,7 +290,7 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 		userTransaction.commit();
 		
 		assertThat(__inject__(AdministrativeUnitPersistence.class).count(new Properties().setQueryIdentifier(AdministrativeUnitPersistence.COUNT_CHILDREN_BY_CODES)
-				.setQueryFilters(__inject__(Filter.class).addField(AdministrativeUnit.FIELD_CODE, List.of("1"))))).isEqualTo(0l);
+				.setQueryFilters(new Filter().addField(AdministrativeUnit.FIELD_CODE, List.of("1"))))).isEqualTo(0l);
 		
 		userTransaction.begin();
 		__inject__(AdministrativeUnitHierarchyPersistence.class).createMany(List.of(
@@ -299,9 +299,9 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 		userTransaction.commit();
 		
 		assertThat(__inject__(AdministrativeUnitPersistence.class).count(new Properties().setQueryIdentifier(AdministrativeUnitPersistence.COUNT_CHILDREN_BY_CODES)
-				.setQueryFilters(__inject__(Filter.class).addField(AdministrativeUnit.FIELD_CODE, List.of("1"))))).isEqualTo(3l);
+				.setQueryFilters(new Filter().addField(AdministrativeUnit.FIELD_CODE, List.of("1"))))).isEqualTo(3l);
 		assertThat(__inject__(AdministrativeUnitPersistence.class).count(new Properties().setQueryIdentifier(AdministrativeUnitPersistence.COUNT_CHILDREN_BY_CODES)
-				.setQueryFilters(__inject__(Filter.class).addField(AdministrativeUnit.FIELD_CODE, List.of("2"))))).isEqualTo(0l);		
+				.setQueryFilters(new Filter().addField(AdministrativeUnit.FIELD_CODE, List.of("2"))))).isEqualTo(0l);		
 	}
 	
 	//@Test
@@ -329,14 +329,44 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 		userTransaction.commit();
 		Collection<Activity> activities = null;
 		
-		activities = __inject__(ActivityPersistence.class).read(new Properties().setQueryIdentifier(ActivityPersistence.READ_BY_FILTERS).setQueryFilters(__inject__(Filter.class)));
+		activities = __inject__(ActivityPersistence.class).read(new Properties().setQueryIdentifier(ActivityPersistence.READ_BY_FILTERS).setQueryFilters(new Filter()));
 		assertThat(activities.stream().map(Activity::getCode).collect(Collectors.toList())).containsExactly("atv1","atv2","atv3","atv4","atv5","atv6","atv7");
 		
-		activities = __inject__(ActivityPersistence.class).read(new Properties().setQueryIdentifier(ActivityPersistence.READ_BY_FILTERS).setQueryFilters(__inject__(Filter.class).addField(Activity.FIELD_ADMINISTRATIVE_UNIT_GESTIONNAIRE, List.of("ua1"))));
+		activities = __inject__(ActivityPersistence.class).read(new Properties().setQueryIdentifier(ActivityPersistence.READ_BY_FILTERS).setQueryFilters(new Filter().addField(Activity.FIELD_ADMINISTRATIVE_UNIT_GESTIONNAIRE, List.of("ua1"))));
 		assertThat(activities.stream().map(Activity::getCode).collect(Collectors.toList())).containsExactly("atv1");
 		
-		activities = __inject__(ActivityPersistence.class).read(new Properties().setQueryIdentifier(ActivityPersistence.READ_BY_FILTERS).setQueryFilters(__inject__(Filter.class).addField(Activity.FIELD_ADMINISTRATIVE_UNIT_GESTIONNAIRE, List.of("ua2"))));
+		activities = __inject__(ActivityPersistence.class).read(new Properties().setQueryIdentifier(ActivityPersistence.READ_BY_FILTERS).setQueryFilters(new Filter().addField(Activity.FIELD_ADMINISTRATIVE_UNIT_GESTIONNAIRE, List.of("ua2"))));
 		assertThat(activities).isEmpty();
+	}
+	
+	public void activity_readByFiltersLike() throws Exception{
+		userTransaction.begin();
+		__inject__(ServiceGroupPersistence.class).create(new ServiceGroup().setCode("1").setName("1"));
+		__inject__(FunctionalClassificationPersistence.class).create(new FunctionalClassification().setCode("1").setName("1"));
+		__inject__(LocalisationPersistence.class).create(new Localisation().setCode("1").setName("1"));	
+		__inject__(SectionPersistence.class).createMany(List.of(new Section("1","1"),new Section("2","2")));
+		__inject__(ProgramPersistence.class).createMany(List.of(new Program("1","1","1","1"),new Program("2","1","1","1")));
+		__inject__(ActionPersistence.class).createMany(List.of(new Action("1","1","1"),new Action("2","1","1")));
+		__inject__(ActivityPersistence.class).createMany(List.of(new Activity("atv1","1","1"),new Activity("atv2","1","1"),new Activity("atv3","1","1")
+				,new Activity("atv4","1","1"),new Activity("atv5","1","1"),new Activity("atv6","1","1"),new Activity("atv7","1","1")));		
+		
+		__inject__(AdministrativeUnitPersistence.class).createMany(List.of(
+				new AdministrativeUnit("ua1","1","1","1","1","1").setOrderNumber(1)
+				,new AdministrativeUnit("ua2","1","1","1","1","1").setOrderNumber(2)
+				,new AdministrativeUnit("ua3","1","1","1","1","1").setOrderNumber(3),new AdministrativeUnit("ua4","1","1","1","1","1").setOrderNumber(4)
+				,new AdministrativeUnit("ua5","1","1","1","1","1").setOrderNumber(5),new AdministrativeUnit("ua6","1","1","1","1","1").setOrderNumber(6)
+				));
+		
+		__inject__(AdministrativeUnitActivityPersistence.class).createMany(List.of(
+				new AdministrativeUnitActivity("ua1","atv1"),new AdministrativeUnitActivity("ua1","atv2")
+				,new AdministrativeUnitActivity("ua2","atv3")
+			));
+		
+		userTransaction.commit();
+		
+		__assertReadActivityByFiltersLike__(null, null, null, null, null, "ua1", null, new String[] {"atv1","atv2"});
+		__assertReadActivityByFiltersLike__(null, null, null, null, null, "ua2", null, new String[] {});
+		__assertReadActivityByFiltersLike__(null, null, null, null, null, "ua3", null, new String[] {"atv3","atv4"});
 	}
 	
 	//@Test
@@ -493,6 +523,12 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 		__inject__(ServiceGroupPersistence.class).create(new ServiceGroup().setCode("1").setName("1"));
 		__inject__(FunctionalClassificationPersistence.class).create(new FunctionalClassification().setCode("1").setName("1"));
 		__inject__(LocalisationPersistence.class).create(new Localisation().setCode("1").setName("1"));
+		
+		__inject__(ProgramPersistence.class).createMany(List.of(new Program("1","1","1","1"),new Program("2","1","1","1")));
+		__inject__(ActionPersistence.class).createMany(List.of(new Action("1","1","1"),new Action("2","1","1")));
+		__inject__(ActivityPersistence.class).createMany(List.of(new Activity("atv1","1","1"),new Activity("atv2","1","1"),new Activity("atv3","1","1")
+				,new Activity("atv4","1","1"),new Activity("atv5","1","1"),new Activity("atv6","1","1"),new Activity("atv7","1","1")));
+		
 		__inject__(AdministrativeUnitPersistence.class).createMany(List.of(
 				new AdministrativeUnit().setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1").setLocalisationFromCode("1").setSectionFromCode("1").setCode("1")
 					.setName("Alice").setOrderNumber(1)
@@ -505,29 +541,32 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 				,new AdministrativeUnit().setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1").setLocalisationFromCode("1").setSectionFromCode("2").setCode("12")
 				.setName("Komenan Yao Chrsitian").setOrderNumber(5)
 					));
+		
+		__inject__(AdministrativeUnitActivityPersistence.class).createMany(List.of(
+				new AdministrativeUnitActivity("1","atv1"),new AdministrativeUnitActivity("1","atv2")
+				,new AdministrativeUnitActivity("3","atv3")
+			));
+		
 		userTransaction.commit();
 		
-		try {
-			__assertReadByFiltersLike__(null,null,null,null,null, new String[] {"Alice","Paul","Jean-Yves","Komenan","Komenan Yao Chrsitian"});
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		__assertReadByFiltersLike__("",null,null,null,null, new String[] {"Alice","Paul","Jean-Yves","Komenan","Komenan Yao Chrsitian"});
-		__assertReadByFiltersLike__(" ",null,null,null,null, new String[] {"Alice","Paul","Jean-Yves","Komenan","Komenan Yao Chrsitian"});
-		__assertReadByFiltersLike__("   ",null,null,null,null, new String[] {"Alice","Paul","Jean-Yves","Komenan","Komenan Yao Chrsitian"});
-		__assertReadByFiltersLike__("y",null,null,null,null, new String[] {"Jean-Yves","Komenan Yao Chrsitian"});
-		__assertReadByFiltersLike__("ya",null,null,null,null, new String[] {"Komenan Yao Chrsitian"});
-		__assertReadByFiltersLike__("kom",null,null,null,null, new String[] {"Komenan","Komenan Yao Chrsitian"});
-		__assertReadByFiltersLike__("YVES",null,null,null,null, new String[] {"Jean-Yves"});
-		__assertReadByFiltersLike__("123",null,null,null,null, new String[] {});
+		__assertReadAdministrativeUnitByFiltersLike__(null,null,null,null,null, new String[] {"Alice","Paul","Jean-Yves","Komenan","Komenan Yao Chrsitian"}
+			,new Integer[] {2,0,1,0,0},null);
 		
-		__assertReadByFiltersLike__("1",null,null,null,null, new String[] {"Alice","Komenan Yao Chrsitian"});
-		__assertReadByFiltersLike__("2",null,null,null,null, new String[] {"Paul","Komenan Yao Chrsitian"});
-		__assertReadByFiltersLike__("12",null,null,null,null, new String[] {"Komenan Yao Chrsitian"});
+		__assertReadAdministrativeUnitByFiltersLike__("",null,null,null,null, new String[] {"Alice","Paul","Jean-Yves","Komenan","Komenan Yao Chrsitian"});
+		__assertReadAdministrativeUnitByFiltersLike__(" ",null,null,null,null, new String[] {"Alice","Paul","Jean-Yves","Komenan","Komenan Yao Chrsitian"});
+		__assertReadAdministrativeUnitByFiltersLike__("   ",null,null,null,null, new String[] {"Alice","Paul","Jean-Yves","Komenan","Komenan Yao Chrsitian"});
+		__assertReadAdministrativeUnitByFiltersLike__("y",null,null,null,null, new String[] {"Jean-Yves","Komenan Yao Chrsitian"});
+		__assertReadAdministrativeUnitByFiltersLike__("ya",null,null,null,null, new String[] {"Komenan Yao Chrsitian"});
+		__assertReadAdministrativeUnitByFiltersLike__("kom",null,null,null,null, new String[] {"Komenan","Komenan Yao Chrsitian"});
+		__assertReadAdministrativeUnitByFiltersLike__("YVES",null,null,null,null, new String[] {"Jean-Yves"});
+		__assertReadAdministrativeUnitByFiltersLike__("123",null,null,null,null, new String[] {});
 		
-		__assertReadByFiltersLike__("1","1",null,null,null, new String[] {"Alice"});
-		__assertReadByFiltersLike__("1","2",null,null,null, new String[] {"Komenan Yao Chrsitian"});
+		__assertReadAdministrativeUnitByFiltersLike__("1",null,null,null,null, new String[] {"Alice","Komenan Yao Chrsitian"});
+		__assertReadAdministrativeUnitByFiltersLike__("2",null,null,null,null, new String[] {"Paul","Komenan Yao Chrsitian"});
+		__assertReadAdministrativeUnitByFiltersLike__("12",null,null,null,null, new String[] {"Komenan Yao Chrsitian"});
+		
+		__assertReadAdministrativeUnitByFiltersLike__("1","1",null,null,null, new String[] {"Alice"});
+		__assertReadAdministrativeUnitByFiltersLike__("1","2",null,null,null, new String[] {"Komenan Yao Chrsitian"});
 		/*
 		__assertReadByFilter__("1",null, 1l, new String[] {"Alice"});
 		__assertReadByFilter__("2",null, 1l, new String[] {"Paul"});
@@ -561,12 +600,12 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 	
 	private void __assertServiceGroupReadWhereBusinessIdentifierOrNameContains__(String string,String[] expectedCodes) {
 		assertThat(__inject__(ServiceGroupPersistence.class).count(new Properties().
-				setQueryIdentifier(ServiceGroupPersistence.COUNT_WHERE_CODE_OR_NAME_CONTAINS).setQueryFilters(__inject__(Filter.class).addField(ServiceGroup.FIELD_CODE, string)
+				setQueryIdentifier(ServiceGroupPersistence.COUNT_WHERE_CODE_OR_NAME_CONTAINS).setQueryFilters(new Filter().addField(ServiceGroup.FIELD_CODE, string)
 						.addField(ServiceGroup.FIELD_NAME, string)
 						))).isEqualTo(Long.valueOf(ArrayHelper.getSize(expectedCodes)));
 		
 		Collection<ServiceGroup> serviceGroups = __inject__(ServiceGroupPersistence.class).read(new Properties().
-				setQueryIdentifier(ServiceGroupPersistence.READ_WHERE_CODE_OR_NAME_CONTAINS).setQueryFilters(__inject__(Filter.class).addField(ServiceGroup.FIELD_CODE, string)
+				setQueryIdentifier(ServiceGroupPersistence.READ_WHERE_CODE_OR_NAME_CONTAINS).setQueryFilters(new Filter().addField(ServiceGroup.FIELD_CODE, string)
 						.addField(ServiceGroup.FIELD_NAME, string)
 						));
 		
@@ -576,7 +615,7 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 	
 	private void __assertReadByFilter__(String code,String name,Long expectedCount,String[] expectedNames) {
 		assertThat(__inject__(AdministrativeUnitPersistence.class).count(new Properties().
-				setQueryIdentifier(AdministrativeUnitPersistence.COUNT_BY_FILTERS).setQueryFilters(__inject__(Filter.class).addField(AdministrativeUnit.FIELD_NAME, name)
+				setQueryIdentifier(AdministrativeUnitPersistence.COUNT_BY_FILTERS).setQueryFilters(new Filter().addField(AdministrativeUnit.FIELD_NAME, name)
 						.addField(AdministrativeUnit.FIELD_SECTION, List.of("1"))
 						.addField(AdministrativeUnit.FIELD_SERVICE_GROUP, List.of("1"))
 						.addField(AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION, List.of("1"))
@@ -584,7 +623,7 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 						))).isEqualTo(expectedCount);
 		
 		Collection<AdministrativeUnit> administrativeUnits = __inject__(AdministrativeUnitPersistence.class).read(new Properties().
-				setQueryIdentifier(AdministrativeUnitPersistence.READ_BY_FILTERS).setQueryFilters(__inject__(Filter.class).addField(AdministrativeUnit.FIELD_NAME, name)
+				setQueryIdentifier(AdministrativeUnitPersistence.READ_BY_FILTERS).setQueryFilters(new Filter().addField(AdministrativeUnit.FIELD_NAME, name)
 						.addField(AdministrativeUnit.FIELD_SECTION, List.of("1"))
 						.addField(AdministrativeUnit.FIELD_SERVICE_GROUP, List.of("1"))
 						.addField(AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION, List.of("1"))
@@ -597,7 +636,7 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 	
 	private void __assertReadByFiltersCodesLike__(String code,String name,String sectionCode,String serviceGroupCode,String functionalClassificationCode,Long expectedCount,String[] expectedNames) {
 		assertThat(__inject__(AdministrativeUnitPersistence.class).count(new Properties().
-				setQueryIdentifier(AdministrativeUnitPersistence.COUNT_BY_FILTERS_CODES_LIKE).setQueryFilters(__inject__(Filter.class).addField(AdministrativeUnit.FIELD_NAME, name)
+				setQueryIdentifier(AdministrativeUnitPersistence.COUNT_BY_FILTERS_CODES_LIKE).setQueryFilters(new Filter().addField(AdministrativeUnit.FIELD_NAME, name)
 						.addField(AdministrativeUnit.FIELD_SECTION, sectionCode)
 						.addField(AdministrativeUnit.FIELD_SERVICE_GROUP, serviceGroupCode)
 						.addField(AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION, functionalClassificationCode)
@@ -605,7 +644,7 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 						))).isEqualTo(expectedCount);
 		
 		Collection<AdministrativeUnit> administrativeUnits = __inject__(AdministrativeUnitPersistence.class).read(new Properties().
-				setQueryIdentifier(AdministrativeUnitPersistence.READ_BY_FILTERS_CODES_LIKE).setQueryFilters(__inject__(Filter.class).addField(AdministrativeUnit.FIELD_NAME, name)
+				setQueryIdentifier(AdministrativeUnitPersistence.READ_BY_FILTERS_CODES_LIKE).setQueryFilters(new Filter().addField(AdministrativeUnit.FIELD_NAME, name)
 						.addField(AdministrativeUnit.FIELD_SECTION, sectionCode)
 						.addField(AdministrativeUnit.FIELD_SERVICE_GROUP, serviceGroupCode)
 						.addField(AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION, functionalClassificationCode)
@@ -616,18 +655,20 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 		assertThat(administrativeUnits.stream().map(AdministrativeUnit::getName).collect(Collectors.toList())).containsExactlyInAnyOrder(expectedNames);
 	}
 	
-	private void __assertReadByFiltersLike__(String administrativeUnit,String section,String serviceGroup,String functionalClassification,String localisation,String[] expected) {
+	private void __assertReadAdministrativeUnitByFiltersLike__(String administrativeUnit,String section,String serviceGroup,String functionalClassification,String localisation,String[] expected,Integer[] expectedNumberOfActivities,Integer[] expectedNumberOfActivitiesBeneficiaire) {
 		assertThat(__inject__(AdministrativeUnitPersistence.class).count(new Properties().
-				setQueryIdentifier(AdministrativeUnitPersistence.COUNT_BY_FILTERS_LIKE).setQueryFilters(__inject__(Filter.class)
+				setQueryIdentifier(AdministrativeUnitPersistence.COUNT_BY_FILTERS_LIKE).setQueryFilters(new Filter()
 						.addField(AdministrativeUnit.FIELD_ADMINISTRATIVE_UNIT, administrativeUnit)						
 						.addField(AdministrativeUnit.FIELD_SECTION, section)
 						.addField(AdministrativeUnit.FIELD_SERVICE_GROUP, serviceGroup)
 						.addField(AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION, functionalClassification)
 						.addField(AdministrativeUnit.FIELD_LOCALISATION, localisation)	
-						))).isEqualTo(Long.valueOf(ArrayHelper.getSize(expected)));
+						)))
+					.isEqualTo(Long.valueOf(ArrayHelper.getSize(expected)));
 		
-		Collection<AdministrativeUnit> administrativeUnits = __inject__(AdministrativeUnitPersistence.class).read(new Properties().
-				setQueryIdentifier(AdministrativeUnitPersistence.READ_BY_FILTERS_LIKE).setQueryFilters(__inject__(Filter.class)
+		Collection<AdministrativeUnit> administrativeUnits = __inject__(AdministrativeUnitPersistence.class).read(new Properties()
+				.setFields(AdministrativeUnit.FIELD_NUMBER_OF_ACTIVITIES+","+AdministrativeUnit.FIELD_NUMBER_OF_ACTIVITIES_BENEFICIAIRE)
+				.setQueryIdentifier(AdministrativeUnitPersistence.READ_BY_FILTERS_LIKE).setQueryFilters(new Filter()
 						.addField(AdministrativeUnit.FIELD_ADMINISTRATIVE_UNIT, administrativeUnit)
 						.addField(AdministrativeUnit.FIELD_SECTION, section)
 						.addField(AdministrativeUnit.FIELD_SERVICE_GROUP, serviceGroup)
@@ -637,11 +678,19 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 		
 		assertThat(administrativeUnits).hasSize(ArrayHelper.getSize(expected));
 		assertThat(administrativeUnits.stream().map(AdministrativeUnit::getName).collect(Collectors.toList())).containsExactlyInAnyOrder(expected);
+		if(expectedNumberOfActivities != null)
+			assertThat(administrativeUnits.stream().map(AdministrativeUnit::getNumberOfActivities).collect(Collectors.toList())).containsExactlyInAnyOrder(expectedNumberOfActivities);
+		if(expectedNumberOfActivitiesBeneficiaire != null)
+			assertThat(administrativeUnits.stream().map(AdministrativeUnit::getNumberOfActivitiesBeneficiaire).collect(Collectors.toList())).containsExactlyInAnyOrder(expectedNumberOfActivitiesBeneficiaire);
+	}
+	
+	private void __assertReadAdministrativeUnitByFiltersLike__(String administrativeUnit,String section,String serviceGroup,String functionalClassification,String localisation,String[] expected) {
+		__assertReadAdministrativeUnitByFiltersLike__(administrativeUnit, section, serviceGroup, functionalClassification, localisation, expected,null,null);
 	}
 	
 	private void __assertReadWhereCodeNotInByFilter__(Collection<String> codes,String name,Long expectedCount,String[] expectedNames) {
 		assertThat(__inject__(AdministrativeUnitPersistence.class).count(new Properties().
-				setQueryIdentifier(AdministrativeUnitPersistence.COUNT_WHERE_CODE_NOT_IN_BY_FILTERS).setQueryFilters(__inject__(Filter.class).addField(AdministrativeUnit.FIELD_NAME, name)
+				setQueryIdentifier(AdministrativeUnitPersistence.COUNT_WHERE_CODE_NOT_IN_BY_FILTERS).setQueryFilters(new Filter().addField(AdministrativeUnit.FIELD_NAME, name)
 						.addField(AdministrativeUnit.FIELD_SECTION, List.of("1"))
 						.addField(AdministrativeUnit.FIELD_SERVICE_GROUP, List.of("1"))
 						.addField(AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION, List.of("1"))
@@ -649,7 +698,7 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 						))).isEqualTo(expectedCount);
 		
 		Collection<AdministrativeUnit> administrativeUnits = __inject__(AdministrativeUnitPersistence.class).read(new Properties().
-				setQueryIdentifier(AdministrativeUnitPersistence.READ_WHERE_CODE_NOT_IN_BY_FILTERS).setQueryFilters(__inject__(Filter.class).addField(AdministrativeUnit.FIELD_NAME, name)
+				setQueryIdentifier(AdministrativeUnitPersistence.READ_WHERE_CODE_NOT_IN_BY_FILTERS).setQueryFilters(new Filter().addField(AdministrativeUnit.FIELD_NAME, name)
 						.addField(AdministrativeUnit.FIELD_SECTION, List.of("1"))
 						.addField(AdministrativeUnit.FIELD_SERVICE_GROUP, List.of("1"))
 						.addField(AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION, List.of("1"))
@@ -658,5 +707,32 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 		
 		assertThat(administrativeUnits).hasSize(expectedNames.length);
 		assertThat(administrativeUnits.stream().map(AdministrativeUnit::getName).collect(Collectors.toList())).containsExactlyInAnyOrder(expectedNames);
+	}
+
+	private void __assertReadActivityByFiltersLike__(String activity,String action,String program,String section,String catAtvCode,String administrativeUnit,String administrativeUnitBeneficiaire,String[] expected) {
+		assertThat(__inject__(ActivityPersistence.class).count(new Properties().
+				setQueryIdentifier(AdministrativeUnitPersistence.COUNT_BY_FILTERS_LIKE).setQueryFilters(new Filter()
+						.addField(Activity.FIELD_ACTIVITY, activity)						
+						.addField(Activity.FIELD_ACTION, action)
+						.addField(Activity.FIELD_PROGRAM, program)
+						.addField(Activity.FIELD_CAT_ATV_CODE, catAtvCode)
+						.addField(Activity.FIELD_SECTION, section)
+						.addField(Activity.FIELD_ADMINISTRATIVE_UNIT, administrativeUnit)
+						.addField(Activity.FIELD_ADMINISTRATIVE_UNIT_BENEFICIAIRE, administrativeUnitBeneficiaire)
+						))).isEqualTo(Long.valueOf(ArrayHelper.getSize(expected)));
+		
+		Collection<Activity> activities = __inject__(ActivityPersistence.class).read(new Properties().
+				setQueryIdentifier(AdministrativeUnitPersistence.READ_BY_FILTERS_LIKE).setQueryFilters(new Filter()
+						.addField(Activity.FIELD_ACTIVITY, activity)						
+						.addField(Activity.FIELD_ACTION, action)
+						.addField(Activity.FIELD_PROGRAM, program)
+						.addField(Activity.FIELD_CAT_ATV_CODE, catAtvCode)
+						.addField(Activity.FIELD_SECTION, section)
+						.addField(Activity.FIELD_ADMINISTRATIVE_UNIT, administrativeUnit)
+						.addField(Activity.FIELD_ADMINISTRATIVE_UNIT_BENEFICIAIRE, administrativeUnitBeneficiaire)					
+						));
+		
+		assertThat(activities).hasSize(ArrayHelper.getSize(expected));
+		assertThat(activities.stream().map(Activity::getName).collect(Collectors.toList())).containsExactlyInAnyOrder(expected);
 	}
 }

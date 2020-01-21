@@ -61,6 +61,11 @@ public class DestinationPersistenceImpl extends AbstractPersistenceEntityImpl<De
 	}
 	
 	@Override
+	public Long countByAdministrativeUnitsCodes(Collection<String> codes, Properties properties) {
+		return null;
+	}
+	
+	@Override
 	public Collection<Destination> readByActivitiesCodes(Collection<String> codes, Properties properties) {
 		if(CollectionHelper.isEmpty(codes))
 			return null;
