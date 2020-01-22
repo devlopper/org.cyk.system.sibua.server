@@ -19,7 +19,11 @@ public class ActivityDto extends AbstractIdentifiableSystemScalarStringIdentifia
 	private AdministrativeUnitDto administrativeUnit;
 	private AdministrativeUnitDto administrativeUnitBeneficiaire;
 	private ArrayList<DestinationDto> destinations;
+	private ArrayList<CostUnitDto> costUnits;
 	private String natDepCode;
 	private String catUsbCode;
 	private String catAtvCode;
+	private Integer numberOfCostUnits;
+	private Boolean isGestionnaire;
+	private Boolean isBeneficiaire;
 }

@@ -21,12 +21,13 @@ public class AdministrativeUnitHierarchyPersistenceImpl extends AbstractPersiste
 	@Override
 	protected void __listenPostConstructPersistenceQueries__() {
 		super.__listenPostConstructPersistenceQueries__();
-		addQueryCollectInstances(readByParentCodeByChildCode, "SELECT administrativeUnitHierarchy FROM AdministrativeUnitHierarchy administrativeUnitHierarchy "
+		/*addQueryCollectInstances(readByParentCodeByChildCode, "SELECT administrativeUnitHierarchy FROM AdministrativeUnitHierarchy administrativeUnitHierarchy "
 				+ "WHERE administrativeUnitHierarchy.parent.code = :parentCode AND administrativeUnitHierarchy.child.code = :childCode");
 		addQueryCollectInstances(readWhereIsParentByParentsCodes, "SELECT administrativeUnitHierarchy FROM AdministrativeUnitHierarchy administrativeUnitHierarchy "
 				+ "WHERE administrativeUnitHierarchy.parent.code = :parentsCodes");
 		addQueryCollectInstances(readWhereIsChildByChildrenCodes, "SELECT administrativeUnitHierarchy FROM AdministrativeUnitHierarchy administrativeUnitHierarchy "
 				+ "WHERE administrativeUnitHierarchy.child.code = :childrenCodes");
+		*/
 	}
 	
 	@Override

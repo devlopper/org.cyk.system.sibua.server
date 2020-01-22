@@ -84,8 +84,8 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 		addQuery(readMaxOrderNumberByServiceGroupCodeByFunctionalClassificationCode, "SELECT MAX(administrativeUnit.orderNumber) FROM AdministrativeUnit administrativeUnit "
 				+ "WHERE administrativeUnit.serviceGroup.code = :serviceGroupCode AND administrativeUnit.functionalClassification.code = :functionalClassificationCode",Integer.class);
 		
-		addQueryCollectInstances(readChildrenByCodes, "SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit "
-				+ "WHERE EXISTS(SELECT administrativeUnitHierarchy FROM AdministrativeUnitHierarchy administrativeUnitHierarchy WHERE administrativeUnitHierarchy.parent.code IN :codes AND administrativeUnitHierarchy.child = administrativeUnit)");
+		//addQueryCollectInstances(readChildrenByCodes, "SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit "
+		//		+ "WHERE EXISTS(SELECT administrativeUnitHierarchy FROM AdministrativeUnitHierarchy administrativeUnitHierarchy WHERE administrativeUnitHierarchy.parent.code IN :codes AND administrativeUnitHierarchy.child = administrativeUnit)");
 		
 		/*
 		addQueryCollectInstances(readByFilters, "SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit "
@@ -402,7 +402,6 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 					,AdministrativeUnit.FIELD_SERVICE_GROUP,objects[index++],AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION,objects[index++]
 					,AdministrativeUnit.FIELD_LOCALISATION,objects[index++]
 				};
-			//System.out.println("P ::: "+Arrays.deepToString(objects));
 			return objects;
 		}
 		

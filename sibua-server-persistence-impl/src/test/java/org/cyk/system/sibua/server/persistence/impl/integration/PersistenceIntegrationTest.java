@@ -274,7 +274,7 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 		assertThat(readAdministrativeUnitByPrograms.readByProgramsCodes("3")).isEmpty();
 	}
 	
-	@Test
+	//@Test
 	public void administrativeUnit_readChildren() throws Exception{
 		userTransaction.begin();
 		__inject__(ServiceGroupPersistence.class).create(new ServiceGroup().setCode("1").setName("1"));
@@ -302,6 +302,63 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 				.setQueryFilters(new Filter().addField(AdministrativeUnit.FIELD_CODE, List.of("1"))))).isEqualTo(3l);
 		assertThat(__inject__(AdministrativeUnitPersistence.class).count(new Properties().setQueryIdentifier(AdministrativeUnitPersistence.COUNT_CHILDREN_BY_CODES)
 				.setQueryFilters(new Filter().addField(AdministrativeUnit.FIELD_CODE, List.of("2"))))).isEqualTo(0l);		
+	}
+	
+	@Test
+	public void activity_readWhereIsGestionnaireOrBeneficiaireByAdministrativeUnitsCodes() throws Exception{
+		userTransaction.begin();
+		__inject__(ServiceGroupPersistence.class).create(new ServiceGroup().setCode("1").setName("1"));
+		__inject__(FunctionalClassificationPersistence.class).create(new FunctionalClassification().setCode("1").setName("1"));
+		__inject__(LocalisationPersistence.class).create(new Localisation().setCode("1").setName("1"));		
+		__inject__(SectionPersistence.class).create(new Section().setCode("1").setName("1"));
+		
+		__inject__(ProgramPersistence.class).createMany(List.of(new Program("1","1","1","1"),new Program("2","1","1","1")));
+		__inject__(ActionPersistence.class).createMany(List.of(new Action("1","1","1"),new Action("2","1","1")));
+		__inject__(ActivityPersistence.class).createMany(List.of(new Activity("atv1","1","1"),new Activity("atv2","1","1"),new Activity("atv3","1","1")
+				,new Activity("atv4","1","1"),new Activity("atv5","1","1"),new Activity("atv6","1","1"),new Activity("atv7","1","1")
+				,new Activity("atv8","1","1"),new Activity("atv9","1","1")));	
+		
+		__inject__(AdministrativeUnitPersistence.class).createMany(List.of(
+				new AdministrativeUnit("1","1","1","1","1","1").setOrderNumber(1),new AdministrativeUnit("2","1","1","1","1","1").setOrderNumber(2)
+				,new AdministrativeUnit("3","1","1","1","1","1").setOrderNumber(3),new AdministrativeUnit("4","1","1","1","1","1").setOrderNumber(4)
+				,new AdministrativeUnit("5","1","1","1","1","1").setOrderNumber(5),new AdministrativeUnit("6","1","1","1","1","1").setOrderNumber(6)
+				,new AdministrativeUnit("7","1","1","1","1","1").setOrderNumber(7),new AdministrativeUnit("8","1","1","1","1","1").setOrderNumber(8)
+				));
+		
+		__inject__(AdministrativeUnitActivityPersistence.class).createMany(List.of(
+			new AdministrativeUnitActivity().setAdministrativeUnitFromCode("1").setActivityFromCode("atv1")
+			,new AdministrativeUnitActivity().setAdministrativeUnitBeneficiaireFromCode("2").setActivityFromCode("atv2")
+			,new AdministrativeUnitActivity().setAdministrativeUnitFromCode("3").setAdministrativeUnitBeneficiaireFromCode("4").setActivityFromCode("atv3")
+			,new AdministrativeUnitActivity().setAdministrativeUnitFromCode("5").setAdministrativeUnitBeneficiaireFromCode("5").setActivityFromCode("atv4")
+			,new AdministrativeUnitActivity().setAdministrativeUnitFromCode("6").setAdministrativeUnitBeneficiaireFromCode("7").setActivityFromCode("atv5")
+			,new AdministrativeUnitActivity().setAdministrativeUnitFromCode("7").setAdministrativeUnitBeneficiaireFromCode("8").setActivityFromCode("atv6")
+				));
+		userTransaction.commit();
+		
+		assertThat(__inject__(ActivityPersistence.class).read(new Properties().setQueryIdentifier(ActivityPersistence.READ_WHERE_IS_GESTIONNAIRE_OR_BENEFICIAIRE_BY_ADMINISTRATIVE_UNITS_CODES)
+			.setQueryFilters(new Filter().addField(Activity.FIELD_ADMINISTRATIVE_UNIT_GESTIONNAIRE_OR_BENEFICIAIRE, List.of("1")))).stream().map(Activity::getCode).collect(Collectors.toList()))
+			.containsExactly("atv1");		
+		assertThat(__inject__(ActivityPersistence.class).read(new Properties().setQueryIdentifier(ActivityPersistence.READ_WHERE_IS_GESTIONNAIRE_OR_BENEFICIAIRE_BY_ADMINISTRATIVE_UNITS_CODES)
+				.setQueryFilters(new Filter().addField(Activity.FIELD_ADMINISTRATIVE_UNIT_GESTIONNAIRE_OR_BENEFICIAIRE, List.of("2")))).stream().map(Activity::getCode).collect(Collectors.toList()))
+				.containsExactly("atv2");
+		assertThat(__inject__(ActivityPersistence.class).read(new Properties().setQueryIdentifier(ActivityPersistence.READ_WHERE_IS_GESTIONNAIRE_OR_BENEFICIAIRE_BY_ADMINISTRATIVE_UNITS_CODES)
+				.setQueryFilters(new Filter().addField(Activity.FIELD_ADMINISTRATIVE_UNIT_GESTIONNAIRE_OR_BENEFICIAIRE, List.of("3")))).stream().map(Activity::getCode).collect(Collectors.toList()))
+				.containsExactly("atv3");
+		assertThat(__inject__(ActivityPersistence.class).read(new Properties().setQueryIdentifier(ActivityPersistence.READ_WHERE_IS_GESTIONNAIRE_OR_BENEFICIAIRE_BY_ADMINISTRATIVE_UNITS_CODES)
+				.setQueryFilters(new Filter().addField(Activity.FIELD_ADMINISTRATIVE_UNIT_GESTIONNAIRE_OR_BENEFICIAIRE, List.of("4")))).stream().map(Activity::getCode).collect(Collectors.toList()))
+				.containsExactly("atv3");
+		assertThat(__inject__(ActivityPersistence.class).read(new Properties().setQueryIdentifier(ActivityPersistence.READ_WHERE_IS_GESTIONNAIRE_OR_BENEFICIAIRE_BY_ADMINISTRATIVE_UNITS_CODES)
+				.setQueryFilters(new Filter().addField(Activity.FIELD_ADMINISTRATIVE_UNIT_GESTIONNAIRE_OR_BENEFICIAIRE, List.of("5")))).stream().map(Activity::getCode).collect(Collectors.toList()))
+				.containsExactly("atv4");
+		assertThat(__inject__(ActivityPersistence.class).read(new Properties().setQueryIdentifier(ActivityPersistence.READ_WHERE_IS_GESTIONNAIRE_OR_BENEFICIAIRE_BY_ADMINISTRATIVE_UNITS_CODES)
+				.setQueryFilters(new Filter().addField(Activity.FIELD_ADMINISTRATIVE_UNIT_GESTIONNAIRE_OR_BENEFICIAIRE, List.of("6")))).stream().map(Activity::getCode).collect(Collectors.toList()))
+				.containsExactly("atv5");
+		assertThat(__inject__(ActivityPersistence.class).read(new Properties().setQueryIdentifier(ActivityPersistence.READ_WHERE_IS_GESTIONNAIRE_OR_BENEFICIAIRE_BY_ADMINISTRATIVE_UNITS_CODES)
+				.setQueryFilters(new Filter().addField(Activity.FIELD_ADMINISTRATIVE_UNIT_GESTIONNAIRE_OR_BENEFICIAIRE, List.of("7")))).stream().map(Activity::getCode).collect(Collectors.toList()))
+				.containsExactly("atv5","atv6");
+		assertThat(__inject__(ActivityPersistence.class).read(new Properties().setQueryIdentifier(ActivityPersistence.READ_WHERE_IS_GESTIONNAIRE_OR_BENEFICIAIRE_BY_ADMINISTRATIVE_UNITS_CODES)
+				.setQueryFilters(new Filter().addField(Activity.FIELD_ADMINISTRATIVE_UNIT_GESTIONNAIRE_OR_BENEFICIAIRE, List.of("8")))).stream().map(Activity::getCode).collect(Collectors.toList()))
+				.containsExactly("atv6");
 	}
 	
 	//@Test

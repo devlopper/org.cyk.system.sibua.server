@@ -72,6 +72,9 @@ public interface ActivityPersistence extends PersistenceEntity<Activity> {
 	String READ_BY_FILTERS_LIKE = QueryIdentifierBuilder.getInstance().build(Activity.class,"readByFiltersLike");
 	String COUNT_BY_FILTERS_LIKE = QueryIdentifierBuilder.getInstance().build(Activity.class,"countByFiltersLike");
 	
+	String READ_WHERE_IS_GESTIONNAIRE_OR_BENEFICIAIRE_BY_ADMINISTRATIVE_UNITS_CODES = QueryIdentifierBuilder.getInstance().build(Activity.class,"readWhereIsGestionnaireOrBeneficiaireByAdministrativeUnitsCodes");
+	String COUNT_WHERE_IS_GESTIONNAIRE_OR_BENEFICIAIRE_BY_ADMINISTRATIVE_UNITS_CODES = QueryIdentifierBuilder.getInstance().build(Activity.class,"countWhereIsGestionnaireOrBeneficiaireByAdministrativeUnitsCodes");
+	
 	String READ_WHERE_ADMINISTRATIVE_UNIT_DOES_NOT_EXIST_BY_FILTERS = QueryHelper.getIdentifier(Activity.class,"readWhereAdministrativeUnitDoesNotExistByFilters");
 	
 	String READ_WHERE_CODE_NOT_IN_AND_ADMINISTRATIVEUNIT_DOES_NOT_EXIST_BY_FILTERS = QueryHelper.getIdentifier(Activity.class,"readWhereCodeNotInAndAdministrativeUnitDoesNotExistByFilters");

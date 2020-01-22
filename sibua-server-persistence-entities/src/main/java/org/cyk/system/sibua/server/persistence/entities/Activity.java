@@ -37,8 +37,13 @@ public class Activity extends AbstractIdentifiableSystemScalarStringIdentifiable
 	@Transient private AdministrativeUnit administrativeUnit;
 	@Transient private AdministrativeUnit administrativeUnitGestionnaire;
 	@Transient private AdministrativeUnit administrativeUnitBeneficiaire;
+	@Transient private AdministrativeUnit administrativeUnitGestionnaireOrBeneficiaire;
 	@Transient private Collection<Destination> destinations;
 	@Transient private String activity;
+	@Transient private Collection<CostUnit> costUnits;
+	@Transient private Integer numberOfCostUnits;
+	@Transient private Boolean isGestionnaire;
+	@Transient private Boolean isBeneficiaire;
 	
 	public Activity(String code,String name,String actionCode) {
 		super(code,name);
@@ -88,9 +93,14 @@ public class Activity extends AbstractIdentifiableSystemScalarStringIdentifiable
 	public static final String FIELD_ADMINISTRATIVE_UNIT = "administrativeUnit";
 	public static final String FIELD_ADMINISTRATIVE_UNIT_GESTIONNAIRE = "administrativeUnitGestionnaire";
 	public static final String FIELD_ADMINISTRATIVE_UNIT_BENEFICIAIRE = "administrativeUnitBeneficiaire";
+	public static final String FIELD_ADMINISTRATIVE_UNIT_GESTIONNAIRE_OR_BENEFICIAIRE = "administrativeUnitGestionnaireOrBeneficiaire";
 	public static final String FIELD_DESTINATIONS = "destinations";
 	public static final String FIELD_CAT_ATV_CODE = "catAtvCode";
 	public static final String FIELD_ACTIVITY = "activity";
+	public static final String FIELD_COST_UNITS = "costUnits";
+	public static final String FIELD_NUMBER_OF_COST_UNITS = "numberOfCostUnits";
+	public static final String FIELD_IS_GESTIONNAIRE = "isGestionnaire";
+	public static final String FIELD_IS_BENEFICIAIRE = "isBeneficiaire";
 	
 	public static final String COLUMN_ACTION = FIELD_ACTION;
 	public static final String COLUMN_YEAR = "ANNEE";

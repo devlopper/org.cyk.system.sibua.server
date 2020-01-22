@@ -23,12 +23,12 @@ public class ActivityCostUnit extends AbstractIdentifiableSystemScalarStringImpl
 	
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_ACTIVITY) private Activity activity;
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_COST_UNIT) private CostUnit costUnit;
-	@Column(name = COLUMN_FINANCEMENT_AE) private Integer financementAE;
-	@Column(name = COLUMN_FINANCEMENT_CP) private Integer financementCP;
-	@Column(name = COLUMN_ARBITRAGE_AE) private Integer arbitrageAE;
-	@Column(name = COLUMN_ARBITRAGE_CP) private Integer arbitrageCP;
-	@Column(name = COLUMN_BUDGET_AE) private Integer budgetAE;
-	@Column(name = COLUMN_BUDGET_CP) private Integer budgetCP;
+	@Column(name = COLUMN_FINANCEMENT_AE) private Long financementAE;
+	@Column(name = COLUMN_FINANCEMENT_CP) private Long financementCP;
+	@Column(name = COLUMN_ARBITRAGE_AE) private Long arbitrageAE;
+	@Column(name = COLUMN_ARBITRAGE_CP) private Long arbitrageCP;
+	@Column(name = COLUMN_BUDGET_AE) private Long budgetAE;
+	@Column(name = COLUMN_BUDGET_CP) private Long budgetCP;
 	@Column(name = COLUMN_PROCEDURE) private String procedure;
 	@Column(name = COLUMN_EXEMPTED) private String exempted;
 	

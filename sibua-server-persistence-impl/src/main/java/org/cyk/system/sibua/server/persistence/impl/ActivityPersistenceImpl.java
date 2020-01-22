@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import org.cyk.system.sibua.server.persistence.api.ActivityCostUnitPersistence;
 import org.cyk.system.sibua.server.persistence.api.ActivityPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitActivityPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitPersistence;
@@ -20,6 +21,7 @@ import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitB
 import org.cyk.system.sibua.server.persistence.api.query.ReadDestinationByActivities;
 import org.cyk.system.sibua.server.persistence.entities.Action;
 import org.cyk.system.sibua.server.persistence.entities.Activity;
+import org.cyk.system.sibua.server.persistence.entities.ActivityCostUnit;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitActivity;
 import org.cyk.system.sibua.server.persistence.entities.Program;
@@ -30,6 +32,7 @@ import org.cyk.utility.__kernel__.computation.LogicalOperator;
 import org.cyk.utility.__kernel__.constant.ConstantEmpty;
 import org.cyk.utility.__kernel__.persistence.query.QueryContext;
 import org.cyk.utility.__kernel__.persistence.query.QueryStringHelper;
+import org.cyk.utility.__kernel__.persistence.query.filter.Filter;
 import org.cyk.utility.__kernel__.properties.Properties;
 import org.cyk.utility.server.persistence.AbstractPersistenceEntityImpl;
 import org.cyk.utility.server.persistence.PersistenceFunctionReader;
@@ -43,7 +46,7 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 	private String readWhereAdministrativeUnitDoesNotExistBySectionsCodes,readWhereAdministrativeUnitDoesNotExistByProgramsCodes
 	,readWhereAdministrativeUnitDoesNotExistByActionsCodes,readBySectionsCodes,readByProgramsCodes,readByActionsCodes,readByAdministrativeUnitsCodes,countByAdministrativeUnitsCodes
 	,readByFilters,readWhereCodeNotInByFilters,readWhereAdministrativeUnitDoesNotExistByFilters,readWhereCodeNotInAndAdministrativeUnitDoesNotExistByFilters
-	,readByFiltersCodesLike,readByUsersIdentifiers,readWhereCodeOrNameContainsAndSectionCodeLikes;
+	,readByFiltersCodesLike,readByUsersIdentifiers,readWhereCodeOrNameContainsAndSectionCodeLikes,readWhereIsGestionnaireOrBeneficiaireByAdministrativeUnitsCodes;
 	
 	@Override
 	protected void __listenPostConstructPersistenceQueries__() {
@@ -54,12 +57,15 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 		addQueryCollectInstances(readByProgramsCodes, "SELECT activity FROM Activity activity WHERE activity.action.program.code IN :programsCodes  ORDER BY activity.code ASC");
 		addQueryCollectInstances(readByActionsCodes, "SELECT activity FROM Activity activity WHERE activity.action.code IN :actionsCodes  ORDER BY activity.code ASC");
 		addQueryCollectInstances(readByAdministrativeUnitsCodes, "SELECT activity FROM Activity activity WHERE EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity AND administrativeUnitActivity.administrativeUnit.code IN :administrativeUnitsCodes)  ORDER BY activity.code ASC");
-		/*
-		addQueryCollectInstances(readByAdministrativeUnitsCodesByAdministrativeUnitActivityTypesCodes, "SELECT activity FROM Activity activity WHERE EXISTS "
-				+ "(SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity "
-				+ "AND administrativeUnitActivity.administrativeUnit.code IN :administrativeUnitsCodes AND administrativeUnitActivity.type.code IN :administrativeUnitActivityTypesCodes) ORDER BY activity.code ASC");
-		*/
-		
+		addQueryCollectInstances(readWhereIsGestionnaireOrBeneficiaireByAdministrativeUnitsCodes, "SELECT activity FROM Activity activity "
+				+ "WHERE "
+				+ "EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity "
+				+ "AND administrativeUnitActivity.administrativeUnit.code IN :administrativeUnitsCodes) "
+				+ "OR "
+				+ "EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity "
+				+ "AND administrativeUnitActivity.administrativeUnitBeneficiaire.code IN :administrativeUnitsCodes) "
+				+ "ORDER BY activity.code ASC");
+				
 		addQueryCollectInstances(readWhereCodeOrNameContainsAndSectionCodeLikes, "SELECT activity FROM Activity activity WHERE activity.code LIKE :code OR activity.name LIKE :name AND activity.action.program.section.code LIKE :sectionCode ORDER BY activity.code ASC");
 		addQueryCollectInstances(readWhereAdministrativeUnitDoesNotExistBySectionsCodes, "SELECT activity FROM Activity activity WHERE activity.action.program.section.code IN :sectionsCodes AND NOT EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity)  ORDER BY activity.code ASC");
 		addQueryCollectInstances(readWhereAdministrativeUnitDoesNotExistByProgramsCodes, "SELECT activity FROM Activity activity WHERE activity.action.program.code IN :programsCodes AND NOT EXISTS (SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity WHERE administrativeUnitActivity.activity = activity)  ORDER BY activity.code ASC");
@@ -154,7 +160,11 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 		if(field.getName().equals(Activity.FIELD_DESTINATIONS)) {
 			activity.setDestinations(((ReadDestinationByActivities)__inject__(DestinationPersistence.class))
 					.readByActivities(activity));
-		}else if(field.getName().equals(Activity.FIELD_ADMINISTRATIVE_UNIT)) {
+		} else if(field.getName().equals(Activity.FIELD_NUMBER_OF_COST_UNITS)) {
+			activity.setNumberOfCostUnits(__inject__(ActivityCostUnitPersistence.class).count(new Properties()
+					.setQueryIdentifier(ActivityCostUnitPersistence.COUNT_BY_ACTIVITIES_CODES).setQueryFilters(new Filter().addField(ActivityCostUnit.FIELD_ACTIVITY
+							, List.of(activity.getCode())))).intValue());
+		} else if(field.getName().equals(Activity.FIELD_ADMINISTRATIVE_UNIT)) {
 			Collection<AdministrativeUnit> administrativeUnits = ((ReadAdministrativeUnitByActivities)__inject__(AdministrativeUnitPersistence.class)).readByActivities(activity);
 			if(CollectionHelper.isNotEmpty(administrativeUnits)) {
 				activity.setAdministrativeUnit(CollectionHelper.getFirst(administrativeUnits));
@@ -294,6 +304,10 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 			if(Boolean.TRUE.equals(__isFilterByKeys__(properties, Activity.FIELD_ADMINISTRATIVE_UNIT_GESTIONNAIRE)))
 				return readByAdministrativeUnitsCodes;
 		}
+		if(PersistenceFunctionReader.class.equals(klass)) {
+			if(Boolean.TRUE.equals(__isFilterByKeys__(properties, Activity.FIELD_ADMINISTRATIVE_UNIT_GESTIONNAIRE_OR_BENEFICIAIRE)))
+				return readWhereIsGestionnaireOrBeneficiaireByAdministrativeUnitsCodes;
+		}
 		return super.__getQueryIdentifier__(klass, properties, objects);
 	}
 	
@@ -335,6 +349,11 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByAdministrativeUnitsCodes)) {
 			if(ArrayHelper.isEmpty(objects))
 				objects = new Object[] {queryContext.getFilterByKeysValue(Activity.FIELD_ADMINISTRATIVE_UNIT_GESTIONNAIRE)};
+			return new Object[]{"administrativeUnitsCodes",objects[0]};
+		}
+		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readWhereIsGestionnaireOrBeneficiaireByAdministrativeUnitsCodes)) {
+			if(ArrayHelper.isEmpty(objects))
+				objects = new Object[] {queryContext.getFilterByKeysValue(Activity.FIELD_ADMINISTRATIVE_UNIT_GESTIONNAIRE_OR_BENEFICIAIRE)};
 			return new Object[]{"administrativeUnitsCodes",objects[0]};
 		}
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readWhereCodeOrNameContainsAndSectionCodeLikes)) {
@@ -409,7 +428,6 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 					,Activity.FIELD_SECTION,objects[index++],Activity.FIELD_CAT_ATV_CODE,objects[index++],Activity.FIELD_ADMINISTRATIVE_UNIT
 					,objects[index++],Activity.FIELD_ADMINISTRATIVE_UNIT_BENEFICIAIRE,objects[index++]
 				};
-			System.out.println("P ::: "+java.util.Arrays.deepToString(objects));//" SELECT person FROM Person person WHERE person.adresses = 2"
 			return objects;
 		}
 		

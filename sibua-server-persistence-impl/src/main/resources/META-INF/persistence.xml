@@ -25,6 +25,8 @@
     	<class>org.cyk.system.sibua.server.persistence.entities.Program</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.Action</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.Activity</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.CostUnit</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.ActivityCostUnit</class>
     	
     	<class>org.cyk.system.sibua.server.persistence.entities.ServiceGroup</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.FunctionalClassification</class> 	
@@ -35,7 +37,9 @@
     	
     	<class>org.cyk.system.sibua.server.persistence.entities.ActivityDestination</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitDestination</class>    	
+    	<!--
     	<class>org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitHierarchy</class>
+    	-->
     	<!--
     	<class>org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitActivityType</class>
     	-->

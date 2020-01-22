@@ -2,7 +2,6 @@ package org.cyk.system.sibua.server.persistence.entities;
 
 import java.io.Serializable;
 
-import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -19,7 +18,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Getter @Setter @Accessors(chain=true) @NoArgsConstructor
-@Entity
+//@javax.persistence.Entity
 @Table(name=AdministrativeUnitHierarchy.TABLE_NAME,
 uniqueConstraints= {
 		@UniqueConstraint(name=AdministrativeUnitHierarchy.UNIQUE_CONSTRAINT_PARENT_CHILD

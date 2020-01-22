@@ -12,7 +12,6 @@ import org.cyk.system.sibua.server.persistence.entities.ActivityDestination;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitActivity;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitDestination;
-import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitHierarchy;
 import org.cyk.system.sibua.server.persistence.entities.Destination;
 import org.cyk.system.sibua.server.persistence.entities.FunctionalClassification;
 import org.cyk.system.sibua.server.persistence.entities.Localisation;
@@ -47,7 +46,7 @@ public class ApplicationScopeLifeCycleListener extends AbstractApplicationScopeL
 					,User.class,Function.class,FunctionType.class,FunctionCategory.class));
 		}
 		classes.addAll(List.of(AdministrativeUnitDestination.class
-				,ActivityDestination.class,Destination.class,AdministrativeUnitHierarchy.class
+				,ActivityDestination.class,Destination.class/*,AdministrativeUnitHierarchy.class*/
 				,AdministrativeUnitActivity.class,AdministrativeUnit.class
 				,Activity.class,Action.class,Program.class,Section.class,ServiceGroup.class,Localisation.class
 				,FunctionalClassification.class,Title.class));
