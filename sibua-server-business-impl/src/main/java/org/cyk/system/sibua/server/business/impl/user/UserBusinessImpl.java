@@ -1,5 +1,6 @@
 package org.cyk.system.sibua.server.business.impl.user;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,6 +15,7 @@ import org.cyk.system.sibua.server.business.api.user.UserFileBusiness;
 import org.cyk.system.sibua.server.business.api.user.UserFunctionBusiness;
 import org.cyk.system.sibua.server.business.api.user.UserLocalisationBusiness;
 import org.cyk.system.sibua.server.business.api.user.UserSectionBusiness;
+import org.cyk.system.sibua.server.business.entities.IdentificationSheet;
 import org.cyk.system.sibua.server.persistence.api.user.FilePersistence;
 import org.cyk.system.sibua.server.persistence.api.user.UserPersistence;
 import org.cyk.system.sibua.server.persistence.entities.user.File;
@@ -28,9 +30,14 @@ import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.file.FileHelper;
 import org.cyk.utility.__kernel__.number.ByteHelper;
 import org.cyk.utility.__kernel__.properties.Properties;
+import org.cyk.utility.__kernel__.report.ReportBuilder;
+import org.cyk.utility.__kernel__.report.Template;
 import org.cyk.utility.__kernel__.string.StringHelper;
 import org.cyk.utility.server.business.AbstractBusinessEntityImpl;
 import org.cyk.utility.server.business.BusinessFunctionCreator;
+
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.export.JRPdfExporter;
 
 @ApplicationScoped
 public class UserBusinessImpl extends AbstractBusinessEntityImpl<User, UserPersistence> implements UserBusiness,Serializable {
@@ -84,4 +91,30 @@ public class UserBusinessImpl extends AbstractBusinessEntityImpl<User, UserPersi
 		//MailSender.getInstance().send("Identification", "Cliquer sur ce lien pour activer", user.getElectronicMailAddress());
 	}
 	
+	@Override
+	public Collection<IdentificationSheet> buildIdentificationSheets(Collection<User> users) {
+		if(CollectionHelper.isEmpty(users))
+			return null;
+		Collection<IdentificationSheet> identificationSheets = new ArrayList<>();
+		for(User user : users) {
+			IdentificationSheet identificationSheet = IdentificationSheet.instantiate(user);
+			if(identificationSheet == null)
+				continue;
+			identificationSheets.add(identificationSheet);
+		}
+		return identificationSheets;
+	}
+	
+	@Override
+	public ByteArrayOutputStream buildIdentificationSheetsReport(Collection<User> users) {
+		if(CollectionHelper.isEmpty(users))
+			return null;
+		Collection<IdentificationSheet> identificationSheets = buildIdentificationSheets(users);
+		if(CollectionHelper.isEmpty(identificationSheets))
+			return null;
+		JRBeanCollectionDataSource jrBeanCollectionDataSource = new JRBeanCollectionDataSource(identificationSheets);
+		Template template = new Template().setInputStream(IdentificationSheet.class.getResourceAsStream("report/fiche_identification.jrxml"));
+		ByteArrayOutputStream byteArrayOutputStream = ReportBuilder.getInstance().build(template, jrBeanCollectionDataSource, JRPdfExporter.class);
+		return byteArrayOutputStream;
+	}
 }
