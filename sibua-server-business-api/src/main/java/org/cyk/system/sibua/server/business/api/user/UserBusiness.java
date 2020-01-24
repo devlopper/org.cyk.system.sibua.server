@@ -18,12 +18,27 @@ public interface UserBusiness extends BusinessEntity<User> {
 			return null;
 		return buildIdentificationSheets(CollectionHelper.listOf(users));
 	}
-	
+
 	ByteArrayOutputStream buildIdentificationSheetsReport(Collection<User> users);
 	
 	default ByteArrayOutputStream buildIdentificationSheetsReport(User...users) {
 		if(ArrayHelper.isEmpty(users))
 			return null;
 		return buildIdentificationSheetsReport(CollectionHelper.listOf(users));
+	}
+	
+	default ByteArrayOutputStream buildIdentificationSheetsReportByIdentifiers(Collection<String> identifiers) {
+		if(CollectionHelper.isEmpty(identifiers))
+			return null;
+		Collection<User> users = findBySystemIdentifiers(CollectionHelper.cast(Object.class, identifiers));
+		if(CollectionHelper.isEmpty(users))
+			return null;
+		return buildIdentificationSheetsReport(users);
+	}
+	
+	default ByteArrayOutputStream buildIdentificationSheetsReportByIdentifiers(String...identifiers) {
+		if(ArrayHelper.isEmpty(identifiers))
+			return null;
+		return buildIdentificationSheetsReportByIdentifiers(CollectionHelper.listOf(identifiers));
 	}
 }
