@@ -48,12 +48,16 @@ public class User extends AbstractIdentifiableSystemScalarStringImpl implements 
 	@Column(name=COLUMN_ACTIVATION_DATE) private LocalDateTime activationDate;
 	@Column(name=COLUMN_VALIDATION_DATE) private LocalDateTime validationDate;
 	
+	@Column(name = COLUMN_ACCESS_TOKEN,unique = true) private String accessToken;
+	
 	@Transient private Collection<Section> sections;
 	@Transient private Collection<Localisation> localisations;
 	@Transient private Collection<Activity> activities;
 	@Transient private Collection<Function> functions;
 	@Transient private Collection<File> files;
 	@Transient private Collection<AdministrativeUnit> administrativeUnits;
+	@Transient private String reportUniformResourceIdentifier;
+	
 	
 	public static final String FIELD_PASS = "pass";
 	public static final String FIELD_CIVILITY = "civility";
@@ -79,6 +83,8 @@ public class User extends AbstractIdentifiableSystemScalarStringImpl implements 
 	public static final String FIELD_CREATION_DATE = "creationDate";
 	public static final String FIELD_ACTIVATION_DATE = "activationDate";
 	public static final String FIELD_VALIDATION_DATE = "validationDate";
+	public static final String FIELD_ACCESS_TOKEN = "accessToken";
+	public static final String FIELD_REPORT_UNIFORM_RESOURCE_IDENTIFIER = "reportUniformResourceIdentifier";
 	
 	public static final String COLUMN_PASS = "mot_de_passe";
 	public static final String COLUMN_CIVILITY = Civility.TABLE_NAME;
@@ -96,6 +102,7 @@ public class User extends AbstractIdentifiableSystemScalarStringImpl implements 
 	public static final String COLUMN_CREATION_DATE = "date_creation";
 	public static final String COLUMN_ACTIVATION_DATE = "date_activation";
 	public static final String COLUMN_VALIDATION_DATE = "date_validation";
+	public static final String COLUMN_ACCESS_TOKEN = "jeton_acces";
 	
 	public static final String JOIN_TABLE_FUNCTIONS_MANAGED = "fonction_bud_dem";
 	public static final String JOIN_TABLE_SECTIONS_MANAGED = "section_bud_dem";

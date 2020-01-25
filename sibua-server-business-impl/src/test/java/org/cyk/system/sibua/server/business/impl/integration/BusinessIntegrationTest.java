@@ -2,6 +2,9 @@ package org.cyk.system.sibua.server.business.impl.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -355,7 +358,7 @@ public class BusinessIntegrationTest extends AbstractBusinessArquillianIntegrati
 		assertThat(__inject__(AdministrativeUnitBusiness.class).count()).isEqualTo(5);
 	}
 	
-	@Test
+	//@Test
 	public void administrativeUnit_readChildren() {
 		__inject__(ServiceGroupBusiness.class).create(new ServiceGroup().setCode("1").setName("1"));
 		__inject__(FunctionalClassificationBusiness.class).create(new FunctionalClassification().setCode("1").setName("1"));
@@ -556,6 +559,46 @@ public class BusinessIntegrationTest extends AbstractBusinessArquillianIntegrati
 		assertThat(user.getAdministrativeUnits().stream().map(AdministrativeUnit::getCode).collect(Collectors.toList())).contains("1");
 		
 		assertThat(__inject__(FilePersistence.class).count()).isEqualTo(2l);
+	}
+	
+	@Test
+	public void user_buildReport() throws Exception{
+		if(!ApplicationScopeLifeCycleListener.isUserEnabled())
+			return;
+		__inject__(SectionBusiness.class).createMany(List.of(new Section().setCode("1").setName("1"),new Section().setCode("2").setName("1"),new Section().setCode("3").setName("1")));
+		__inject__(LocalisationBusiness.class).createMany(List.of(new Localisation().setCode("1").setName("1"),new Localisation().setCode("2").setName("1"),new Localisation().setCode("3").setName("1")));
+		__inject__(ServiceGroupBusiness.class).create(new ServiceGroup().setCode("1").setName("1"));
+		__inject__(FunctionalClassificationBusiness.class).create(new FunctionalClassification().setCode("1").setName("1"));
+		__inject__(FunctionCategoryBusiness.class).create(new FunctionCategory().setCode("1").setName("1"));
+		__inject__(FunctionTypeBusiness.class).create(new FunctionType().setCode("1").setName("1").setCategoryFromCode("1"));
+		__inject__(FunctionBusiness.class).createMany(List.of(new Function().setCode("1").setName("1").setTypeFromCode("1")
+				,new Function().setCode("2").setName("1").setTypeFromCode("1"),new Function().setCode("3").setName("1").setTypeFromCode("1")));
+		__inject__(ActivityBusiness.class).createMany(List.of(new Activity().setCode("1").setName("1"),new Activity().setCode("2").setName("1"),new Activity().setCode("3").setName("1")));
+		__inject__(AdministrativeUnitBusiness.class).createMany(List.of(new AdministrativeUnit().setCode("1").setName("1").setSectionFromCode("1").setLocalisationFromCode("1").setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1").setOrderNumber(-1)
+				,new AdministrativeUnit().setCode("2").setName("1").setSectionFromCode("1").setLocalisationFromCode("1").setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1").setOrderNumber(-1)
+				,new AdministrativeUnit().setCode("3").setName("1").setSectionFromCode("1").setLocalisationFromCode("1").setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1").setOrderNumber(-1)));
+		User user = new User();
+		user.setIdentifier("1");
+		user.setElectronicMailAddress("kycdev@gmail.com");
+		user.setSections(List.of(__inject__(SectionPersistence.class).readByBusinessIdentifier("1")));
+		user.setLocalisations(List.of(__inject__(LocalisationPersistence.class).readByBusinessIdentifier("1")));
+		user.setFunctions(List.of(__inject__(FunctionPersistence.class).readByBusinessIdentifier("1")));
+		user.setActivities(List.of(__inject__(ActivityPersistence.class).readByBusinessIdentifier("1")));
+		user.setAdministrativeUnits(List.of(__inject__(AdministrativeUnitPersistence.class).readByBusinessIdentifier("1")));
+		user.setFiles(List.of(new File().setBytes("text01".getBytes()).setExtension("txt").setType(UserFileType.ADMINISTRATIVE_CERTIFICATE)
+				,new File().setBytes("text01".getBytes()).setExtension("txt").setType(UserFileType.BUDGETARY_CERTIFICATE)));
+		
+		__inject__(UserBusiness.class).create(user);
+		user = __inject__(UserBusiness.class).findBySystemIdentifier("1",new Properties().setFields(User.FIELD_SECTIONS+","+User.FIELD_LOCALISATIONS
+				+","+User.FIELD_FUNCTIONS+","+User.FIELD_ACTIVITIES+","+User.FIELD_ADMINISTRATIVE_UNITS));
+		
+		ByteArrayOutputStream byteArrayOutputStream = __inject__(UserBusiness.class).buildIdentificationSheetsReport(user);
+		try {
+			Files.write(new java.io.File(System.getProperty("user.dir")+"/target/t.pdf").toPath(), byteArrayOutputStream.toByteArray());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	/* Create */

@@ -14,6 +14,7 @@ import org.cyk.system.sibua.server.persistence.entities.user.User;
 import org.cyk.system.sibua.server.representation.api.user.UserRepresentation;
 import org.cyk.system.sibua.server.representation.entities.user.UserDto;
 import org.cyk.utility.__kernel__.constant.ConstantString;
+import org.cyk.utility.__kernel__.string.StringHelper;
 import org.cyk.utility.server.representation.AbstractRepresentationEntityImpl;
 
 @ApplicationScoped
@@ -31,8 +32,10 @@ public class UserRepresentationImpl extends AbstractRepresentationEntityImpl<Use
 		byte[] bytes = byteArrayOutputStream.toByteArray();
 		ResponseBuilder response = Response.ok(bytes);
 	    response.header(HttpHeaders.CONTENT_TYPE, "application/pdf");
+	    if(StringHelper.isBlank(isInline))
+	    	isInline = Boolean.TRUE.toString();
 	    response.header(HttpHeaders.CONTENT_DISPOSITION, (Boolean.parseBoolean(isInline) ? ConstantString.INLINE : ConstantString.ATTACHMENT)+"; "+ConstantString.FILENAME
-	    		+"=fiche_identification_"+System.currentTimeMillis()+".pdf");	    
+	    		+"=fiche_identification_"+System.currentTimeMillis()+".pdf");
 	    response.header(HttpHeaders.CONTENT_LENGTH, bytes.length);
 	    return response.build();
 	}

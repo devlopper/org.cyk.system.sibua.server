@@ -53,9 +53,6 @@
 	<field name="userType" class="java.lang.String">
 		<fieldDescription><![CDATA[userType]]></fieldDescription>
 	</field>
-	<field name="class" class="java.lang.Class">
-		<fieldDescription><![CDATA[class]]></fieldDescription>
-	</field>
 	<field name="deskPhoneNumber" class="java.lang.String">
 		<fieldDescription><![CDATA[deskPhoneNumber]]></fieldDescription>
 	</field>

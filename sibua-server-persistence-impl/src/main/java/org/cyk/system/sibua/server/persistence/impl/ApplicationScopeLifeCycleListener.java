@@ -36,7 +36,7 @@ import org.cyk.utility.__kernel__.klass.PersistableClassesGetter;
 public class ApplicationScopeLifeCycleListener extends AbstractApplicationScopeLifeCycleListener implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
-	public static Boolean USER_ENABLED = Boolean.FALSE;
+	public static Boolean USER_ENABLED = Boolean.TRUE;
 	
 	@Override
 	public void __initialize__(Object object) {

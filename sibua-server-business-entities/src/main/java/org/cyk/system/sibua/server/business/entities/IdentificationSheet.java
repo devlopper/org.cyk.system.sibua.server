@@ -56,22 +56,27 @@ public class IdentificationSheet implements Serializable {
 		if(user == null)
 			return null;
 		IdentificationSheet identificationSheet = new IdentificationSheet();
-		identificationSheet.setAdministrativeUnit(StringHelper.get(user.getAdministrativeUnit().toString()));
+		identificationSheet.setAdministrativeUnit(StringHelper.get(user.getAdministrativeUnit()));
 		identificationSheet.setArmoirieCoteDIvoire(null);
 		identificationSheet.setBudgetaryYear("2020");
 		identificationSheet.setCertificateReference("789456123");
-		identificationSheet.setCivility(StringHelper.get(user.getCivility().toString()));
+		identificationSheet.setCivility(StringHelper.get(user.getCivility()));
 		identificationSheet.setDeskPhoneNumber(user.getDeskPhoneNumber());
 		identificationSheet.setDeskPost(user.getDeskPost());
 		identificationSheet.setElectronicMailAddress(user.getElectronicMailAddress());
 		identificationSheet.setFirstName(user.getFirstName());
 		//identificationSheet.setFunction(StringHelper.get(user.getFunctions().toString()));
 		identificationSheet.setLastNames(user.getLastNames());
+		identificationSheet.setFirstNameAndLastNames(identificationSheet.getFirstName());
+		if(StringHelper.isBlank(identificationSheet.getFirstNameAndLastNames()))
+			identificationSheet.setFirstNameAndLastNames(identificationSheet.getLastNames());
+		else if(StringHelper.isNotBlank(identificationSheet.getLastNames()))
+			identificationSheet.setFirstNameAndLastNames(identificationSheet.getFirstName()+" "+identificationSheet.getLastNames());
 		identificationSheet.setMobilePhoneNumber(user.getMobilePhoneNumber());
 		identificationSheet.setPostalAddress(user.getPostalAddress());
 		identificationSheet.setRegistrationNumber(user.getRegistrationNumber());
 		//identificationSheet.setSection(StringHelper.get(user.getSection().toString()));
-		identificationSheet.setUserType(StringHelper.get(user.getType().toString()));
+		identificationSheet.setUserType(StringHelper.get(user.getType()));
 		return identificationSheet;
 	}
 	

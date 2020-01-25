@@ -36,10 +36,18 @@ public class UserDto extends AbstractIdentifiableSystemScalarStringImpl implemen
 	private String activationDate;
 	private String validationDate;
 	
+	private String accessToken;
+	
+	private String reportUniformResourceIdentifier;
+	
 	private ArrayList<SectionDto> sections;
 	private ArrayList<AdministrativeUnitDto> administrativeUnits;
 	private ArrayList<FileDto> files;
 	private ArrayList<FunctionDto> functions;
 	private ArrayList<ActivityDto> activities;
 	private ArrayList<LocalisationDto> localisations;
+	
+	/**/
+	
+	public static final String REPORT_UNIFORM_RESOURCE_IDENTIFIER_PATH_FORMAT = "/%s/download";
 }
