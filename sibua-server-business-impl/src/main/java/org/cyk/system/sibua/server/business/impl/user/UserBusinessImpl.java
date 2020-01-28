@@ -113,12 +113,17 @@ public class UserBusinessImpl extends AbstractBusinessEntityImpl<User, UserPersi
 		if(CollectionHelper.isEmpty(users))
 			return;
 		for(User user : users) {
-			//MailSender.getInstance().send("SIB - Identification", "Cliquer sur ce lien pour activer", user.getElectronicMailAddress());
-			try {
-				MailSender.getInstance().send("SIB - Identification", "Jeton d'accès : ", user.getAccessToken());
-			} catch (Exception exception) {
-				LogHelper.log(exception, getClass());
-			}	
+			new Thread(new Runnable() {				
+				@Override
+				public void run() {
+					//MailSender.getInstance().send("SIB - Identification", "Cliquer sur ce lien pour activer", user.getElectronicMailAddress());
+					try {
+						MailSender.getInstance().send("SIB - Identification", "Jeton d'accès : "+user.getAccessToken(), user.getElectronicMailAddress());
+					} catch (Exception exception) {
+						LogHelper.log(exception, getClass());
+					}	
+				}
+			}).start();			
 		}		
 	}
 

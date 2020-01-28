@@ -74,7 +74,6 @@ public class UserRepresentationImpl extends AbstractRepresentationEntityImpl<Use
 	    return response.build();
 	}
 
-	
 	@Override
 	public Response notifyAccessToken(List<String> usersIdentifiers) {
 		if(CollectionHelper.isNotEmpty(usersIdentifiers))

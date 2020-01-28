@@ -25,6 +25,7 @@ public class FileDto extends AbstractIdentifiableSystemScalarStringImpl implemen
 	private String nameAndExtension;
 	private String sha1;
 	private String text;
+	private String reference;
 	
 	private UserFileType type;
 	

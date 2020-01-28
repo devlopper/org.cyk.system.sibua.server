@@ -1,7 +1,9 @@
 package org.cyk.system.sibua.server.representation.entities.user;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -59,6 +61,10 @@ public abstract class UserDtoMapper extends AbstractMapperSourceDestinationImpl<
 			parameter.getPath().setValue("/sibua/server/api/user/"+user.getIdentifier()+"/file/"+UserFileType.ADMINISTRATIVE_CERTIFICATE.name().toLowerCase());
 			userDto.setAdministrativeCertificateUniformResourceIdentifier(UniformResourceIdentifierHelper.build(parameter));				
 		}
+		
+		userDto.setCreationDate(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm", Locale.FRENCH).format(user.getCreationDate()));
+		userDto.setSendingDate(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm", Locale.FRENCH).format(user.getSendingDate()));
+		
 		return userDto;
 	}
 	
