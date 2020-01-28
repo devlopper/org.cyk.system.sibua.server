@@ -187,7 +187,8 @@ public class AdministrativeUnitBusinessImpl extends AbstractBusinessEntityImpl<A
 	@Override
 	protected void __listenExecuteCreateBefore__(AdministrativeUnit administrativeUnit, Properties properties,BusinessFunctionCreator function) {
 		super.__listenExecuteCreateBefore__(administrativeUnit, properties, function);
-		__setOrderNumberAndCode__(administrativeUnit);
+		administrativeUnit.setOrderNumber(__getNextOrderNumber__(administrativeUnit.getServiceGroup(), new HashMap<>()));
+		administrativeUnit.setCode(__generateCode__(administrativeUnit));
 	}
 	
 	@Override
@@ -357,7 +358,10 @@ public class AdministrativeUnitBusinessImpl extends AbstractBusinessEntityImpl<A
 				//System.out.println("AdministrativeUnitBusinessImpl.__listenExecuteUpdateBefore__() SAVE : "+CollectionHelper.getSize(administrativeUnit.getActivities()));
 				//__save__(AdministrativeUnitActivity.class,administrativeUnit.getActivities(), databaseActivities, AdministrativeUnitActivity.FIELD_ACTIVITY, administrativeUnit, AdministrativeUnitActivity.FIELD_ADMINISTRATIVE_UNIT);
 			}else if(AdministrativeUnit.FIELD_SERVICE_GROUP.equals(index)) {
-				administrativeUnit.setOrderNumber(-1);//need to be codify
+				administrativeUnit.setOrderNumber(__getNextOrderNumber__(administrativeUnit.getServiceGroup(), new HashMap<>()));
+				administrativeUnit.setCode(__generateCode__(administrativeUnit));
+				
+				//administrativeUnit.setOrderNumber(-1);//need to be codify
 				//AdministrativeUnit database = __persistence__.readBySystemIdentifier(administrativeUnit.getSystemIdentifier());
 				//if(!database.getServiceGroup().equals(administrativeUnit.getServiceGroup()) || !database.getFunctionalClassification().equals(administrativeUnit.getFunctionalClassification())) {
 				//	__setOrderNumberAndCode__(administrativeUnit);

@@ -15,7 +15,8 @@ public class UserFileDto extends AbstractIdentifiableSystemScalarStringImpl impl
 	private static final long serialVersionUID = 1L;
 
 	private UserDto user;
+	private FileDto file;
 	private UserFileType type;
-	private byte[] bytes;
+	private String reference;
 	
 }

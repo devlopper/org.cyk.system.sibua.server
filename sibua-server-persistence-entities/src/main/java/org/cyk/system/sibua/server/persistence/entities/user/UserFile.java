@@ -30,8 +30,7 @@ public class UserFile extends AbstractIdentifiableSystemScalarStringImpl impleme
 
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_USER) private User user;
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_FILE) private File file;
-	@NotNull @Enumerated(EnumType.STRING) @Column(name=COLUMN_TYPE) private UserFileType type;
-	
+	@NotNull @Enumerated(EnumType.STRING) @Column(name=COLUMN_TYPE) private UserFileType type;	
 	@Column(name = COLUMN_REFERENCE) private String reference;
 	
 	public UserFile setUserFromCode(String code) {

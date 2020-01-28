@@ -2,6 +2,7 @@ package org.cyk.system.sibua.server.business.impl.user;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -16,7 +17,9 @@ import org.cyk.system.sibua.server.business.api.user.UserFunctionBusiness;
 import org.cyk.system.sibua.server.business.api.user.UserLocalisationBusiness;
 import org.cyk.system.sibua.server.business.api.user.UserSectionBusiness;
 import org.cyk.system.sibua.server.business.entities.IdentificationSheet;
+import org.cyk.system.sibua.server.persistence.api.query.ReadUserFileByUsers;
 import org.cyk.system.sibua.server.persistence.api.user.FilePersistence;
+import org.cyk.system.sibua.server.persistence.api.user.UserFilePersistence;
 import org.cyk.system.sibua.server.persistence.api.user.UserPersistence;
 import org.cyk.system.sibua.server.persistence.entities.user.File;
 import org.cyk.system.sibua.server.persistence.entities.user.User;
@@ -28,13 +31,19 @@ import org.cyk.system.sibua.server.persistence.entities.user.UserLocalisation;
 import org.cyk.system.sibua.server.persistence.entities.user.UserSection;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.file.FileHelper;
+import org.cyk.utility.__kernel__.log.LogHelper;
 import org.cyk.utility.__kernel__.number.ByteHelper;
 import org.cyk.utility.__kernel__.properties.Properties;
+import org.cyk.utility.__kernel__.protocol.smtp.MailSender;
+import org.cyk.utility.__kernel__.random.RandomHelper;
 import org.cyk.utility.__kernel__.report.ReportBuilder;
 import org.cyk.utility.__kernel__.report.Template;
 import org.cyk.utility.__kernel__.string.StringHelper;
+import org.cyk.utility.__kernel__.string.Strings;
 import org.cyk.utility.server.business.AbstractBusinessEntityImpl;
 import org.cyk.utility.server.business.BusinessFunctionCreator;
+import org.cyk.utility.server.business.BusinessFunctionModifier;
+import org.cyk.utility.server.business.BusinessFunctionRemover;
 
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.export.JRPdfExporter;
@@ -42,6 +51,13 @@ import net.sf.jasperreports.engine.export.JRPdfExporter;
 @ApplicationScoped
 public class UserBusinessImpl extends AbstractBusinessEntityImpl<User, UserPersistence> implements UserBusiness,Serializable {
 	private static final long serialVersionUID = 1L;
+	
+	@Override
+	protected void __listenExecuteCreateBefore__(User user, Properties properties, BusinessFunctionCreator function) {
+		super.__listenExecuteCreateBefore__(user, properties, function);
+		user.setCreationDate(LocalDateTime.now());
+		user.setAccessToken(RandomHelper.getAlphanumeric(3)+"_"+RandomHelper.getAlphanumeric(4)+"_"+RandomHelper.getAlphanumeric(3));
+	}
 	
 	@Override
 	protected void __listenExecuteCreateAfter__(User user, Properties properties, BusinessFunctionCreator businessFunctionCreator) {
@@ -88,7 +104,45 @@ public class UserBusinessImpl extends AbstractBusinessEntityImpl<User, UserPersi
 		if(CollectionHelper.isNotEmpty(user.getAdministrativeUnits()))
 			__inject__(UserAdministrativeUnitBusiness.class).createMany(user.getAdministrativeUnits().stream().map(administrativeUnit -> new UserAdministrativeUnit().setUser(user).setAdministrativeUnit(administrativeUnit))
 					.collect(Collectors.toList()));
-		//MailSender.getInstance().send("Identification", "Cliquer sur ce lien pour activer", user.getElectronicMailAddress());
+		
+		notifyAccessToken(user);
+	}
+	
+	@Override
+	public void notifyAccessToken(Collection<User> users) {
+		if(CollectionHelper.isEmpty(users))
+			return;
+		for(User user : users) {
+			//MailSender.getInstance().send("SIB - Identification", "Cliquer sur ce lien pour activer", user.getElectronicMailAddress());
+			try {
+				MailSender.getInstance().send("SIB - Identification", "Jeton d'accès : ", user.getAccessToken());
+			} catch (Exception exception) {
+				LogHelper.log(exception, getClass());
+			}	
+		}		
+	}
+
+	@Override
+	protected void __listenExecuteUpdateBefore__(User user, Properties properties,BusinessFunctionModifier function) {
+		super.__listenExecuteUpdateBefore__(user, properties, function);
+		Strings fields = __getFieldsFromProperties__(properties);
+		if(CollectionHelper.isEmpty(fields))
+			return;		
+		for(String index : fields.get()) {
+			if(User.FIELD_SENDING_DATE.equals(index)) {
+				if(user.getSendingDate() != null)
+					throw new RuntimeException("La fiche d'identification ne peut pas être transmise plus d'une fois.");
+				user.setSendingDate(LocalDateTime.now());
+			}
+		}
+	}
+	
+	@Override
+	protected void __listenExecuteDeleteBefore__(User user, Properties properties, BusinessFunctionRemover function) {
+		super.__listenExecuteDeleteBefore__(user, properties, function);
+		Collection<UserFile> userFiles = ((ReadUserFileByUsers)__inject__(UserFilePersistence.class)).readByUsers(user);
+		if(CollectionHelper.isNotEmpty(userFiles))
+			__inject__(UserFileBusiness.class).deleteMany(userFiles);
 	}
 	
 	@Override
@@ -116,5 +170,10 @@ public class UserBusinessImpl extends AbstractBusinessEntityImpl<User, UserPersi
 		Template template = new Template().setInputStream(IdentificationSheet.class.getResourceAsStream("report/fiche_identification.jrxml"));
 		ByteArrayOutputStream byteArrayOutputStream = ReportBuilder.getInstance().build(template, jrBeanCollectionDataSource, JRPdfExporter.class);
 		return byteArrayOutputStream;
+	}
+
+	@Override
+	protected Boolean __isCallDeleteByInstanceOnDeleteByIdentifier__() {
+		return Boolean.TRUE;
 	}
 }

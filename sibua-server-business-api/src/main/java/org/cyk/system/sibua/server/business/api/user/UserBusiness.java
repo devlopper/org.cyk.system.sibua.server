@@ -4,13 +4,38 @@ import java.io.ByteArrayOutputStream;
 import java.util.Collection;
 
 import org.cyk.system.sibua.server.business.entities.IdentificationSheet;
+import org.cyk.system.sibua.server.persistence.api.user.UserPersistence;
 import org.cyk.system.sibua.server.persistence.entities.user.User;
+import org.cyk.utility.__kernel__.DependencyInjection;
 import org.cyk.utility.__kernel__.array.ArrayHelper;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.server.business.BusinessEntity;
 
 public interface UserBusiness extends BusinessEntity<User> {
 
+	void notifyAccessToken(Collection<User> users);
+	
+	default void notifyAccessToken(User...users) {
+		if(ArrayHelper.isEmpty(users))
+			return;
+		notifyAccessToken(CollectionHelper.listOf(users));
+	}
+	
+	default void notifyAccessTokenByIdentifiers(Collection<String> usersIdentifiers) {
+		if(CollectionHelper.isEmpty(usersIdentifiers))
+			return;
+		Collection<User> users = DependencyInjection.inject(UserPersistence.class).readBySystemIdentifiers(CollectionHelper.cast(Object.class,usersIdentifiers));
+		if(CollectionHelper.isEmpty(users))
+			return;
+		notifyAccessToken(users);
+	}
+	
+	default void notifyAccessTokenByIdentifiers(String...usersIdentifiers) {
+		if(ArrayHelper.isEmpty(usersIdentifiers))
+			return;
+		notifyAccessTokenByIdentifiers(CollectionHelper.listOf(usersIdentifiers));
+	}
+	
 	Collection<IdentificationSheet> buildIdentificationSheets(Collection<User> users);
 	
 	default Collection<IdentificationSheet> buildIdentificationSheets(User...users) {

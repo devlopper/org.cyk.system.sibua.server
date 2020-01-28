@@ -35,14 +35,17 @@ public class UserDto extends AbstractIdentifiableSystemScalarStringImpl implemen
 	private String creationDate;
 	private String activationDate;
 	private String validationDate;
+	private String sendingDate;
 	
 	private String accessToken;
 	
 	private String reportUniformResourceIdentifier;
+	private String administrativeCertificateUniformResourceIdentifier;
 	
 	private ArrayList<SectionDto> sections;
 	private ArrayList<AdministrativeUnitDto> administrativeUnits;
 	private ArrayList<FileDto> files;
+	private ArrayList<UserFileDto> userFiles;
 	private ArrayList<FunctionDto> functions;
 	private ArrayList<ActivityDto> activities;
 	private ArrayList<LocalisationDto> localisations;
