@@ -3,12 +3,18 @@ package org.cyk.system.sibua.server.business.entities;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 
 import org.cyk.system.sibua.server.persistence.entities.user.User;
+import org.cyk.utility.__kernel__.collection.CollectionHelper;
+import org.cyk.utility.__kernel__.constant.ConstantEmpty;
 import org.cyk.utility.__kernel__.string.StringHelper;
+import org.cyk.utility.__kernel__.value.ValueHelper;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +23,8 @@ import lombok.Setter;
 public class IdentificationSheet implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	private InputStream headerAsInputStream;
+	
 	private InputStream armoirieCoteDIvoire;
 	private String section;
 	private String function;
@@ -47,36 +55,47 @@ public class IdentificationSheet implements Serializable {
 	private String lastPrintDate;
 	private String lastSendDate;
 	
-	private String currentDate = LocalDateTime.now().toString();
+	private String currentDate = DateTimeFormatter.ofPattern("EEEE, dd LLLL yyyy à kk:mm", Locale.FRENCH).format(LocalDateTime.now());
 	private InputStream codeVisualRepresentation;
 	
+	private String codeVisualRepresentationAsString;
+	
 	/**/
+	
+	public IdentificationSheet() {
+		setHeaderAsInputStream(IdentificationSheet.class.getResourceAsStream("report/header.png"));
+	}
 	
 	public static IdentificationSheet instantiate(User user) {
 		if(user == null)
 			return null;
 		IdentificationSheet identificationSheet = new IdentificationSheet();
-		identificationSheet.setAdministrativeUnit(StringHelper.get(user.getAdministrativeUnit()));
+		//identificationSheet.setHeaderAsInputStream(IdentificationSheet.class.getResourceAsStream("report/header.png"));
+		identificationSheet.setAdministrativeUnit(ValueHelper.defaultToIfBlank(StringHelper.get(user.getAdministrativeUnit()),ConstantEmpty.STRING));
 		identificationSheet.setArmoirieCoteDIvoire(null);
 		identificationSheet.setBudgetaryYear("2020");
-		identificationSheet.setCertificateReference("789456123");
-		identificationSheet.setCivility(StringHelper.get(user.getCivility()));
-		identificationSheet.setDeskPhoneNumber(user.getDeskPhoneNumber());
-		identificationSheet.setDeskPost(user.getDeskPost());
-		identificationSheet.setElectronicMailAddress(user.getElectronicMailAddress());
-		identificationSheet.setFirstName(user.getFirstName());
+		if(CollectionHelper.isNotEmpty(user.getUserFiles()))
+			identificationSheet.setCertificateReference(ValueHelper.defaultToIfBlank(CollectionHelper.getFirst(user.getUserFiles()).getReference(),ConstantEmpty.STRING));
+		if(user.getCivility() != null)
+			identificationSheet.setCivility(ValueHelper.defaultToIfBlank(user.getCivility().getName(),ConstantEmpty.STRING));
+		identificationSheet.setDeskPhoneNumber(ValueHelper.defaultToIfBlank(user.getDeskPhoneNumber(),ConstantEmpty.STRING));
+		identificationSheet.setDeskPost(ValueHelper.defaultToIfBlank(user.getDeskPost(),ConstantEmpty.STRING));
+		identificationSheet.setElectronicMailAddress(ValueHelper.defaultToIfBlank(user.getElectronicMailAddress(),ConstantEmpty.STRING));
+		identificationSheet.setFirstName(ValueHelper.defaultToIfBlank(user.getFirstName(),ConstantEmpty.STRING));
 		//identificationSheet.setFunction(StringHelper.get(user.getFunctions().toString()));
-		identificationSheet.setLastNames(user.getLastNames());
-		identificationSheet.setFirstNameAndLastNames(identificationSheet.getFirstName());
+		identificationSheet.setLastNames(ValueHelper.defaultToIfBlank(user.getLastNames(),ConstantEmpty.STRING));
+		identificationSheet.setFirstNameAndLastNames(ValueHelper.defaultToIfBlank(identificationSheet.getFirstName(),ConstantEmpty.STRING));
 		if(StringHelper.isBlank(identificationSheet.getFirstNameAndLastNames()))
-			identificationSheet.setFirstNameAndLastNames(identificationSheet.getLastNames());
+			identificationSheet.setFirstNameAndLastNames(ValueHelper.defaultToIfBlank(identificationSheet.getLastNames(),ConstantEmpty.STRING));
 		else if(StringHelper.isNotBlank(identificationSheet.getLastNames()))
-			identificationSheet.setFirstNameAndLastNames(identificationSheet.getFirstName()+" "+identificationSheet.getLastNames());
-		identificationSheet.setMobilePhoneNumber(user.getMobilePhoneNumber());
-		identificationSheet.setPostalAddress(user.getPostalAddress());
-		identificationSheet.setRegistrationNumber(user.getRegistrationNumber());
+			identificationSheet.setFirstNameAndLastNames(ValueHelper.defaultToIfBlank(identificationSheet.getFirstName()+" "+identificationSheet.getLastNames(),ConstantEmpty.STRING));
+		identificationSheet.setMobilePhoneNumber(ValueHelper.defaultToIfBlank(user.getMobilePhoneNumber(),ConstantEmpty.STRING));
+		identificationSheet.setPostalAddress(ValueHelper.defaultToIfBlank(user.getPostalAddress(),ConstantEmpty.STRING));
+		identificationSheet.setRegistrationNumber(ValueHelper.defaultToIfBlank(user.getRegistrationNumber(),ConstantEmpty.STRING));
 		//identificationSheet.setSection(StringHelper.get(user.getSection().toString()));
-		identificationSheet.setUserType(StringHelper.get(user.getType()));
+		if(user.getType() != null)
+			identificationSheet.setUserType(ValueHelper.defaultToIfBlank(user.getType().getName(),ConstantEmpty.STRING));
+		identificationSheet.setCodeVisualRepresentationAsString(user.getIdentifier());
 		return identificationSheet;
 	}
 	
@@ -92,10 +111,9 @@ public class IdentificationSheet implements Serializable {
 	public static IdentificationSheet buildRandomlyOne() {
 		IdentificationSheet identificationSheet = new IdentificationSheet();
 		identificationSheet.setBudgetaryYear("2020");
-		identificationSheet.setCodeVisualRepresentation(IdentificationSheet.class.getResourceAsStream("report/code_qr.png"));
-		identificationSheet.setArmoirieCoteDIvoire(IdentificationSheet.class.getResourceAsStream("report/armoirieci.jpg"));
+		//identificationSheet.setCodeVisualRepresentation(IdentificationSheet.class.getResourceAsStream("report/code_qr.png"));
 		identificationSheet.setSection("327 Ministère auprès du Premier Ministre, chargé du Budget et du Portefeuille de l'Etat");
-		identificationSheet.setFunction("GC2011010016 Gestionnaire de crédits de Cabinet du Ministre chargé du Budget");
+		identificationSheet.setFunction("GC2011010016 Gestionnaire de crédits de Cabinet du Ministre auprès du Premier Ministre, chargé du Budget et du Portefeuille de l'Etat");
 		identificationSheet.setAdministrativeUnit("11010016 Cabinet du Ministre auprès du Premier Ministre, chargé du Budget et du Portefeuille de l'Etat");
 		identificationSheet.setUserType("Fonctionnaire");
 		identificationSheet.setCivility("Mr");
@@ -115,6 +133,7 @@ public class IdentificationSheet implements Serializable {
 		identificationSheet.setLastUpdateDate("20/1/2020 18:00");
 		identificationSheet.setLastPrintDate("21/1/2020 8:30");
 		identificationSheet.setLastSendDate("21/1/2020 8:45");
+		identificationSheet.setCodeVisualRepresentationAsString(UUID.randomUUID().toString());
 		return identificationSheet;
 	}
 	

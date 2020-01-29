@@ -51,18 +51,6 @@ import org.junit.Test;
 public class BusinessIntegrationTest extends AbstractBusinessArquillianIntegrationTestWithDefaultDeployment {
 	private static final long serialVersionUID = 1L;
 	
-	@Override
-	protected void __listenBefore__() {
-		super.__listenBefore__();
-		
-	}
-	
-	@Override
-	protected void __listenAfter__() {
-		super.__listenAfter__();
-		
-	}
-	
 	//@Test
 	public void administrativeUnit_generateCodesBySectionsCodes_section_one() throws Exception{
 		__inject__(SectionBusiness.class).createMany(List.of(new Section().setCode("1").setName("1"),new Section().setCode("2").setName("1"),new Section().setCode("3").setName("1")));
@@ -126,13 +114,13 @@ public class BusinessIntegrationTest extends AbstractBusinessArquillianIntegrati
 				));
 		AdministrativeUnit administrativeUnit = __inject__(AdministrativeUnitPersistence.class).readByBusinessIdentifier("1");
 		assertThat(administrativeUnit).isNotNull();
-		assertThat(administrativeUnit.getOrderNumber()).isEqualTo(-1);
+		assertThat(administrativeUnit.getOrderNumber()).isEqualTo(1);
 		administrativeUnit = __inject__(AdministrativeUnitPersistence.class).readByBusinessIdentifier("2");
 		assertThat(administrativeUnit).isNotNull();
-		assertThat(administrativeUnit.getOrderNumber()).isEqualTo(-1);
+		assertThat(administrativeUnit.getOrderNumber()).isEqualTo(1);
 		administrativeUnit = __inject__(AdministrativeUnitPersistence.class).readByBusinessIdentifier("3");
 		assertThat(administrativeUnit).isNotNull();
-		assertThat(administrativeUnit.getOrderNumber()).isEqualTo(-1);
+		assertThat(administrativeUnit.getOrderNumber()).isEqualTo(1);
 		
 		__inject__(AdministrativeUnitBusiness.class).generateCodesBySectionsCodes("1");
 		
@@ -594,7 +582,8 @@ public class BusinessIntegrationTest extends AbstractBusinessArquillianIntegrati
 		
 		ByteArrayOutputStream byteArrayOutputStream = __inject__(UserBusiness.class).buildIdentificationSheetsReport(user);
 		try {
-			Files.write(new java.io.File(System.getProperty("user.dir")+"/target/t.pdf").toPath(), byteArrayOutputStream.toByteArray());
+			//Files.write(new java.io.File(System.getProperty("user.dir")+"/target/t.pdf").toPath(), byteArrayOutputStream.toByteArray());
+			Files.write(new java.io.File("d:/t.pdf").toPath(), byteArrayOutputStream.toByteArray());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

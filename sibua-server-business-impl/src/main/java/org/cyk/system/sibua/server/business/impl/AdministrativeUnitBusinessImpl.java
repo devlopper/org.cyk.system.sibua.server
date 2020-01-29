@@ -165,7 +165,7 @@ public class AdministrativeUnitBusinessImpl extends AbstractBusinessEntityImpl<A
 		return serviceGroup.getCode()+StringUtils.leftPad(orderNumber.toString(), 4, ConstantCharacter.ZERO);
 	}
 	
-	private void __setOrderNumberAndCode__(AdministrativeUnit administrativeUnit) {
+	protected void __setOrderNumberAndCode__(AdministrativeUnit administrativeUnit) {
 		/*if(administrativeUnit.getFunctionalClassification().getCode().equals(FunctionalClassification.CODE_NOT_SET) || administrativeUnit.getServiceGroup().getCode().equals(ServiceGroup.CODE_NOT_SET))
 			administrativeUnit.setOrderNumber(RandomHelper.getNumeric(20).intValue());
 		else
@@ -188,7 +188,8 @@ public class AdministrativeUnitBusinessImpl extends AbstractBusinessEntityImpl<A
 	protected void __listenExecuteCreateBefore__(AdministrativeUnit administrativeUnit, Properties properties,BusinessFunctionCreator function) {
 		super.__listenExecuteCreateBefore__(administrativeUnit, properties, function);
 		administrativeUnit.setOrderNumber(__getNextOrderNumber__(administrativeUnit.getServiceGroup(), new HashMap<>()));
-		administrativeUnit.setCode(__generateCode__(administrativeUnit));
+		if(StringHelper.isBlank(administrativeUnit.getCode()))
+			administrativeUnit.setCode(__generateCode__(administrativeUnit));
 	}
 	
 	@Override

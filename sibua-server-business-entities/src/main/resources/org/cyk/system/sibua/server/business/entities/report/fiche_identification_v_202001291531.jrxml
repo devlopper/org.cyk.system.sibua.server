@@ -77,14 +77,11 @@
 	<field name="codeVisualRepresentationAsString" class="java.lang.String">
 		<fieldDescription><![CDATA[codeVisualRepresentationAsString]]></fieldDescription>
 	</field>
-	<field name="headerAsInputStream" class="java.io.InputStream">
-		<fieldDescription><![CDATA[headerAsInputStream]]></fieldDescription>
-	</field>
 	<pageHeader>
 		<band height="73" splitType="Stretch">
 			<image scaleImage="FillFrame">
 				<reportElement x="0" y="0" width="555" height="73" uuid="dfc93200-908b-468c-a320-16b4cb4f5717"/>
-				<imageExpression><![CDATA[$F{headerAsInputStream}]]></imageExpression>
+				<imageExpression><![CDATA["header.png"]]></imageExpression>
 			</image>
 		</band>
 	</pageHeader>
