@@ -62,8 +62,10 @@ public abstract class UserDtoMapper extends AbstractMapperSourceDestinationImpl<
 			userDto.setAdministrativeCertificateUniformResourceIdentifier(UniformResourceIdentifierHelper.build(parameter));				
 		}
 		
-		userDto.setCreationDate(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm", Locale.FRENCH).format(user.getCreationDate()));
-		userDto.setSendingDate(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm", Locale.FRENCH).format(user.getSendingDate()));
+		if(user.getCreationDate() != null)
+			userDto.setCreationDate(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm", Locale.FRENCH).format(user.getCreationDate()));
+		if(user.getSendingDate() != null)
+			userDto.setSendingDate(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm", Locale.FRENCH).format(user.getSendingDate()));
 		
 		return userDto;
 	}

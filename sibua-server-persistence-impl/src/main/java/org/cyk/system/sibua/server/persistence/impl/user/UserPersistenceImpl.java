@@ -1,6 +1,7 @@
 package org.cyk.system.sibua.server.persistence.impl.user;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.util.Collection;
 
 import javax.enterprise.context.ApplicationScoped;
 
@@ -68,6 +69,16 @@ public class UserPersistenceImpl extends AbstractPersistenceEntityImpl<User> imp
 			user.setUserFiles(((ReadUserFileByUsers)__inject__(UserFilePersistence.class)).readByUsers(user));
 	}
 
+	@Override
+	public Collection<User> readByElectronicMailAddresses(Collection<String> electronicMailAddresses,Properties properties) {
+		if(CollectionHelper.isEmpty(electronicMailAddresses))
+			return null;
+		if(properties == null)
+			properties = new Properties();
+		properties.setIfNull(Properties.QUERY_IDENTIFIER, readByElectronicMailAddresses);
+		return __readMany__(properties, ____getQueryParameters____(properties,electronicMailAddresses));
+	}
+	
 	@Override
 	protected String __getQueryIdentifier__(Class<?> klass, Properties properties, Object... objects) {
 		if(PersistenceFunctionReader.class.equals(klass)) {

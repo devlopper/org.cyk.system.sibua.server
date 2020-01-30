@@ -23,6 +23,11 @@ public interface UserRepresentation extends RepresentationEntity<UserDto> {
 	@Produces({MediaType.APPLICATION_JSON,MediaType.APPLICATION_XML})
 	Response notifyAccessToken(@QueryParam(PARAMETER_IDENTIFIER) List<String> usersIdentifiers);
 	
+	@POST
+	@Path("notifyaccesstokenbyelectronicmailaddresses")
+	@Produces({MediaType.APPLICATION_JSON,MediaType.APPLICATION_XML})
+	Response notifyAccessTokenByElectronicMailAddresses(@QueryParam("electronicmailaddresses") List<String> electronicMailAddresses);
+	
 	@GET
 	@Path(PATH_BUILD_ONE)
 	@Produces({MediaType.APPLICATION_OCTET_STREAM})

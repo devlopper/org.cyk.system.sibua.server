@@ -1,13 +1,16 @@
 package org.cyk.system.sibua.server.persistence.entities.user;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
+import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
 import org.cyk.utility.__kernel__.instance.InstanceGetter;
 import org.cyk.utility.__kernel__.object.__static__.persistence.AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl;
 import org.cyk.utility.__kernel__.string.StringHelper;
@@ -23,6 +26,8 @@ public class Function extends AbstractIdentifiableSystemScalarStringIdentifiable
 	private static final long serialVersionUID = 1L;
 
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_TYPE) private FunctionType type;
+	
+	@Transient private Collection<AdministrativeUnit> administrativeUnits;
 	
 	@Override
 	public Function setCode(String code) {
@@ -43,6 +48,7 @@ public class Function extends AbstractIdentifiableSystemScalarStringIdentifiable
 	}
 	
 	public static final String FIELD_TYPE = "type";
+	public static final String FIELD_ADMINISTRATIVE_UNITS = "administrativeUnits";
 	
 	public static final String COLUMN_TYPE = "typfonc";
 	

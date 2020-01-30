@@ -31,6 +31,7 @@ public class User extends AbstractIdentifiableSystemScalarStringImpl implements 
 	@ManyToOne @JoinColumn(name = COLUMN_TYPE) private UserType type;
 	@ManyToOne @JoinColumn(name = COLUMN_CIVILITY) private Civility civility;
 	@ManyToOne @JoinColumn(name = COLUMN_ADMINISTRATIVE_UNIT) private AdministrativeUnit administrativeUnit;
+	@Column(name = COLUMN_ADMINISTRATIVE_UNIT_FUNCTION) private String administrativeUnitFunction;
 	
 	@Column(name = COLUMN_REGISTRATION_NUMBER) private String registrationNumber;
 	@Column(name = COLUMN_FIRST_NAME) private String firstName;
@@ -76,6 +77,7 @@ public class User extends AbstractIdentifiableSystemScalarStringImpl implements 
 	public static final String FIELD_POSTAL_ADDRESS = "postalAddress";
 	public static final String FIELD_CERTIFICATE_REFERENCE = "certificateReference";
 	public static final String FIELD_ADMINISTRATIVE_UNIT = "administrativeUnit";
+	public static final String FIELD_ADMINISTRATIVE_UNIT_FUNCTION = "administrativeUnitFunction";
 	public static final String FIELD_SECTIONS = "sections";
 	public static final String FIELD_ADMINISTRATIVE_UNITS = "administrativeUnits";
 	public static final String FIELD_LOCALISATIONS = "localisations";
@@ -96,6 +98,7 @@ public class User extends AbstractIdentifiableSystemScalarStringImpl implements 
 	public static final String COLUMN_TYPE = UserType.TABLE_NAME;
 	public static final String COLUMN_FUNCTION = Function.TABLE_NAME;
 	public static final String COLUMN_ADMINISTRATIVE_UNIT = AdministrativeUnit.TABLE_NAME;
+	public static final String COLUMN_ADMINISTRATIVE_UNIT_FUNCTION = "fonction_administrative";
 	public static final String COLUMN_REGISTRATION_NUMBER = "matricule";
 	public static final String COLUMN_FIRST_NAME = "nom";
 	public static final String COLUMN_LAST_NAMES = "prenoms";

@@ -24,7 +24,7 @@ public class ReportBuilderJasperUnitTest extends AbstractWeldUnitTest {
 		ByteArrayOutputStream outputStream = (ByteArrayOutputStream) ReportBuilder.getInstance().build(template, new JRBeanCollectionDataSource(List.of(identificationSheet))
 				, JRPdfExporter.class);
 		try {
-			Files.write(new File(System.getProperty("user.dir")+"/target/t.pdf").toPath(), outputStream.toByteArray());
+			Files.write(new File(System.getProperty("user.dir")+"/target/t"+System.currentTimeMillis()+".pdf").toPath(), outputStream.toByteArray());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

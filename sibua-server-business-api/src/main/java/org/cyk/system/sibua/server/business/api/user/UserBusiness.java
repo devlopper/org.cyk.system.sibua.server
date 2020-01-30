@@ -36,6 +36,21 @@ public interface UserBusiness extends BusinessEntity<User> {
 		notifyAccessTokenByIdentifiers(CollectionHelper.listOf(usersIdentifiers));
 	}
 	
+	default void notifyAccessTokenByElectronicMailAddresses(Collection<String> electronicMailAddresses) {
+		if(CollectionHelper.isEmpty(electronicMailAddresses))
+			return;
+		Collection<User> users = DependencyInjection.inject(UserPersistence.class).readByElectronicMailAddresses(electronicMailAddresses, null);
+		if(CollectionHelper.isEmpty(users))
+			return;
+		notifyAccessToken(users);
+	}
+	
+	default void notifyAccessTokenByElectronicMailAddresses(String...electronicMailAddresses) {
+		if(ArrayHelper.isEmpty(electronicMailAddresses))
+			return;
+		notifyAccessTokenByElectronicMailAddresses(CollectionHelper.listOf(electronicMailAddresses));
+	}
+	
 	Collection<IdentificationSheet> buildIdentificationSheets(Collection<User> users);
 	
 	default Collection<IdentificationSheet> buildIdentificationSheets(User...users) {

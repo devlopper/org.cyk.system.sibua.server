@@ -80,5 +80,13 @@ public class UserRepresentationImpl extends AbstractRepresentationEntityImpl<Use
 			__inject__(UserBusiness.class).notifyAccessTokenByIdentifiers(usersIdentifiers);
 		return Response.ok().build();
 	}
+
+	@Override
+	public Response notifyAccessTokenByElectronicMailAddresses(List<String> electronicMailAddresses) {
+		if(CollectionHelper.isEmpty(electronicMailAddresses))
+			return Response.ok("No mail sent. Empty electronic mail addresses").build();
+		__inject__(UserBusiness.class).notifyAccessTokenByElectronicMailAddresses(electronicMailAddresses);
+		return Response.ok().build();
+	}
 	
 }

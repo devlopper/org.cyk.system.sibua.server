@@ -29,6 +29,7 @@ public class IdentificationSheet implements Serializable {
 	private String section;
 	private String function;
 	private String administrativeUnit;
+	private String administrativeUnitFunction;
 	private String userType;	
 	private String civility;
 	
@@ -55,7 +56,7 @@ public class IdentificationSheet implements Serializable {
 	private String lastPrintDate;
 	private String lastSendDate;
 	
-	private String currentDate = DateTimeFormatter.ofPattern("EEEE, dd LLLL yyyy à kk:mm", Locale.FRENCH).format(LocalDateTime.now());
+	private String currentDate = DateTimeFormatter.ofPattern("EEEE dd LLLL yyyy à kk:mm", Locale.FRENCH).format(LocalDateTime.now());
 	private InputStream codeVisualRepresentation;
 	
 	private String codeVisualRepresentationAsString;
@@ -64,6 +65,7 @@ public class IdentificationSheet implements Serializable {
 	
 	public IdentificationSheet() {
 		setHeaderAsInputStream(IdentificationSheet.class.getResourceAsStream("report/header.png"));
+		setCodeVisualRepresentation(IdentificationSheet.class.getResourceAsStream("report/code_qr.png"));
 	}
 	
 	public static IdentificationSheet instantiate(User user) {
@@ -72,7 +74,9 @@ public class IdentificationSheet implements Serializable {
 		IdentificationSheet identificationSheet = new IdentificationSheet();
 		//identificationSheet.setHeaderAsInputStream(IdentificationSheet.class.getResourceAsStream("report/header.png"));
 		identificationSheet.setAdministrativeUnit(ValueHelper.defaultToIfBlank(StringHelper.get(user.getAdministrativeUnit()),ConstantEmpty.STRING));
-		identificationSheet.setArmoirieCoteDIvoire(null);
+		if(user.getAdministrativeUnit() != null)
+			identificationSheet.setSection(ValueHelper.defaultToIfBlank(StringHelper.get(user.getAdministrativeUnit().getSection()),ConstantEmpty.STRING));
+		identificationSheet.setAdministrativeUnitFunction(ValueHelper.defaultToIfBlank(user.getAdministrativeUnitFunction(),ConstantEmpty.STRING));
 		identificationSheet.setBudgetaryYear("2020");
 		if(CollectionHelper.isNotEmpty(user.getUserFiles()))
 			identificationSheet.setCertificateReference(ValueHelper.defaultToIfBlank(CollectionHelper.getFirst(user.getUserFiles()).getReference(),ConstantEmpty.STRING));
@@ -111,10 +115,11 @@ public class IdentificationSheet implements Serializable {
 	public static IdentificationSheet buildRandomlyOne() {
 		IdentificationSheet identificationSheet = new IdentificationSheet();
 		identificationSheet.setBudgetaryYear("2020");
-		//identificationSheet.setCodeVisualRepresentation(IdentificationSheet.class.getResourceAsStream("report/code_qr.png"));
+		
 		identificationSheet.setSection("327 Ministère auprès du Premier Ministre, chargé du Budget et du Portefeuille de l'Etat");
 		identificationSheet.setFunction("GC2011010016 Gestionnaire de crédits de Cabinet du Ministre auprès du Premier Ministre, chargé du Budget et du Portefeuille de l'Etat");
 		identificationSheet.setAdministrativeUnit("11010016 Cabinet du Ministre auprès du Premier Ministre, chargé du Budget et du Portefeuille de l'Etat");
+		identificationSheet.setAdministrativeUnitFunction("Directeur");
 		identificationSheet.setUserType("Fonctionnaire");
 		identificationSheet.setCivility("Mr");
 		identificationSheet.setRegistrationNumber("100100A");
