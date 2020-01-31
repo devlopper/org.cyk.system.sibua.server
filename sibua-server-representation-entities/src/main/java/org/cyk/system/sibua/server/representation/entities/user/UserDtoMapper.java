@@ -7,6 +7,7 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.cyk.system.sibua.server.persistence.api.query.ReadUserFileByUsers;
 import org.cyk.system.sibua.server.persistence.api.user.UserFilePersistence;
 import org.cyk.system.sibua.server.persistence.entities.user.User;
@@ -19,6 +20,7 @@ import org.cyk.utility.__kernel__.identifier.resource.UniformResourceIdentifierA
 import org.cyk.utility.__kernel__.identifier.resource.UniformResourceIdentifierHelper;
 import org.cyk.utility.__kernel__.properties.Properties;
 import org.cyk.utility.__kernel__.string.StringHelper;
+import org.cyk.utility.__kernel__.string.Strings;
 import org.cyk.utility.server.representation.AbstractMapperSourceDestinationImpl;
 import org.mapstruct.Mapper;
 
@@ -26,11 +28,18 @@ import org.mapstruct.Mapper;
 public abstract class UserDtoMapper extends AbstractMapperSourceDestinationImpl<UserDto, User> {
 	private static final long serialVersionUID = 1L;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public UserDto getSource(User user, Properties properties) {
 		UserDto userDto =  super.getSource(user, properties);
-		@SuppressWarnings("unchecked")
-		List<String> fields = (List<String>) Properties.getFromPath(properties,Properties.FIELDS);
+		List<String> fields = null;
+		if(Properties.getFromPath(properties,Properties.FIELDS) instanceof List)
+			fields = (List<String>) Properties.getFromPath(properties,Properties.FIELDS);
+		else if(Properties.getFromPath(properties,Properties.FIELDS) instanceof Strings)
+			fields = (List<String>) ((Strings)Properties.getFromPath(properties,Properties.FIELDS)).get();
+		else
+			fields = CollectionHelper.listOf(StringUtils.split((String)Properties.getFromPath(properties,Properties.FIELDS),","));
+		
 		if(CollectionHelper.isEmpty(fields)) {
 			if(CollectionHelper.isNotEmpty(user.getUserFiles())) {
 				for(UserFileDto userFile : userDto.getUserFiles()) {

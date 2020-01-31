@@ -26,6 +26,7 @@ import org.cyk.system.sibua.server.persistence.entities.user.User;
 import org.cyk.system.sibua.server.persistence.entities.user.UserActivity;
 import org.cyk.system.sibua.server.persistence.entities.user.UserAdministrativeUnit;
 import org.cyk.system.sibua.server.persistence.entities.user.UserFile;
+import org.cyk.system.sibua.server.persistence.entities.user.UserFileType;
 import org.cyk.system.sibua.server.persistence.entities.user.UserFunction;
 import org.cyk.system.sibua.server.persistence.entities.user.UserLocalisation;
 import org.cyk.system.sibua.server.persistence.entities.user.UserSection;
@@ -138,6 +139,39 @@ public class UserBusinessImpl extends AbstractBusinessEntityImpl<User, UserPersi
 				if(user.getSendingDate() != null)
 					throw new RuntimeException("La fiche d'identification ne peut pas être transmise plus d'une fois.");
 				user.setSendingDate(LocalDateTime.now());
+			}else if(User.FIELD_FILES.equals(index)) {
+				if(CollectionHelper.isNotEmpty(user.getFiles())) {
+					Collection<UserFile> userFiles = null;
+					for(File file : user.getFiles()) {
+						File __file__ = null;
+						if(file.getBytes() == null || file.getBytes().length == 0)
+							throw new RuntimeException("le contenu du fichier est obligatoire");
+						String sha1 = ByteHelper.buildMessageDigest(file.getBytes());
+						if(StringHelper.isBlank(sha1))
+							throw new RuntimeException("impossible de calculer le sha1");
+						__file__ = __inject__(FilePersistence.class).readBySha1(sha1);
+						if(__file__ == null) {
+							file.setSha1(sha1);
+							if(StringHelper.isBlank(file.getExtension()))
+								file.setExtension(FileHelper.getExtension(file.getName()));
+							if(StringHelper.isBlank(file.getExtension()))
+								throw new RuntimeException("l'extension du fichier est obligatoire");	
+							__file__ = file;
+						}else {
+							
+						}
+						if(userFiles == null)
+							userFiles = new ArrayList<>();
+						UserFile userFile = __inject__(UserFilePersistence.class).readByUserIdentifierByFileIdentifierByType(user.getIdentifier(), __file__.getIdentifier()
+								, UserFileType.ADMINISTRATIVE_CERTIFICATE);
+						if(userFile == null)
+							userFile = new UserFile().setUser(user).setType(UserFileType.ADMINISTRATIVE_CERTIFICATE);
+							
+						userFiles.add(userFile.setFile(__file__).setReference(file.getReference()));
+					}
+					if(CollectionHelper.isNotEmpty(userFiles))
+						__inject__(UserFileBusiness.class).saveMany(userFiles);
+				}
 			}
 		}
 	}
