@@ -14,7 +14,7 @@ import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.instance.AbstractInstanceCopierImpl;
 import org.cyk.utility.__kernel__.string.StringHelper;
 
-@org.cyk.system.sibua.server.annotation.System
+@org.cyk.system.sibua.server.annotation.System @Deprecated
 public class InstanceCopierImpl extends AbstractInstanceCopierImpl implements Serializable {
 	private static final long serialVersionUID = 1L;
 

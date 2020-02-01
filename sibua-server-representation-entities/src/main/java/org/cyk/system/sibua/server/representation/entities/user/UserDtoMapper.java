@@ -60,16 +60,27 @@ public abstract class UserDtoMapper extends AbstractMapperSourceDestinationImpl<
 		}
 		
 		Collection<UserFile> userFiles = ((ReadUserFileByUsers)DependencyInjection.inject(UserFilePersistence.class)).readByUsers(user);
+		HttpServletRequest request = DependencyInjection.inject(HttpServletRequest.class);
+		UniformResourceIdentifierAsFunctionParameter parameter = new UniformResourceIdentifierAsFunctionParameter();
+		parameter.setRequest(request);
+		parameter.setPath(new PathAsFunctionParameter());
+		//TODO get /sibua/server/api better
+		parameter.getPath().setValue("/sibua/server/api/user/%s/file/"+UserFileType.ADMINISTRATIVE_CERTIFICATE.name().toLowerCase());
+		userDto.setAdministrativeCertificateUniformResourceIdentifierFormat(UniformResourceIdentifierHelper.build(parameter));				
 		
 		if(CollectionHelper.isNotEmpty(userFiles) && StringHelper.isBlank(user.getAdministrativeCertificateUniformResourceIdentifier()) && (fields == null || fields.contains(User.FIELD_ADMINISTRATIVE_CERTIFICATE_UNIFORM_RESOURCE_IDENTIFIER))) {
+			userDto.setAdministrativeCertificateUniformResourceIdentifier(String.format(userDto.getAdministrativeCertificateUniformResourceIdentifierFormat(), user.getIdentifier()));
+			/*
 			HttpServletRequest request = DependencyInjection.inject(HttpServletRequest.class);
 			UniformResourceIdentifierAsFunctionParameter parameter = new UniformResourceIdentifierAsFunctionParameter();
 			parameter.setRequest(request);
 			parameter.setPath(new PathAsFunctionParameter());
 			//TODO get /sibua/server/api better
 			parameter.getPath().setValue("/sibua/server/api/user/"+user.getIdentifier()+"/file/"+UserFileType.ADMINISTRATIVE_CERTIFICATE.name().toLowerCase());
-			userDto.setAdministrativeCertificateUniformResourceIdentifier(UniformResourceIdentifierHelper.build(parameter));				
+			userDto.setAdministrativeCertificateUniformResourceIdentifier(UniformResourceIdentifierHelper.build(parameter));		
+			*/
 		}
+		
 		
 		if(user.getCreationDate() != null)
 			userDto.setCreationDate(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm", Locale.FRENCH).format(user.getCreationDate()));

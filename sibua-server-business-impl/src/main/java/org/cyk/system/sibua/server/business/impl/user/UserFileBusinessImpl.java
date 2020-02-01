@@ -6,8 +6,11 @@ import javax.enterprise.context.ApplicationScoped;
 
 import org.cyk.system.sibua.server.business.api.user.FileBusiness;
 import org.cyk.system.sibua.server.business.api.user.UserFileBusiness;
+import org.cyk.system.sibua.server.persistence.api.user.FilePersistence;
 import org.cyk.system.sibua.server.persistence.api.user.UserFilePersistence;
+import org.cyk.system.sibua.server.persistence.entities.user.File;
 import org.cyk.system.sibua.server.persistence.entities.user.UserFile;
+import org.cyk.utility.__kernel__.number.ByteHelper;
 import org.cyk.utility.__kernel__.properties.Properties;
 import org.cyk.utility.__kernel__.string.StringHelper;
 import org.cyk.utility.server.business.AbstractBusinessEntityImpl;
@@ -20,6 +23,16 @@ public class UserFileBusinessImpl extends AbstractBusinessEntityImpl<UserFile, U
 	@Override
 	protected void __listenExecuteCreateBefore__(UserFile userFile, Properties properties,BusinessFunctionCreator function) {
 		super.__listenExecuteCreateBefore__(userFile, properties, function);
+		if(userFile.getFile() != null) {
+			String sha1 = ByteHelper.buildMessageDigest(userFile.getFile().getBytes());
+			if(StringHelper.isBlank(sha1))
+				throw new RuntimeException("impossible de calculer le sha1");
+			File file = __inject__(FilePersistence.class).readBySha1(sha1);
+			if(file == null)
+				userFile.getFile().setSha1(sha1);
+			else
+				userFile.setFile(file);
+		}
 		if(StringHelper.isBlank(userFile.getFile().getIdentifier()))
 			__inject__(FileBusiness.class).create(userFile.getFile());
 	}

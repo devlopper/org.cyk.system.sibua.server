@@ -43,6 +43,7 @@ public class UserDto extends AbstractIdentifiableSystemScalarStringImpl implemen
 	
 	private String reportUniformResourceIdentifier;
 	private String administrativeCertificateUniformResourceIdentifier;
+	private String administrativeCertificateUniformResourceIdentifierFormat;
 	
 	private ArrayList<SectionDto> sections;
 	private ArrayList<AdministrativeUnitDto> administrativeUnits;
