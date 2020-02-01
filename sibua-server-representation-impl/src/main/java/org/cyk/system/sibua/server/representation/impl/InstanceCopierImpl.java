@@ -2,7 +2,6 @@ package org.cyk.system.sibua.server.representation.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Map;
 
 import org.cyk.system.sibua.server.persistence.api.user.FilePersistence;
@@ -33,13 +32,6 @@ public class InstanceCopierImpl extends AbstractInstanceCopierImpl implements Se
 			}
 		}else
 			super.copy(source, destination, fieldsNamesMap);
-	}
-	
-	@Override
-	public void copy(Object source, Object destination, Collection<String> fieldsNames) {
-		System.out.println("InstanceCopierImpl.copy() "+source+" : "+destination+" : "+fieldsNames);
-		super.copy(source, destination, fieldsNames);
-		
 	}
 	
 }

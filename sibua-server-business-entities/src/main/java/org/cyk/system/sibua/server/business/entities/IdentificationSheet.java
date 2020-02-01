@@ -79,7 +79,7 @@ public class IdentificationSheet implements Serializable {
 		identificationSheet.setAdministrativeUnitFunction(ValueHelper.defaultToIfBlank(user.getAdministrativeUnitFunction(),ConstantEmpty.STRING));
 		identificationSheet.setBudgetaryYear("2020");
 		if(CollectionHelper.isNotEmpty(user.getUserFiles()))
-			identificationSheet.setCertificateReference(ValueHelper.defaultToIfBlank(CollectionHelper.getFirst(user.getUserFiles()).getReference(),ConstantEmpty.STRING));
+			identificationSheet.setCertificateReference(ValueHelper.defaultToIfBlank(user.getAdministrativeUnitCertificateReference(),ConstantEmpty.STRING));
 		if(user.getCivility() != null)
 			identificationSheet.setCivility(ValueHelper.defaultToIfBlank(user.getCivility().getName(),ConstantEmpty.STRING));
 		identificationSheet.setDeskPhoneNumber(ValueHelper.defaultToIfBlank(user.getDeskPhoneNumber(),ConstantEmpty.STRING));

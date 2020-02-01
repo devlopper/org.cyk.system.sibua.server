@@ -58,6 +58,10 @@ public class UserBusinessImpl extends AbstractBusinessEntityImpl<User, UserPersi
 		super.__listenExecuteCreateBefore__(user, properties, function);
 		user.setCreationDate(LocalDateTime.now());
 		user.setAccessToken(RandomHelper.getAlphanumeric(3)+"_"+RandomHelper.getAlphanumeric(4)+"_"+RandomHelper.getAlphanumeric(3));
+		if(StringHelper.isNotBlank(user.getFirstName()))
+			user.setFirstName(user.getFirstName().toUpperCase());
+		if(StringHelper.isNotBlank(user.getRegistrationNumber()))
+			user.setRegistrationNumber(user.getRegistrationNumber().toUpperCase());
 	}
 	
 	@Override
@@ -172,6 +176,12 @@ public class UserBusinessImpl extends AbstractBusinessEntityImpl<User, UserPersi
 					if(CollectionHelper.isNotEmpty(userFiles))
 						__inject__(UserFileBusiness.class).saveMany(userFiles);
 				}
+			}else if(User.FIELD_FIRST_NAME.equals(index)) {
+				if(StringHelper.isNotBlank(user.getFirstName()))
+					user.setFirstName(user.getFirstName().toUpperCase());
+			}else if(User.FIELD_REGISTRATION_NUMBER.equals(index)) {
+				if(StringHelper.isNotBlank(user.getRegistrationNumber()))
+					user.setRegistrationNumber(user.getRegistrationNumber().toUpperCase());
 			}
 		}
 	}

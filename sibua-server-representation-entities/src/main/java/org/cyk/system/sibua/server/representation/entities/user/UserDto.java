@@ -21,6 +21,7 @@ public class UserDto extends AbstractIdentifiableSystemScalarStringImpl implemen
 	private UserTypeDto type;
 	private CivilityDto civility;
 	private AdministrativeUnitDto administrativeUnit;
+	private String administrativeUnitCertificateReference;
 	private String administrativeUnitFunction;
 	
 	private String registrationNumber;
