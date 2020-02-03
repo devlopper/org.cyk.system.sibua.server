@@ -1,5 +1,6 @@
 package org.cyk.system.sibua.server.business.entities;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -11,10 +12,18 @@ import java.util.Locale;
 import java.util.UUID;
 
 import org.cyk.system.sibua.server.persistence.entities.user.User;
+import org.cyk.system.sibua.server.persistence.entities.user.UserFile;
+import org.cyk.system.sibua.server.persistence.entities.user.UserFileType;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.constant.ConstantEmpty;
+import org.cyk.utility.__kernel__.random.RandomHelper;
 import org.cyk.utility.__kernel__.string.StringHelper;
+import org.cyk.utility.__kernel__.string.barcode.BarCodeBuilder;
+import org.cyk.utility.__kernel__.string.barcode.BarCodeBuilder.Parameters;
+import org.cyk.utility.__kernel__.string.barcode.zxing.BarCodeBuilderImpl;
 import org.cyk.utility.__kernel__.value.ValueHelper;
+
+import com.google.zxing.BarcodeFormat;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -23,9 +32,8 @@ import lombok.Setter;
 public class IdentificationSheet implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private InputStream headerAsInputStream;
+	private InputStream headerAsInputStream,photoAsInputStream;
 	
-	private InputStream armoirieCoteDIvoire;
 	private String section;
 	private String function;
 	private String administrativeUnit;
@@ -65,21 +73,32 @@ public class IdentificationSheet implements Serializable {
 	
 	public IdentificationSheet() {
 		setHeaderAsInputStream(IdentificationSheet.class.getResourceAsStream("report/header.png"));
-		setCodeVisualRepresentation(IdentificationSheet.class.getResourceAsStream("report/code_qr.png"));
 	}
 	
 	public static IdentificationSheet instantiate(User user) {
 		if(user == null)
 			return null;
 		IdentificationSheet identificationSheet = new IdentificationSheet();
-		//identificationSheet.setHeaderAsInputStream(IdentificationSheet.class.getResourceAsStream("report/header.png"));
-		identificationSheet.setAdministrativeUnit(ValueHelper.defaultToIfBlank(StringHelper.get(user.getAdministrativeUnit()),ConstantEmpty.STRING));
+		if(StringHelper.isNotBlank(user.getIdentifier())) {
+			identificationSheet.setCodeVisualRepresentation(new ByteArrayInputStream(BarCodeBuilder.getInstance().build(user.getIdentifier()
+					, new Parameters().setFormat(BarcodeFormat.QR_CODE))));
+		}
+		
+		if(CollectionHelper.isNotEmpty(user.getUserFiles())) {
+			for(UserFile userFile : user.getUserFiles()) {
+				if(UserFileType.PHOTO.equals(userFile.getType())) {
+					identificationSheet.setPhotoAsInputStream(new ByteArrayInputStream(userFile.getFile().getBytes()));
+				}
+			}
+		}
+		
 		if(user.getAdministrativeUnit() != null)
-			identificationSheet.setSection(ValueHelper.defaultToIfBlank(StringHelper.get(user.getAdministrativeUnit().getSection()),ConstantEmpty.STRING));
+			identificationSheet.setAdministrativeUnit(ValueHelper.defaultToIfBlank(user.getAdministrativeUnit().getCode()+" "+user.getAdministrativeUnit().getName(),ConstantEmpty.STRING));
+		if(user.getAdministrativeUnit() != null && user.getAdministrativeUnit().getSection() != null)
+			identificationSheet.setSection(ValueHelper.defaultToIfBlank(user.getAdministrativeUnit().getSection().getCode()+" "+user.getAdministrativeUnit().getSection().getName(),ConstantEmpty.STRING));
 		identificationSheet.setAdministrativeUnitFunction(ValueHelper.defaultToIfBlank(user.getAdministrativeUnitFunction(),ConstantEmpty.STRING));
 		identificationSheet.setBudgetaryYear("2020");
-		if(CollectionHelper.isNotEmpty(user.getUserFiles()))
-			identificationSheet.setCertificateReference(ValueHelper.defaultToIfBlank(user.getAdministrativeUnitCertificateReference(),ConstantEmpty.STRING));
+		identificationSheet.setCertificateReference(ValueHelper.defaultToIfBlank(user.getAdministrativeUnitCertificateReference(),ConstantEmpty.STRING));
 		if(user.getCivility() != null)
 			identificationSheet.setCivility(ValueHelper.defaultToIfBlank(user.getCivility().getName(),ConstantEmpty.STRING));
 		identificationSheet.setDeskPhoneNumber(ValueHelper.defaultToIfBlank(user.getDeskPhoneNumber(),ConstantEmpty.STRING));
@@ -114,6 +133,12 @@ public class IdentificationSheet implements Serializable {
 	
 	public static IdentificationSheet buildRandomlyOne() {
 		IdentificationSheet identificationSheet = new IdentificationSheet();
+		BarCodeBuilder barCodeBuilder = new BarCodeBuilderImpl();
+		identificationSheet.setCodeVisualRepresentation(new ByteArrayInputStream(barCodeBuilder
+				.build(RandomHelper.getAlphabetic(3)+"-"+RandomHelper.getAlphabetic(4)+"-"+RandomHelper.getAlphabetic(3)
+				, new Parameters().setFormat(BarcodeFormat.QR_CODE))));
+		
+		identificationSheet.setPhotoAsInputStream(IdentificationSheet.class.getResourceAsStream("report/armoirieci.jpg"));
 		identificationSheet.setBudgetaryYear("2020");
 		
 		identificationSheet.setSection("327 Ministère auprès du Premier Ministre, chargé du Budget et du Portefeuille de l'Etat");

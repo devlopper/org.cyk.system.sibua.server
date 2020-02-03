@@ -36,12 +36,15 @@ public class UserDto extends AbstractIdentifiableSystemScalarStringImpl implemen
 	
 	private String creationDate;
 	private String activationDate;
-	private String validationDate;
+	private String validationByOrdonnateurDate;
+	private String validationByDGBFDate;
 	private String sendingDate;
 	
 	private String accessToken;
 	
 	private String reportUniformResourceIdentifier;
+	private String photoUniformResourceIdentifier;
+	private String photoUniformResourceIdentifierFormat;
 	private String administrativeCertificateUniformResourceIdentifier;
 	private String administrativeCertificateUniformResourceIdentifierFormat;
 	

@@ -142,6 +142,23 @@ public class UserBusinessImpl extends AbstractBusinessEntityImpl<User, UserPersi
 			if(User.FIELD_SENDING_DATE.equals(index)) {
 				if(user.getSendingDate() != null)
 					throw new RuntimeException("La fiche d'identification ne peut pas être transmise plus d'une fois.");
+				Collection<String> requiredFieldsNames = new ArrayList<>();
+				if(StringHelper.isBlank(user.getFirstName()))
+					requiredFieldsNames.add("nom");
+				if(StringHelper.isBlank(user.getLastNames()))
+					requiredFieldsNames.add("prénom(s)");
+				if(StringHelper.isBlank(user.getMobilePhoneNumber()))
+					requiredFieldsNames.add("numéro de téléphone mobile");
+				if(StringHelper.isBlank(user.getElectronicMailAddress()))
+					requiredFieldsNames.add("adresse email");
+				if(StringHelper.isBlank(user.getAdministrativeUnitCertificateReference()))
+					requiredFieldsNames.add("référence de l'acte de nomination");
+				if(user.getType() != null && "fonctionnaire".equalsIgnoreCase(user.getType().getName()) && StringHelper.isBlank(user.getRegistrationNumber()))
+					requiredFieldsNames.add("matricule");				
+				if(CollectionHelper.isNotEmpty(requiredFieldsNames))
+					throw new RuntimeException("Les informations suivantes doivent être renseignées avant de transmettre la fiche d'identification : "
+							+StringHelper.concatenate(requiredFieldsNames, ","));
+				
 				user.setSendingDate(LocalDateTime.now());
 			}else if(User.FIELD_FILES.equals(index)) {
 				if(CollectionHelper.isNotEmpty(user.getFiles())) {

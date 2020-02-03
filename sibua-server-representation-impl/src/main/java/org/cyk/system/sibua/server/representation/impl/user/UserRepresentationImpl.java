@@ -17,6 +17,7 @@ import org.cyk.system.sibua.server.persistence.api.query.ReadUserFileByUsers;
 import org.cyk.system.sibua.server.persistence.api.user.UserFilePersistence;
 import org.cyk.system.sibua.server.persistence.entities.user.User;
 import org.cyk.system.sibua.server.persistence.entities.user.UserFile;
+import org.cyk.system.sibua.server.persistence.entities.user.UserFileType;
 import org.cyk.system.sibua.server.representation.api.user.UserRepresentation;
 import org.cyk.system.sibua.server.representation.entities.user.UserDto;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
@@ -57,7 +58,18 @@ public class UserRepresentationImpl extends AbstractRepresentationEntityImpl<Use
 		if(CollectionHelper.isEmpty(userFiles))
 			return Response.status(Status.NOT_FOUND).build();
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-		UserFile userFile = CollectionHelper.getFirst(userFiles);
+		UserFile userFile = null;
+		if(CollectionHelper.isNotEmpty(userFiles))
+			for(UserFile index : userFiles) {
+				if(index.getType().name().toLowerCase().equalsIgnoreCase(type)) {
+					userFile = index;
+					break;
+				}
+			}
+		
+		if(userFile == null)
+			return Response.status(Response.Status.NOT_FOUND).build();
+		
 		try {
 			byteArrayOutputStream.write(userFile.getFile().getBytes());
 		} catch (IOException exception) {
@@ -69,7 +81,7 @@ public class UserRepresentationImpl extends AbstractRepresentationEntityImpl<Use
 	    if(StringHelper.isBlank(isInline))
 	    	isInline = Boolean.TRUE.toString();
 	    response.header(HttpHeaders.CONTENT_DISPOSITION, (Boolean.parseBoolean(isInline) ? ConstantString.INLINE : ConstantString.ATTACHMENT)+"; "+ConstantString.FILENAME
-	    		+"=acte_nomination_."+userFile.getFile().getExtension());
+	    		+"="+(UserFileType.ADMINISTRATIVE_CERTIFICATE.equals(userFile.getType()) ? "acte_nomination_" : "photo_")+"."+userFile.getFile().getExtension());
 	    response.header(HttpHeaders.CONTENT_LENGTH, bytes.length);
 	    return response.build();
 	}

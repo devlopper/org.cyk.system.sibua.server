@@ -49,7 +49,8 @@ public class User extends AbstractIdentifiableSystemScalarStringImpl implements 
 	@Column(name=COLUMN_CREATION_DATE) private LocalDateTime creationDate;
 	@Column(name=COLUMN_ACTIVATION_DATE) private LocalDateTime activationDate;
 	@Column(name=COLUMN_SENDING_DATE) private LocalDateTime sendingDate;
-	@Column(name=COLUMN_VALIDATION_DATE) private LocalDateTime validationDate;
+	@Column(name=COLUMN_VALIDATION_BY_ORDONNATEUR_DATE) private LocalDateTime validationByOrdonnateurDate;
+	@Column(name=COLUMN_VALIDATION_BY_DGBF_DATE) private LocalDateTime validationByDGBFDate;
 	
 	@Column(name = COLUMN_ACCESS_TOKEN,unique = true) private String accessToken;
 	
@@ -60,6 +61,7 @@ public class User extends AbstractIdentifiableSystemScalarStringImpl implements 
 	@Transient private Collection<File> files;
 	@Transient private Collection<UserFile> userFiles;
 	@Transient private Collection<AdministrativeUnit> administrativeUnits;
+	@Transient private String photoUniformResourceIdentifier;
 	@Transient private String reportUniformResourceIdentifier;
 	@Transient private String administrativeCertificateUniformResourceIdentifier;
 	
@@ -90,9 +92,11 @@ public class User extends AbstractIdentifiableSystemScalarStringImpl implements 
 	public static final String FIELD_CREATION_DATE = "creationDate";
 	public static final String FIELD_ACTIVATION_DATE = "activationDate";
 	public static final String FIELD_SENDING_DATE = "sendingDate";
-	public static final String FIELD_VALIDATION_DATE = "validationDate";
+	public static final String FIELD_VALIDATION_BY_ORDONNATEUR_DATE = "validationByOrdonnateurDate";
+	public static final String FIELD_VALIDATION_BY_DGBF_DATE = "validationByDGBFDate";
 	public static final String FIELD_ACCESS_TOKEN = "accessToken";
 	public static final String FIELD_REPORT_UNIFORM_RESOURCE_IDENTIFIER = "reportUniformResourceIdentifier";
+	public static final String FIELD_PHOTO_UNIFORM_RESOURCE_IDENTIFIER = "photoUniformResourceIdentifier";
 	public static final String FIELD_ADMINISTRATIVE_CERTIFICATE_UNIFORM_RESOURCE_IDENTIFIER = "administrativeCertificateUniformResourceIdentifier";
 	
 	public static final String COLUMN_PASS = "mot_de_passe";
@@ -113,7 +117,8 @@ public class User extends AbstractIdentifiableSystemScalarStringImpl implements 
 	public static final String COLUMN_CREATION_DATE = "date_creation";
 	public static final String COLUMN_ACTIVATION_DATE = "date_activation";
 	public static final String COLUMN_SENDING_DATE = "date_transmission";
-	public static final String COLUMN_VALIDATION_DATE = "date_validation";
+	public static final String COLUMN_VALIDATION_BY_ORDONNATEUR_DATE = "date_validation_ordonnateur";
+	public static final String COLUMN_VALIDATION_BY_DGBF_DATE = "date_validation_dgbf";
 	public static final String COLUMN_ACCESS_TOKEN = "jeton_acces";
 	
 	public static final String JOIN_TABLE_FUNCTIONS_MANAGED = "fonction_bud_dem";

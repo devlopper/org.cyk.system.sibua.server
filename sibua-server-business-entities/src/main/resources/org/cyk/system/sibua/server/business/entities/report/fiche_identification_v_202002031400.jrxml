@@ -56,6 +56,9 @@
 	<field name="deskPhoneNumber" class="java.lang.String">
 		<fieldDescription><![CDATA[deskPhoneNumber]]></fieldDescription>
 	</field>
+	<field name="armoirieCoteDIvoire" class="java.io.InputStream">
+		<fieldDescription><![CDATA[armoirieCoteDIvoire]]></fieldDescription>
+	</field>
 	<field name="firstNameAndLastNames" class="java.lang.String">
 		<fieldDescription><![CDATA[firstNameAndLastNames]]></fieldDescription>
 	</field>
@@ -80,9 +83,6 @@
 	<field name="administrativeUnitFunction" class="java.lang.String">
 		<fieldDescription><![CDATA[administrativeUnitFunction]]></fieldDescription>
 	</field>
-	<field name="photoAsInputStream" class="java.io.InputStream">
-		<fieldDescription><![CDATA[photoAsInputStream]]></fieldDescription>
-	</field>
 	<pageHeader>
 		<band height="73" splitType="Stretch">
 			<image scaleImage="FillFrame">
@@ -103,9 +103,8 @@
 				<textFieldExpression><![CDATA[" : "+$F{section}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="0" y="276" width="170" height="34" uuid="d617a722-5f1a-4956-bba7-77ee41ba43b6">
+				<reportElement x="10" y="276" width="170" height="34" uuid="d617a722-5f1a-4956-bba7-77ee41ba43b6">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
-					<property name="com.jaspersoft.studio.unit.x" value="px"/>
 				</reportElement>
 				<textElement>
 					<font isBold="true"/>
@@ -113,9 +112,8 @@
 				<text><![CDATA[Section]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="311" width="170" height="34" uuid="6c810da8-fdde-4674-ba38-a69896e15ddf">
+				<reportElement x="10" y="311" width="170" height="34" uuid="6c810da8-fdde-4674-ba38-a69896e15ddf">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
-					<property name="com.jaspersoft.studio.unit.x" value="px"/>
 				</reportElement>
 				<textElement>
 					<font isBold="true"/>
@@ -141,10 +139,9 @@
 				<textFieldExpression><![CDATA[" : "+$F{administrativeUnitFunction}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="0" y="346" width="170" height="34" uuid="168728ab-65b6-45cb-9736-cca75d2a2302">
+				<reportElement x="10" y="346" width="170" height="34" uuid="168728ab-65b6-45cb-9736-cca75d2a2302">
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
-					<property name="com.jaspersoft.studio.unit.x" value="px"/>
 				</reportElement>
 				<textElement>
 					<font isBold="true"/>
@@ -152,7 +149,7 @@
 				<text><![CDATA[Fonction]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="180" y="117" width="188" height="20" uuid="4e7cf916-e05f-49d7-84a4-38ae91e221d0"/>
+				<reportElement x="180" y="117" width="374" height="20" uuid="4e7cf916-e05f-49d7-84a4-38ae91e221d0"/>
 				<textElement>
 					<font isItalic="false"/>
 				</textElement>
@@ -166,9 +163,8 @@
 				<textFieldExpression><![CDATA[" : "+$F{firstNameAndLastNames}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="0" y="141" width="170" height="20" uuid="27c04e5c-37ac-4641-98c8-878e095b808d">
+				<reportElement x="10" y="141" width="170" height="20" uuid="27c04e5c-37ac-4641-98c8-878e095b808d">
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
-					<property name="com.jaspersoft.studio.unit.x" value="px"/>
 				</reportElement>
 				<textElement>
 					<font isBold="true"/>
@@ -183,9 +179,8 @@
 				<textFieldExpression><![CDATA[" : "+$F{registrationNumber}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="0" y="164" width="170" height="20" uuid="0981d4fd-0297-4e09-a1e3-3a57a4d4ab56">
+				<reportElement x="10" y="164" width="170" height="20" uuid="0981d4fd-0297-4e09-a1e3-3a57a4d4ab56">
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
-					<property name="com.jaspersoft.studio.unit.x" value="px"/>
 				</reportElement>
 				<textElement>
 					<font isBold="true"/>
@@ -200,9 +195,7 @@
 				<textFieldExpression><![CDATA[$F{mobilePhoneNumber}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="0" y="186" width="170" height="21" uuid="589c40ef-0c4f-4ed8-abff-15eb88cf55db">
-					<property name="com.jaspersoft.studio.unit.x" value="px"/>
-				</reportElement>
+				<reportElement x="10" y="186" width="170" height="21" uuid="589c40ef-0c4f-4ed8-abff-15eb88cf55db"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
@@ -235,18 +228,14 @@
 				<textFieldExpression><![CDATA[$F{deskPost}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="0" y="207" width="170" height="20" uuid="89b0de78-72f6-4a19-bc63-78609f0f4c98">
-					<property name="com.jaspersoft.studio.unit.x" value="px"/>
-				</reportElement>
+				<reportElement x="10" y="207" width="170" height="20" uuid="89b0de78-72f6-4a19-bc63-78609f0f4c98"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Adresse de courriel]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="228" width="170" height="20" uuid="9cc72486-092b-4073-9622-e3487d4d449d">
-					<property name="com.jaspersoft.studio.unit.x" value="px"/>
-				</reportElement>
+				<reportElement x="10" y="228" width="170" height="20" uuid="9cc72486-092b-4073-9622-e3487d4d449d"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
@@ -267,9 +256,7 @@
 				<textFieldExpression><![CDATA[" : "+$F{postalAddress}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="0" y="255" width="170" height="20" uuid="bb4ec67f-5fe1-4a8b-9f25-3f9ef645bf47">
-					<property name="com.jaspersoft.studio.unit.x" value="px"/>
-				</reportElement>
+				<reportElement x="10" y="255" width="170" height="20" uuid="bb4ec67f-5fe1-4a8b-9f25-3f9ef645bf47"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
@@ -317,55 +304,52 @@
 				</textElement>
 				<text><![CDATA[FICHE DE RENSEIGNEMENT ET DE DEPOT DE SIGNATURE DES GESTIONNAIRES DE CREDITS]]></text>
 			</staticText>
-			<textField>
-				<reportElement x="180" y="73" width="188" height="20" uuid="87d1454a-7d18-4e26-9452-87ba05770b9e">
-					<property name="com.jaspersoft.studio.unit.y" value="px"/>
-				</reportElement>
-				<textElement>
-					<font isItalic="false"/>
-				</textElement>
-				<textFieldExpression><![CDATA[" : "+$F{userType}]]></textFieldExpression>
-			</textField>
 			<staticText>
-				<reportElement x="0" y="95" width="170" height="20" uuid="9a2ee9f0-2a2a-4356-bbc1-89411081c94b">
+				<reportElement x="10" y="117" width="170" height="26" uuid="b273f21a-8d10-4e05-8849-a540ba67d8db">
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
-				</reportElement>
-				<textElement>
-					<font isBold="true"/>
-				</textElement>
-				<text><![CDATA[Type utilisateur]]></text>
-			</staticText>
-			<textField>
-				<reportElement x="180" y="95" width="188" height="20" uuid="da7845e2-8a82-4d10-9c5f-6202d7f75a22">
-					<property name="com.jaspersoft.studio.unit.x" value="px"/>
-					<property name="com.jaspersoft.studio.unit.y" value="px"/>
-					<property name="com.jaspersoft.studio.unit.width" value="px"/>
-					<property name="com.jaspersoft.studio.unit.height" value="px"/>
-				</reportElement>
-				<textElement>
-					<font isItalic="false"/>
-				</textElement>
-				<textFieldExpression><![CDATA[" : "+$F{budgetaryYear}]]></textFieldExpression>
-			</textField>
-			<staticText>
-				<reportElement x="0" y="73" width="170" height="20" uuid="74165f42-ebc4-48c5-900f-58f68836e291">
-					<property name="com.jaspersoft.studio.unit.width" value="px"/>
-				</reportElement>
-				<textElement>
-					<font isBold="true"/>
-				</textElement>
-				<text><![CDATA[Exercice budgétaire]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="0" y="117" width="170" height="26" uuid="b273f21a-8d10-4e05-8849-a540ba67d8db">
-					<property name="com.jaspersoft.studio.unit.width" value="px"/>
-					<property name="com.jaspersoft.studio.unit.x" value="px"/>
 				</reportElement>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Civilité]]></text>
 			</staticText>
+			<frame>
+				<reportElement x="10" y="69" width="544" height="45" uuid="4f0a3075-eb79-4ced-8b1a-3f65a715e7a6">
+					<property name="com.jaspersoft.studio.layout"/>
+				</reportElement>
+				<staticText>
+					<reportElement x="0" y="1" width="170" height="20" uuid="74165f42-ebc4-48c5-900f-58f68836e291">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Exercice budgétaire]]></text>
+				</staticText>
+				<textField>
+					<reportElement x="170" y="1" width="374" height="20" uuid="da7845e2-8a82-4d10-9c5f-6202d7f75a22"/>
+					<textElement>
+						<font isItalic="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[" : "+$F{budgetaryYear}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="0" y="26" width="170" height="20" uuid="9a2ee9f0-2a2a-4356-bbc1-89411081c94b">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Type utilisateur]]></text>
+				</staticText>
+				<textField>
+					<reportElement x="170" y="26" width="374" height="20" uuid="87d1454a-7d18-4e26-9452-87ba05770b9e"/>
+					<textElement>
+						<font isItalic="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[" : "+$F{userType}]]></textFieldExpression>
+				</textField>
+			</frame>
 			<image scaleImage="FillFrame">
 				<reportElement x="10" y="600" width="70" height="70" uuid="b0d3fe77-f559-4f19-90cb-c9e24045163e">
 					<property name="com.jaspersoft.studio.unit.x" value="px"/>
@@ -393,10 +377,6 @@
 					<text><![CDATA[Validation de l'ordonnateur]]></text>
 				</staticText>
 			</frame>
-			<image scaleImage="FillFrame">
-				<reportElement x="462" y="67" width="91" height="71" uuid="8ee35cc8-1166-4ed3-973f-ee3805059364"/>
-				<imageExpression><![CDATA[$F{photoAsInputStream}]]></imageExpression>
-			</image>
 		</band>
 	</detail>
 	<pageFooter>
