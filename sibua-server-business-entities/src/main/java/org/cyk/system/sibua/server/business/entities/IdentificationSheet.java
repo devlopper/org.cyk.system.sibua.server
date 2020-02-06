@@ -101,8 +101,10 @@ public class IdentificationSheet implements Serializable {
 		identificationSheet.setBudgetaryYear("2020");
 		identificationSheet.setAdministrativeUnitCertificateReference(ValueHelper.defaultToIfBlank(user.getAdministrativeUnitCertificateReference(),ConstantEmpty.STRING));
 		identificationSheet.setAdministrativeUnitCertificateSignedBy(ValueHelper.defaultToIfBlank(user.getAdministrativeUnitCertificateSignedBy(),ConstantEmpty.STRING));
-		if(user.getAdministrativeUnitCertificateSignedDate() != null)
-			identificationSheet.setAdministrativeUnitCertificateSignedDate(DateTimeFormatter.ofPattern("EEEE dd LLLL yyyy à kk:mm", Locale.FRENCH).format(user.getAdministrativeUnitCertificateSignedDate()));
+		if(user.getAdministrativeUnitCertificateSignedDate() == null)
+			identificationSheet.setAdministrativeUnitCertificateSignedDate(ConstantEmpty.STRING);
+		else
+			identificationSheet.setAdministrativeUnitCertificateSignedDate(DateTimeFormatter.ofPattern("EEEE dd LLLL yyyy", Locale.FRENCH).format(user.getAdministrativeUnitCertificateSignedDate()));
 		if(user.getCivility() != null)
 			identificationSheet.setCivility(ValueHelper.defaultToIfBlank(user.getCivility().getName(),ConstantEmpty.STRING));
 		identificationSheet.setDeskPhoneNumber(ValueHelper.defaultToIfBlank(user.getDeskPhoneNumber(),ConstantEmpty.STRING));
