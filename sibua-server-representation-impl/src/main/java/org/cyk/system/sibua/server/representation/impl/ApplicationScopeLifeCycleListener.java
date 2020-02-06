@@ -14,6 +14,7 @@ public class ApplicationScopeLifeCycleListener extends org.cyk.utility.__kernel_
 	public void __initialize__(Object object) {
 		__inject__(org.cyk.system.sibua.server.business.impl.ApplicationScopeLifeCycleListener.class).initialize(null);
 		__setQualifierClassTo__(org.cyk.system.sibua.server.annotation.System.class, DataLoader.class);
+		//__setQualifierClassTo__(org.cyk.system.sibua.server.annotation.System.class, InstanceCopier.class);
 	}
 	 
 	@Override

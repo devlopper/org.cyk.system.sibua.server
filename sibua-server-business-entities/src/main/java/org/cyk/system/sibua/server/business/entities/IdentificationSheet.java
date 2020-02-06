@@ -38,6 +38,9 @@ public class IdentificationSheet implements Serializable {
 	private String function;
 	private String administrativeUnit;
 	private String administrativeUnitFunction;
+	private String administrativeUnitCertificateReference;
+	private String administrativeUnitCertificateSignedBy;
+	private String administrativeUnitCertificateSignedDate;
 	private String userType;	
 	private String civility;
 	
@@ -52,8 +55,6 @@ public class IdentificationSheet implements Serializable {
 	private String deskPost;
 	private String postalAddress;
 	private String contacts;
-	
-	private String certificateReference;
 	
 	private String budgetaryYear;
 	
@@ -98,7 +99,10 @@ public class IdentificationSheet implements Serializable {
 			identificationSheet.setSection(ValueHelper.defaultToIfBlank(user.getAdministrativeUnit().getSection().getCode()+" "+user.getAdministrativeUnit().getSection().getName(),ConstantEmpty.STRING));
 		identificationSheet.setAdministrativeUnitFunction(ValueHelper.defaultToIfBlank(user.getAdministrativeUnitFunction(),ConstantEmpty.STRING));
 		identificationSheet.setBudgetaryYear("2020");
-		identificationSheet.setCertificateReference(ValueHelper.defaultToIfBlank(user.getAdministrativeUnitCertificateReference(),ConstantEmpty.STRING));
+		identificationSheet.setAdministrativeUnitCertificateReference(ValueHelper.defaultToIfBlank(user.getAdministrativeUnitCertificateReference(),ConstantEmpty.STRING));
+		identificationSheet.setAdministrativeUnitCertificateSignedBy(ValueHelper.defaultToIfBlank(user.getAdministrativeUnitCertificateSignedBy(),ConstantEmpty.STRING));
+		if(user.getAdministrativeUnitCertificateSignedDate() != null)
+			identificationSheet.setAdministrativeUnitCertificateSignedDate(DateTimeFormatter.ofPattern("EEEE dd LLLL yyyy à kk:mm", Locale.FRENCH).format(user.getAdministrativeUnitCertificateSignedDate()));
 		if(user.getCivility() != null)
 			identificationSheet.setCivility(ValueHelper.defaultToIfBlank(user.getCivility().getName(),ConstantEmpty.STRING));
 		identificationSheet.setDeskPhoneNumber(ValueHelper.defaultToIfBlank(user.getDeskPhoneNumber(),ConstantEmpty.STRING));
@@ -145,6 +149,9 @@ public class IdentificationSheet implements Serializable {
 		identificationSheet.setFunction("GC2011010016 Gestionnaire de crédits de Cabinet du Ministre auprès du Premier Ministre, chargé du Budget et du Portefeuille de l'Etat");
 		identificationSheet.setAdministrativeUnit("11010016 Cabinet du Ministre auprès du Premier Ministre, chargé du Budget et du Portefeuille de l'Etat");
 		identificationSheet.setAdministrativeUnitFunction("Directeur");
+		identificationSheet.setAdministrativeUnitCertificateReference("REF00200A412");
+		identificationSheet.setAdministrativeUnitCertificateSignedBy("Zadi Koffi Ouattara Bernard");
+		identificationSheet.setAdministrativeUnitCertificateSignedDate("12/07/2019");
 		identificationSheet.setUserType("Fonctionnaire");
 		identificationSheet.setCivility("Mr");
 		identificationSheet.setRegistrationNumber("100100A");
@@ -156,9 +163,7 @@ public class IdentificationSheet implements Serializable {
 		identificationSheet.setMobilePhoneNumber("01020304");
 		identificationSheet.setDeskPhoneNumber("11223344");
 		identificationSheet.setDeskPost("10");
-		
-		identificationSheet.setCertificateReference("REF00200A412");
-		
+
 		identificationSheet.setSystemCreationDate("20/1/2020 10:25");
 		identificationSheet.setLastUpdateDate("20/1/2020 18:00");
 		identificationSheet.setLastPrintDate("21/1/2020 8:30");

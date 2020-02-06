@@ -32,6 +32,10 @@ public abstract class UserDtoMapper extends AbstractMapperSourceDestinationImpl<
 	@Override
 	public UserDto getSource(User user, Properties properties) {
 		UserDto userDto =  super.getSource(user, properties);
+		
+		//if(user.getAdministrativeUnitCertificateSignedDate() != null)
+		//	userDto.setAdministrativeUnitCertificateSignedDate(DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.FRENCH).format(user.getAdministrativeUnitCertificateSignedDate()));
+		
 		List<String> fields = null;
 		if(Properties.getFromPath(properties,Properties.FIELDS) instanceof List)
 			fields = (List<String>) Properties.getFromPath(properties,Properties.FIELDS);
@@ -92,8 +96,11 @@ public abstract class UserDtoMapper extends AbstractMapperSourceDestinationImpl<
 		
 		if(user.getCreationDate() != null)
 			userDto.setCreationDate(DateTimeFormatter.ofPattern("dd/MM/yyyy à HH:mm", Locale.FRENCH).format(user.getCreationDate()));
+		if(user.getAdministrativeUnitCertificateSignedDate() != null)
+			userDto.setAdministrativeUnitCertificateSignedDate(DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.FRENCH).format(user.getAdministrativeUnitCertificateSignedDate()));
 		if(user.getSendingDate() != null)
 			userDto.setSendingDate(DateTimeFormatter.ofPattern("dd/MM/yyyy à HH:mm", Locale.FRENCH).format(user.getSendingDate()));
+		
 		if(user.getValidationByOrdonnateurDate() != null)
 			userDto.setValidationByOrdonnateurDate(DateTimeFormatter.ofPattern("dd/MM/yyyy à HH:mm", Locale.FRENCH).format(user.getValidationByOrdonnateurDate()));
 		if(user.getValidationByDGBFDate() != null)

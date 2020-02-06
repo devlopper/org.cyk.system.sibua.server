@@ -3,8 +3,10 @@ package org.cyk.system.sibua.server.business.impl.user;
 import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -135,6 +137,11 @@ public class UserBusinessImpl extends AbstractBusinessEntityImpl<User, UserPersi
 	@Override
 	protected void __listenExecuteUpdateBefore__(User user, Properties properties,BusinessFunctionModifier function) {
 		super.__listenExecuteUpdateBefore__(user, properties, function);
+		if(user.getAdministrativeUnitCertificateSignedDateTimestamp() == null)
+			user.setAdministrativeUnitCertificateSignedDate(null);
+		else
+			user.setAdministrativeUnitCertificateSignedDate(LocalDateTime.ofInstant(new Date(user.getAdministrativeUnitCertificateSignedDateTimestamp()).toInstant()
+				, ZoneOffset.UTC));
 		Strings fields = __getFieldsFromProperties__(properties);
 		if(CollectionHelper.isEmpty(fields))
 			return;		
@@ -153,7 +160,11 @@ public class UserBusinessImpl extends AbstractBusinessEntityImpl<User, UserPersi
 					requiredFieldsNames.add("adresse email");
 				if(StringHelper.isBlank(user.getAdministrativeUnitCertificateReference()))
 					requiredFieldsNames.add("référence de l'acte de nomination");
-				if(user.getType() != null && "fonctionnaire".equalsIgnoreCase(user.getType().getName()) && StringHelper.isBlank(user.getRegistrationNumber()))
+				if(StringHelper.isBlank(user.getAdministrativeUnitCertificateSignedBy()))
+					requiredFieldsNames.add("signataire de l'acte de nomination");
+				if(user.getAdministrativeUnitCertificateSignedDate() == null)
+					requiredFieldsNames.add("date de signature de l'acte de nomination");
+				if(user.getType() != null && ("fonctionnaire".equalsIgnoreCase(user.getType().getName()) || user.getType().getName().contains("agent")) && StringHelper.isBlank(user.getRegistrationNumber()))
 					requiredFieldsNames.add("matricule");				
 				if(CollectionHelper.isNotEmpty(requiredFieldsNames))
 					throw new RuntimeException("Les informations suivantes doivent être renseignées avant de transmettre la fiche d'identification : "

@@ -1,7 +1,9 @@
 package org.cyk.system.sibua.server.persistence.impl.user;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.time.ZoneOffset;
 import java.util.Collection;
+import java.util.Date;
 
 import javax.enterprise.context.ApplicationScoped;
 
@@ -47,6 +49,8 @@ public class UserPersistenceImpl extends AbstractPersistenceEntityImpl<User> imp
 		super.__listenExecuteReadAfterSetFieldsValues__(user, fieldsNames, properties);
 		if(CollectionHelper.isEmpty(fieldsNames)) {
 			user.setUserFiles(((ReadUserFileByUsers)__inject__(UserFilePersistence.class)).readByUsers(user));
+			if(user.getAdministrativeUnitCertificateSignedDate() != null)
+				user.setAdministrativeUnitCertificateSignedDateTimestamp(Date.from(user.getAdministrativeUnitCertificateSignedDate().toInstant(ZoneOffset.UTC)).getTime());
 		}
 	}
 	
