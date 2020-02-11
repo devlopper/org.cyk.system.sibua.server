@@ -14,6 +14,7 @@ public class AdministrativeUnitActivityDto extends AbstractIdentifiableSystemSca
 	private static final long serialVersionUID = 1L;
 
 	private AdministrativeUnitDto administrativeUnit;
+	private AdministrativeUnitDto administrativeUnitBeneficiaire;
 	private ActivityDto activity;
 	
 }

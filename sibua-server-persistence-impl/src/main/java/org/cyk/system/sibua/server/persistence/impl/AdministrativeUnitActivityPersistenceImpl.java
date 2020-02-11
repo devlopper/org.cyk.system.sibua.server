@@ -31,8 +31,16 @@ public class AdministrativeUnitActivityPersistenceImpl extends AbstractPersisten
 		addQueryCollectInstances(readByAdministrativeUnitsCodesByActivitiesCodes
 				, "SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity "
 						+ "WHERE administrativeUnitActivity.administrativeUnit.code IN :administrativeUnitsCodes AND administrativeUnitActivity.activity.code IN :activitiesCodes");
-		addQueryCollectInstances(readWhereIsGestionnaireOrBeneficiaireByAdministrativeUnitsCodes, "SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity "
-				+ "WHERE administrativeUnitActivity.administrativeUnit.code IN :administrativeUnitsCodes OR (administrativeUnitActivity.administrativeUnitBeneficiaire IS NOT NULL AND administrativeUnitActivity.administrativeUnitBeneficiaire.code IN :administrativeUnitsCodes)");
+		
+		//addQueryCollectInstances(readWhereIsGestionnaireOrBeneficiaireByAdministrativeUnitsCodes, "SELECT administrativeUnitActivity FROM AdministrativeUnitActivity administrativeUnitActivity "
+		//		+ "WHERE administrativeUnitActivity.administrativeUnit.code IN :administrativeUnitsCodes OR (administrativeUnitActivity.administrativeUnitBeneficiaire IS NOT NULL AND administrativeUnitActivity.administrativeUnitBeneficiaire.code IN :administrativeUnitsCodes)");
+		
+		addQueryCollectInstances(readWhereIsGestionnaireOrBeneficiaireByAdministrativeUnitsCodes, "SELECT administrativeUnitActivity "
+				+ "FROM AdministrativeUnitActivity administrativeUnitActivity "
+				+ "LEFT JOIN administrativeUnitActivity.administrativeUnitBeneficiaire beneficiaire "
+				+ "LEFT JOIN administrativeUnitActivity.administrativeUnit gestionnaire "
+				+ "WHERE gestionnaire.code IN :administrativeUnitsCodes OR beneficiaire.code IN :administrativeUnitsCodes "
+				+ "ORDER BY administrativeUnitActivity.activity.code ASC");
 	}
 	
 	@Override
@@ -108,8 +116,13 @@ public class AdministrativeUnitActivityPersistenceImpl extends AbstractPersisten
 	@Override
 	protected String __getQueryIdentifier__(Class<?> klass, Properties properties, Object... objects) {
 		if(PersistenceFunctionReader.class.equals(klass)) {
+			if(Boolean.TRUE.equals(__isFilterByKeys__(properties, AdministrativeUnitActivity.FIELD_ADMINISTRATIVE_UNIT)) &&
+					Boolean.TRUE.equals(__isFilterByKeys__(properties, AdministrativeUnitActivity.FIELD_ADMINISTRATIVE_UNIT_BENEFICIAIRE)))
+				return readWhereIsGestionnaireOrBeneficiaireByAdministrativeUnitsCodes;
 			if(Boolean.TRUE.equals(__isFilterByKeys__(properties, AdministrativeUnitActivity.FIELD_ADMINISTRATIVE_UNIT)))
 				return readByAdministrativeUnitsCodes;
+			if(Boolean.TRUE.equals(__isFilterByKeys__(properties, AdministrativeUnitActivity.FIELD_ADMINISTRATIVE_UNIT_BENEFICIAIRE)))
+				return readByAdministrativeUnitBeneficiairesCodes;
 		}
 		return super.__getQueryIdentifier__(klass, properties, objects);
 	}
@@ -123,14 +136,12 @@ public class AdministrativeUnitActivityPersistenceImpl extends AbstractPersisten
 		}
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByAdministrativeUnitBeneficiairesCodes)) {
 			if(ArrayHelper.isEmpty(objects))
-				objects = new Object[] {queryContext.getFilterByKeysValue(AdministrativeUnitActivity.FIELD_ADMINISTRATIVE_UNIT)};
+				objects = new Object[] {queryContext.getFilterByKeysValue(AdministrativeUnitActivity.FIELD_ADMINISTRATIVE_UNIT_BENEFICIAIRE)};
 			return new Object[]{"administrativeUnitsBeneficiairesCodes",objects[0]};
 		}
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readWhereIsGestionnaireOrBeneficiaireByAdministrativeUnitsCodes)) {
 			if(ArrayHelper.isEmpty(objects))
 				objects = new Object[] {queryContext.getFilterByKeysValue(AdministrativeUnitActivity.FIELD_ADMINISTRATIVE_UNIT)};
-			System.out.println(queryContext.getQuery().getValue());
-			System.out.println("AdministrativeUnitActivityPersistenceImpl.__getQueryParameters__() : "+objects[0]);
 			return new Object[]{"administrativeUnitsCodes",objects[0]};
 		}
 		if(queryContext.getQuery().isIdentifierEqualsToOrQueryDerivedFromQueryIdentifierEqualsTo(readByActivitiesCodes)) {

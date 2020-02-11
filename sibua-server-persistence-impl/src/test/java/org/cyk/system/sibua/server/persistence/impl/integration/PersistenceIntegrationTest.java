@@ -361,6 +361,43 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 				.containsExactly("atv6");
 	}
 	
+	@Test
+	public void administrativeUnitActivity_readWhereIsGestionnaireOrBeneficiaireByAdministrativeUnitsCodes() throws Exception{
+		userTransaction.begin();
+		__inject__(ServiceGroupPersistence.class).create(new ServiceGroup().setCode("1").setName("1"));
+		__inject__(FunctionalClassificationPersistence.class).create(new FunctionalClassification().setCode("1").setName("1"));
+		__inject__(LocalisationPersistence.class).create(new Localisation().setCode("1").setName("1"));		
+		__inject__(SectionPersistence.class).create(new Section().setCode("1").setName("1"));
+		
+		__inject__(ProgramPersistence.class).createMany(List.of(new Program("1","1","1","1"),new Program("2","1","1","1")));
+		__inject__(ActionPersistence.class).createMany(List.of(new Action("1","1","1"),new Action("2","1","1")));
+		__inject__(ActivityPersistence.class).createMany(List.of(new Activity("atv1","1","1"),new Activity("atv2","1","1"),new Activity("atv3","1","1")
+				,new Activity("atv4","1","1"),new Activity("atv5","1","1"),new Activity("atv6","1","1"),new Activity("atv7","1","1")
+				,new Activity("atv8","1","1"),new Activity("atv9","1","1")));	
+		
+		__inject__(AdministrativeUnitPersistence.class).createMany(List.of(
+				new AdministrativeUnit("1","1","1","1","1","1").setOrderNumber(1),new AdministrativeUnit("2","1","1","1","1","1").setOrderNumber(2)
+				,new AdministrativeUnit("3","1","1","1","1","1").setOrderNumber(3),new AdministrativeUnit("4","1","1","1","1","1").setOrderNumber(4)
+				,new AdministrativeUnit("5","1","1","1","1","1").setOrderNumber(5),new AdministrativeUnit("6","1","1","1","1","1").setOrderNumber(6)
+				,new AdministrativeUnit("7","1","1","1","1","1").setOrderNumber(7),new AdministrativeUnit("8","1","1","1","1","1").setOrderNumber(8)
+				));
+		
+		__inject__(AdministrativeUnitActivityPersistence.class).createMany(List.of(
+			new AdministrativeUnitActivity().setAdministrativeUnitFromCode("1").setActivityFromCode("atv1")
+			,new AdministrativeUnitActivity().setAdministrativeUnitBeneficiaireFromCode("2").setActivityFromCode("atv2")
+			,new AdministrativeUnitActivity().setAdministrativeUnitFromCode("3").setAdministrativeUnitBeneficiaireFromCode("4").setActivityFromCode("atv3")
+			,new AdministrativeUnitActivity().setAdministrativeUnitFromCode("5").setAdministrativeUnitBeneficiaireFromCode("5").setActivityFromCode("atv4")
+			,new AdministrativeUnitActivity().setAdministrativeUnitFromCode("6").setAdministrativeUnitBeneficiaireFromCode("7").setActivityFromCode("atv5")
+			,new AdministrativeUnitActivity().setAdministrativeUnitFromCode("7").setAdministrativeUnitBeneficiaireFromCode("8").setActivityFromCode("atv6")
+				));
+		userTransaction.commit();
+		
+		assertThat(__inject__(AdministrativeUnitActivityPersistence.class).read(new Properties().setQueryIdentifier(AdministrativeUnitActivityPersistence.READ_WHERE_IS_GESTIONNAIRE_OR_BENEFICIAIRE_BY_ADMINISTRATIVE_UNITS_CODES)
+			.setQueryFilters(new Filter().addField(AdministrativeUnitActivity.FIELD_ADMINISTRATIVE_UNIT, List.of("1")))).stream().map(x->x.getActivity().getCode()).collect(Collectors.toList()))
+			.containsExactly("atv1");		
+		
+	}
+	
 	//@Test
 	public void activity_readByFilters() throws Exception{
 		userTransaction.begin();
