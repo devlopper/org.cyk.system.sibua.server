@@ -21,4 +21,7 @@ public interface AdministrativeUnitActivityPersistence extends PersistenceEntity
 	
 	String READ_WHERE_IS_GESTIONNAIRE_OR_BENEFICIAIRE_BY_ADMINISTRATIVE_UNITS_CODES = QueryIdentifierBuilder.getInstance()
 			.build(AdministrativeUnitActivity.class, "readWhereIsGestionnaireOrBeneficiaireByAdministrativeUnitsCodes");
+	
+	String COUNT_WHERE_IS_GESTIONNAIRE_OR_BENEFICIAIRE_BY_ADMINISTRATIVE_UNITS_CODES = QueryIdentifierBuilder.getInstance()
+			.build(AdministrativeUnitActivity.class, "countWhereIsGestionnaireOrBeneficiaireByAdministrativeUnitsCodes");
 }
