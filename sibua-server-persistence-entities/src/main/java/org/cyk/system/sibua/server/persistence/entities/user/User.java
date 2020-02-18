@@ -15,6 +15,7 @@ import javax.validation.constraints.NotNull;
 import org.cyk.system.sibua.server.persistence.entities.Activity;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
 import org.cyk.system.sibua.server.persistence.entities.Localisation;
+import org.cyk.system.sibua.server.persistence.entities.Program;
 import org.cyk.system.sibua.server.persistence.entities.Section;
 import org.cyk.utility.__kernel__.object.__static__.persistence.AbstractIdentifiableSystemScalarStringImpl;
 
@@ -58,6 +59,7 @@ public class User extends AbstractIdentifiableSystemScalarStringImpl implements 
 	@Column(name = COLUMN_ACCESS_TOKEN,unique = true) private String accessToken;
 	
 	@Transient private Collection<Section> sections;
+	@Transient private Collection<Program> programs;
 	@Transient private Collection<Localisation> localisations;
 	@Transient private Collection<Activity> activities;
 	@Transient private Collection<Function> functions;
@@ -89,6 +91,7 @@ public class User extends AbstractIdentifiableSystemScalarStringImpl implements 
 	public static final String FIELD_ADMINISTRATIVE_UNIT_CERTIFICATE_SIGNED_DATE_TIMESTAMP = "administrativeUnitCertificateSignedDateTimestamp";
 	public static final String FIELD_ADMINISTRATIVE_UNIT_FUNCTION = "administrativeUnitFunction";
 	public static final String FIELD_SECTIONS = "sections";
+	public static final String FIELD_PROGRAMS = "programs";
 	public static final String FIELD_ADMINISTRATIVE_UNITS = "administrativeUnits";
 	public static final String FIELD_LOCALISATIONS = "localisations";
 	public static final String FIELD_ACTIVITIES = "activities";

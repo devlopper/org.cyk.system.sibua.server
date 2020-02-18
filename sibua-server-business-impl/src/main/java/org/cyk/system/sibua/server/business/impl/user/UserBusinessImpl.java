@@ -17,12 +17,15 @@ import org.cyk.system.sibua.server.business.api.user.UserBusiness;
 import org.cyk.system.sibua.server.business.api.user.UserFileBusiness;
 import org.cyk.system.sibua.server.business.api.user.UserFunctionBusiness;
 import org.cyk.system.sibua.server.business.api.user.UserLocalisationBusiness;
+import org.cyk.system.sibua.server.business.api.user.UserProgramBusiness;
 import org.cyk.system.sibua.server.business.api.user.UserSectionBusiness;
 import org.cyk.system.sibua.server.business.entities.IdentificationSheet;
 import org.cyk.system.sibua.server.persistence.api.query.ReadUserFileByUsers;
+import org.cyk.system.sibua.server.persistence.api.query.ReadUserProgramByUsers;
 import org.cyk.system.sibua.server.persistence.api.user.FilePersistence;
 import org.cyk.system.sibua.server.persistence.api.user.UserFilePersistence;
 import org.cyk.system.sibua.server.persistence.api.user.UserPersistence;
+import org.cyk.system.sibua.server.persistence.api.user.UserProgramPersistence;
 import org.cyk.system.sibua.server.persistence.entities.user.File;
 import org.cyk.system.sibua.server.persistence.entities.user.User;
 import org.cyk.system.sibua.server.persistence.entities.user.UserActivity;
@@ -31,6 +34,7 @@ import org.cyk.system.sibua.server.persistence.entities.user.UserFile;
 import org.cyk.system.sibua.server.persistence.entities.user.UserFileType;
 import org.cyk.system.sibua.server.persistence.entities.user.UserFunction;
 import org.cyk.system.sibua.server.persistence.entities.user.UserLocalisation;
+import org.cyk.system.sibua.server.persistence.entities.user.UserProgram;
 import org.cyk.system.sibua.server.persistence.entities.user.UserSection;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.file.FileHelper;
@@ -63,7 +67,7 @@ public class UserBusinessImpl extends AbstractBusinessEntityImpl<User, UserPersi
 		if(StringHelper.isNotBlank(user.getFirstName()))
 			user.setFirstName(user.getFirstName().toUpperCase());
 		if(StringHelper.isNotBlank(user.getRegistrationNumber()))
-			user.setRegistrationNumber(user.getRegistrationNumber().toUpperCase());
+			user.setRegistrationNumber(user.getRegistrationNumber().toUpperCase());		
 	}
 	
 	@Override
@@ -81,6 +85,8 @@ public class UserBusinessImpl extends AbstractBusinessEntityImpl<User, UserPersi
 		if(CollectionHelper.isNotEmpty(user.getActivities()))
 			__inject__(UserActivityBusiness.class).createMany(user.getActivities().stream().map(activity -> new UserActivity().setUser(user).setActivity(activity))
 					.collect(Collectors.toList()));
+		if(CollectionHelper.isNotEmpty(user.getPrograms()))
+			__inject__(UserProgramBusiness.class).createMany(user.getPrograms().stream().map(program -> new UserProgram().setUser(user).setProgram(program)).collect(Collectors.toList()));
 		if(CollectionHelper.isNotEmpty(user.getFiles())) {
 			Collection<UserFile> userFiles = null;
 			for(File file : user.getFiles()) {
@@ -210,6 +216,17 @@ public class UserBusinessImpl extends AbstractBusinessEntityImpl<User, UserPersi
 			}else if(User.FIELD_REGISTRATION_NUMBER.equals(index)) {
 				if(StringHelper.isNotBlank(user.getRegistrationNumber()))
 					user.setRegistrationNumber(user.getRegistrationNumber().toUpperCase());
+			}else if(User.FIELD_PROGRAMS.equals(index)) {
+				//handle one program only
+				Collection<UserProgram> userPrograms = ((ReadUserProgramByUsers)__inject__(UserProgramPersistence.class)).readByUsers(user);
+				if(CollectionHelper.isEmpty(user.getPrograms()) && CollectionHelper.isNotEmpty(userPrograms)) {
+					__inject__(UserProgramBusiness.class).deleteMany(userPrograms);
+				}else if(CollectionHelper.isNotEmpty(user.getPrograms()) && CollectionHelper.isEmpty(userPrograms)) {
+					__inject__(UserProgramBusiness.class).createMany(user.getPrograms().stream().map(program -> new UserProgram().setUser(user).setProgram(program)).collect(Collectors.toList()));
+				}else if(CollectionHelper.isNotEmpty(user.getPrograms()) && CollectionHelper.isNotEmpty(userPrograms)) {
+					if(!CollectionHelper.getFirst(userPrograms).getProgram().equals(CollectionHelper.getFirst(user.getPrograms())))
+						__inject__(UserProgramBusiness.class).update(CollectionHelper.getFirst(userPrograms).setProgram(CollectionHelper.getFirst(user.getPrograms())));
+				}
 			}
 		}
 	}

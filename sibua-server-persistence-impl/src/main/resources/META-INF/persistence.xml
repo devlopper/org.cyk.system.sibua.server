@@ -13,6 +13,7 @@
     	<class>org.cyk.system.sibua.server.persistence.entities.user.File</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.user.UserFile</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.user.UserSection</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.user.UserProgram</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.user.UserFunction</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.user.UserAdministrativeUnit</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.user.UserLocalisation</class>

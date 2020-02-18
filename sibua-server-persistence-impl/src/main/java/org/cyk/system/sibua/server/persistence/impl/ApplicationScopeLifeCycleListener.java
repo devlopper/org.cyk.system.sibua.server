@@ -28,6 +28,7 @@ import org.cyk.system.sibua.server.persistence.entities.user.UserAdministrativeU
 import org.cyk.system.sibua.server.persistence.entities.user.UserFile;
 import org.cyk.system.sibua.server.persistence.entities.user.UserFunction;
 import org.cyk.system.sibua.server.persistence.entities.user.UserLocalisation;
+import org.cyk.system.sibua.server.persistence.entities.user.UserProgram;
 import org.cyk.system.sibua.server.persistence.entities.user.UserSection;
 import org.cyk.utility.__kernel__.AbstractApplicationScopeLifeCycleListener;
 import org.cyk.utility.__kernel__.klass.PersistableClassesGetter;
@@ -42,7 +43,7 @@ public class ApplicationScopeLifeCycleListener extends AbstractApplicationScopeL
 	public void __initialize__(Object object) {
 		ArrayList<Class<?>> classes = new ArrayList<>();
 		if(isUserEnabled()) {
-			classes.addAll(List.of(UserFunction.class,UserLocalisation.class,UserSection.class,UserActivity.class,UserFile.class,UserAdministrativeUnit.class
+			classes.addAll(List.of(UserProgram.class,UserFunction.class,UserLocalisation.class,UserSection.class,UserActivity.class,UserFile.class,UserAdministrativeUnit.class
 					,User.class,Function.class,FunctionType.class,FunctionCategory.class));
 		}
 		classes.addAll(List.of(AdministrativeUnitDestination.class

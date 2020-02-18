@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import org.cyk.system.sibua.server.representation.entities.ActivityDto;
 import org.cyk.system.sibua.server.representation.entities.AdministrativeUnitDto;
 import org.cyk.system.sibua.server.representation.entities.LocalisationDto;
+import org.cyk.system.sibua.server.representation.entities.ProgramDto;
 import org.cyk.system.sibua.server.representation.entities.SectionDto;
 import org.cyk.utility.__kernel__.object.__static__.representation.AbstractIdentifiableSystemScalarStringImpl;
 
@@ -52,6 +53,7 @@ public class UserDto extends AbstractIdentifiableSystemScalarStringImpl implemen
 	private String administrativeCertificateUniformResourceIdentifierFormat;
 	
 	private ArrayList<SectionDto> sections;
+	private ArrayList<ProgramDto> programs;
 	private ArrayList<AdministrativeUnitDto> administrativeUnits;
 	private ArrayList<FileDto> files;
 	private ArrayList<UserFileDto> userFiles;
