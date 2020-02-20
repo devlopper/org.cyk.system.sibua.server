@@ -20,13 +20,18 @@ import org.cyk.system.sibua.server.business.api.user.UserLocalisationBusiness;
 import org.cyk.system.sibua.server.business.api.user.UserProgramBusiness;
 import org.cyk.system.sibua.server.business.api.user.UserSectionBusiness;
 import org.cyk.system.sibua.server.business.entities.IdentificationSheet;
+import org.cyk.system.sibua.server.persistence.api.query.ReadFunctionByUsers;
 import org.cyk.system.sibua.server.persistence.api.query.ReadUserFileByUsers;
+import org.cyk.system.sibua.server.persistence.api.query.ReadUserFunctionByUsers;
 import org.cyk.system.sibua.server.persistence.api.query.ReadUserProgramByUsers;
 import org.cyk.system.sibua.server.persistence.api.user.FilePersistence;
+import org.cyk.system.sibua.server.persistence.api.user.FunctionPersistence;
 import org.cyk.system.sibua.server.persistence.api.user.UserFilePersistence;
+import org.cyk.system.sibua.server.persistence.api.user.UserFunctionPersistence;
 import org.cyk.system.sibua.server.persistence.api.user.UserPersistence;
 import org.cyk.system.sibua.server.persistence.api.user.UserProgramPersistence;
 import org.cyk.system.sibua.server.persistence.entities.user.File;
+import org.cyk.system.sibua.server.persistence.entities.user.Function;
 import org.cyk.system.sibua.server.persistence.entities.user.User;
 import org.cyk.system.sibua.server.persistence.entities.user.UserActivity;
 import org.cyk.system.sibua.server.persistence.entities.user.UserAdministrativeUnit;
@@ -171,7 +176,9 @@ public class UserBusinessImpl extends AbstractBusinessEntityImpl<User, UserPersi
 				if(user.getAdministrativeUnitCertificateSignedDate() == null)
 					requiredFieldsNames.add("date de signature de l'acte de nomination");
 				if(user.getType() != null && ("fonctionnaire".equalsIgnoreCase(user.getType().getName()) || user.getType().getName().contains("agent")) && StringHelper.isBlank(user.getRegistrationNumber()))
-					requiredFieldsNames.add("matricule");				
+					requiredFieldsNames.add("matricule");
+				if(CollectionHelper.isEmpty(((ReadFunctionByUsers)__inject__(UserFunctionPersistence.class)).readByUsers(user)))
+					requiredFieldsNames.add("fonction(s) budgétaire(s)");
 				if(CollectionHelper.isNotEmpty(requiredFieldsNames))
 					throw new RuntimeException("Les informations suivantes doivent être renseignées avant de transmettre la fiche d'identification : "
 							+StringHelper.concatenate(requiredFieldsNames, ","));
@@ -227,6 +234,48 @@ public class UserBusinessImpl extends AbstractBusinessEntityImpl<User, UserPersi
 					if(!CollectionHelper.getFirst(userPrograms).getProgram().equals(CollectionHelper.getFirst(user.getPrograms())))
 						__inject__(UserProgramBusiness.class).update(CollectionHelper.getFirst(userPrograms).setProgram(CollectionHelper.getFirst(user.getPrograms())));
 				}
+			}else if(User.FIELD_FUNCTIONS.equals(index)) {
+				Collection<UserFunction> databaseUserFunctions = ((ReadUserFunctionByUsers)__inject__(UserFunctionPersistence.class)).readByUsers(user);
+				Collection<Function> databaseFunctions = CollectionHelper.isEmpty(databaseUserFunctions) ? null : databaseUserFunctions.stream()
+						.map(UserFunction::getFunction).collect(Collectors.toList());
+				//get delete able
+				Collection<UserFunction> databaseUserFunctionsDeletable = null;
+				if(CollectionHelper.isEmpty(user.getFunctions())) {
+					//delete all
+					if(CollectionHelper.isNotEmpty(databaseUserFunctions)) {
+						if(databaseUserFunctionsDeletable == null)
+							databaseUserFunctionsDeletable = new ArrayList<>();
+						databaseUserFunctionsDeletable.addAll(databaseUserFunctions);	
+					}					
+				}else {
+					if(CollectionHelper.isNotEmpty(databaseFunctions)) {
+						databaseFunctions.removeAll(user.getFunctions());
+						if(databaseUserFunctionsDeletable == null)
+							databaseUserFunctionsDeletable = new ArrayList<>();
+						databaseUserFunctionsDeletable.addAll(databaseUserFunctions.stream()
+								.filter(x -> databaseFunctions.contains(x.getFunction())).collect(Collectors.toList()));
+					}
+				}
+				
+				Collection<Function> _databaseFunctions_ = CollectionHelper.isEmpty(databaseUserFunctions) ? null : databaseUserFunctions.stream()
+						.map(UserFunction::getFunction).collect(Collectors.toList());
+				
+				if(CollectionHelper.isNotEmpty(databaseUserFunctionsDeletable)) {
+					__inject__(UserFunctionBusiness.class).deleteMany(databaseUserFunctionsDeletable);
+				}
+				//get save able
+				Collection<UserFunction> userFunctionCreatable = null;
+				if(CollectionHelper.isEmpty(user.getFunctions())) {
+					//create nothing								
+				}else {
+					userFunctionCreatable = user.getFunctions().stream()
+							.filter(x -> CollectionHelper.isEmpty(_databaseFunctions_) || !_databaseFunctions_.contains(x))
+							.map(x -> new UserFunction(user,x))
+							.collect(Collectors.toList());					
+				}
+				if(CollectionHelper.isNotEmpty(userFunctionCreatable)) {
+					__inject__(UserFunctionBusiness.class).createMany(userFunctionCreatable);
+				}
 			}
 		}
 	}
@@ -245,6 +294,7 @@ public class UserBusinessImpl extends AbstractBusinessEntityImpl<User, UserPersi
 			return null;
 		Collection<IdentificationSheet> identificationSheets = new ArrayList<>();
 		for(User user : users) {
+			user.setFunctions(((ReadFunctionByUsers)__inject__(FunctionPersistence.class)).readByUsers(user));
 			IdentificationSheet identificationSheet = IdentificationSheet.instantiate(user);
 			if(identificationSheet == null)
 				continue;

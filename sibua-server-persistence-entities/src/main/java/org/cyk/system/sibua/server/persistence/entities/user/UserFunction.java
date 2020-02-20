@@ -26,6 +26,11 @@ public class UserFunction extends AbstractIdentifiableSystemScalarStringImpl imp
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_USER) private User user;
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_FUNCTION) private Function function;
 	
+	public UserFunction(User user,Function function) {
+		this.user = user;
+		this.function = function;
+	}
+	
 	@Override
 	public UserFunction setIdentifier(String identifier) {
 		return (UserFunction) super.setIdentifier(identifier);

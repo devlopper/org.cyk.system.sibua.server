@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.cyk.system.sibua.server.persistence.entities.user.User;
 import org.cyk.system.sibua.server.persistence.entities.user.UserFile;
@@ -32,6 +34,7 @@ import lombok.Setter;
 public class IdentificationSheet implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	private String title;
 	private InputStream headerAsInputStream,photoAsInputStream;
 	
 	private String section;
@@ -43,6 +46,8 @@ public class IdentificationSheet implements Serializable {
 	private String administrativeUnitCertificateSignedDate;
 	private String userType;	
 	private String civility;
+	private String budgetaryFunctionsAsString;
+	private Collection<String> budgetaryFunctions;
 	
 	private String registrationNumber;
 	private String firstName;
@@ -80,6 +85,22 @@ public class IdentificationSheet implements Serializable {
 		if(user == null)
 			return null;
 		IdentificationSheet identificationSheet = new IdentificationSheet();
+		identificationSheet.title = "FICHE DE RENSEIGNEMENT ET DE DEPOT DE SIGNATURE DES ";
+		if(CollectionHelper.isNotEmpty(user.getFunctions())) {
+			Collection<String> codes = user.getFunctions().stream().map(function -> function.getType().getCategory().getCode()).collect(Collectors.toList());			
+			if(codes.contains("3"))
+				identificationSheet.title += "CÔNTROLEURS FINANCIERS";
+			else if(codes.contains("1"))
+				identificationSheet.title += "ORDONNATEURS";
+			else
+				identificationSheet.title += "GESTIONNAIRES DE CREDITS";			
+			
+			final AtomicInteger index = new AtomicInteger(1);
+			identificationSheet.budgetaryFunctionsAsString = StringHelper.concatenate(user.getFunctions().stream().map(x->(index.getAndIncrement())+". "+x.getCode()+" "+x.getName())
+					.collect(Collectors.toList()), "\r\n");
+		}else
+			identificationSheet.title += "GESTIONNAIRES DE CREDITS";
+		
 		if(StringHelper.isNotBlank(user.getIdentifier())) {
 			identificationSheet.setCodeVisualRepresentation(new ByteArrayInputStream(BarCodeBuilder.getInstance().build(user.getIdentifier()
 					, new Parameters().setFormat(BarcodeFormat.QR_CODE))));
@@ -132,13 +153,23 @@ public class IdentificationSheet implements Serializable {
 	
 	public static Collection<IdentificationSheet> buildRandomlyMany() {
 		List<IdentificationSheet> identificationSheets = new ArrayList<>();
-		for(Integer index = 0; index < 3 ; index = index + 1)
-			identificationSheets.add(buildRandomlyOne());
+		identificationSheets.add(buildRandomlyOne("FICHE DE RENSEIGNEMENT ET DE DEPOT DE SIGNATURE DES GESTIONNAIRES DE CREDITS",
+				List.of("GC2011010009 Gestionnaire de crédits de Direction Générale de la Décentramisation et du Développement Local")));
+		
+		identificationSheets.add(buildRandomlyOne("FICHE DE RENSEIGNEMENT ET DE DEPOT DE SIGNATURE DES ORDONNATEURS",
+				List.of("GC2011010009 Gestionnaire de crédits de Direction Générale de la Décentramisation et du Développement Local"
+						,"ORD1113006 Ordonnateur de l' Autorite Nationale de Régulation des Marchés Publics (ANRMP)"
+						)));
+		
+		identificationSheets.add(buildRandomlyOne("FICHE DE RENSEIGNEMENT ET DE DEPOT DE SIGNATURE DES CÔNTROLEUR FINANCIERS",
+				List.of("GC2011010009 Gestionnaire de crédits de Direction Générale de la Décentramisation et du Développement Local"
+						,"CF001 Côntroleur fincancier du Département de Didiévi")));
 		return identificationSheets;
 	}
 	
-	public static IdentificationSheet buildRandomlyOne() {
+	public static IdentificationSheet buildRandomlyOne(String title,Collection<String> budgetaryFunctions) {
 		IdentificationSheet identificationSheet = new IdentificationSheet();
+		identificationSheet.title = title;
 		BarCodeBuilder barCodeBuilder = new BarCodeBuilderImpl();
 		identificationSheet.setCodeVisualRepresentation(new ByteArrayInputStream(barCodeBuilder
 				.build(RandomHelper.getAlphabetic(3)+"-"+RandomHelper.getAlphabetic(4)+"-"+RandomHelper.getAlphabetic(3)
@@ -166,6 +197,12 @@ public class IdentificationSheet implements Serializable {
 		identificationSheet.setDeskPhoneNumber("11223344");
 		identificationSheet.setDeskPost("10");
 
+		identificationSheet.setBudgetaryFunctions(budgetaryFunctions);
+		
+		final AtomicInteger index = new AtomicInteger(1);
+		identificationSheet.budgetaryFunctionsAsString = StringHelper.concatenate(identificationSheet.budgetaryFunctions.stream().map(x->(index.getAndIncrement())+". "+x)
+				.collect(Collectors.toList()), "\r\n");
+		
 		identificationSheet.setSystemCreationDate("20/1/2020 10:25");
 		identificationSheet.setLastUpdateDate("20/1/2020 18:00");
 		identificationSheet.setLastPrintDate("21/1/2020 8:30");

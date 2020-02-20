@@ -13,6 +13,9 @@ import lombok.experimental.Accessors;
 public class UserFunctionDto extends AbstractIdentifiableSystemScalarStringImpl implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
+	private UserDto user;
+	private FunctionDto function;
+	
 	@Override
 	public UserFunctionDto setIdentifier(String identifier) {
 		return (UserFunctionDto) super.setIdentifier(identifier);

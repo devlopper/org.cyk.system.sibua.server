@@ -28,6 +28,7 @@ public class Function extends AbstractIdentifiableSystemScalarStringIdentifiable
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_TYPE) private FunctionType type;
 	
 	@Transient private Collection<AdministrativeUnit> administrativeUnits;
+	@Transient private Collection<String> categoriesCodes;
 	
 	@Override
 	public Function setCode(String code) {

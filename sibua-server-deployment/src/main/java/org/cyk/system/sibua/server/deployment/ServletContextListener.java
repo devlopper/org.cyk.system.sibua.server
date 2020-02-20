@@ -39,6 +39,8 @@ public class ServletContextListener extends AbstractServletContextListener imple
 		VariableHelper.write(VariableName.PROTOCOL_SIMPLE_MAIL_TRANSFER_AUTHENTICATION_CREDENTIALS_USER_IDENTIFIER, "kycdev@gmail.com");
 		VariableHelper.write(VariableName.PROTOCOL_SIMPLE_MAIL_TRANSFER_AUTHENTICATION_CREDENTIALS_USER_SECRET, "P@sSw0rd@2O18");
 		
+		VariableHelper.write(VariableName.SYSTEM_LOGGING_THROWABLE_PRINT_STACK_TRACE, Boolean.TRUE);
+		
 		super.__initialize__(context);
 		__inject__(ApplicationScopeLifeCycleListener.class).initialize(null);		
 	}

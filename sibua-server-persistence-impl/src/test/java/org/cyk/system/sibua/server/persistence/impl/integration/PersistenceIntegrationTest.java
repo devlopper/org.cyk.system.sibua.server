@@ -20,6 +20,9 @@ import org.cyk.system.sibua.server.persistence.api.SectionPersistence;
 import org.cyk.system.sibua.server.persistence.api.ServiceGroupPersistence;
 import org.cyk.system.sibua.server.persistence.api.TitlePersistence;
 import org.cyk.system.sibua.server.persistence.api.query.ReadAdministrativeUnitByPrograms;
+import org.cyk.system.sibua.server.persistence.api.user.FunctionCategoryPersistence;
+import org.cyk.system.sibua.server.persistence.api.user.FunctionPersistence;
+import org.cyk.system.sibua.server.persistence.api.user.FunctionTypePersistence;
 import org.cyk.system.sibua.server.persistence.entities.Action;
 import org.cyk.system.sibua.server.persistence.entities.Activity;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
@@ -33,6 +36,9 @@ import org.cyk.system.sibua.server.persistence.entities.Program;
 import org.cyk.system.sibua.server.persistence.entities.Section;
 import org.cyk.system.sibua.server.persistence.entities.ServiceGroup;
 import org.cyk.system.sibua.server.persistence.entities.Title;
+import org.cyk.system.sibua.server.persistence.entities.user.Function;
+import org.cyk.system.sibua.server.persistence.entities.user.FunctionCategory;
+import org.cyk.system.sibua.server.persistence.entities.user.FunctionType;
 import org.cyk.utility.__kernel__.array.ArrayHelper;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.properties.Properties;
@@ -690,6 +696,71 @@ public class PersistenceIntegrationTest extends AbstractPersistenceArquillianInt
 		__assertServiceGroupReadWhereBusinessIdentifierOrNameContains__("name", new String[] {"codeabcd01","codeabcd02","codeabcd03","codeabcd04","codeabcd05"});
 		__assertServiceGroupReadWhereBusinessIdentifierOrNameContains__("01", new String[] {"codeabcd01"});
 		__assertServiceGroupReadWhereBusinessIdentifierOrNameContains__("02", new String[] {"codeabcd02"});
+	}
+	
+	@Test
+	public void function_readWhereBusinessIdentifierOrNameContainsByTypesCategoriesCodes() throws Exception{
+		userTransaction.begin();
+		__inject__(FunctionCategoryPersistence.class).createMany(List.of(
+				new FunctionCategory().setCode("1").setName("gestionnaire de crédits")
+				,new FunctionCategory().setCode("2").setName("ordonnateur")
+				,new FunctionCategory().setCode("3").setName("contrôleur financier")
+				,new FunctionCategory().setCode("4").setName("assistant ordonnateur")
+				,new FunctionCategory().setCode("5").setName("assistant contrôleur fincancier")
+			));
+		
+		__inject__(FunctionTypePersistence.class).createMany(List.of(
+				new FunctionType().setCode("1").setName("a").setCategoryFromCode("1")
+				,new FunctionType().setCode("2").setName("a").setCategoryFromCode("2")
+				,new FunctionType().setCode("3").setName("a").setCategoryFromCode("3")
+				,new FunctionType().setCode("4").setName("a").setCategoryFromCode("4")
+				,new FunctionType().setCode("5").setName("a").setCategoryFromCode("5")
+			));
+		
+		__inject__(FunctionPersistence.class).createMany(List.of(
+			new Function().setCode("gcua1").setName("gestionnaire de crédits ua1").setTypeFromCode("1")
+			,new Function().setCode("gcua2").setName("gestionnaire de crédits ua2").setTypeFromCode("1")
+			,new Function().setCode("gcua3").setName("gestionnaire de crédits ua3").setTypeFromCode("1")
+			,new Function().setCode("ord01").setName("ordonnateur programme 01").setTypeFromCode("2")
+			,new Function().setCode("ord02").setName("ordonnateur programme 02").setTypeFromCode("2")
+			,new Function().setCode("ord03").setName("ordonnateur programme 03").setTypeFromCode("2")
+			,new Function().setCode("ord04").setName("ordonnateur programme 04").setTypeFromCode("2")
+			,new Function().setCode("cf01").setName("controlleur financier 01").setTypeFromCode("3")
+			,new Function().setCode("asscf01").setName("assistant controlleur financier 01").setTypeFromCode("5")
+			,new Function().setCode("cf02").setName("controlleur financier 02").setTypeFromCode("3")
+			,new Function().setCode("asscf02").setName("assistant controlleur financier 02").setTypeFromCode("5")
+		));
+		userTransaction.commit();
+		Collection<String> categoriesCodes = List.of("1","2","3");
+		__assertFunctionReadWhereBusinessIdentifierOrNameContainsByTypesCategoriesCodes__(null, categoriesCodes, new String[] {"gcua1","gcua2","gcua3","ord01","ord02","ord03","ord04","cf01","cf02"});
+		__assertFunctionReadWhereBusinessIdentifierOrNameContainsByTypesCategoriesCodes__("xx", categoriesCodes, new String[] {});
+		__assertFunctionReadWhereBusinessIdentifierOrNameContainsByTypesCategoriesCodes__("gestionnaire", categoriesCodes, new String[] {"gcua1","gcua2","gcua3"});
+		__assertFunctionReadWhereBusinessIdentifierOrNameContainsByTypesCategoriesCodes__("ordonnateur", categoriesCodes, new String[] {"ord01","ord02","ord03","ord04"});
+		
+		/*
+		__assertServiceGroupReadWhereBusinessIdentifierOrNameContains__("", new String[] {"codeabcd01","codeabcd02","codeabcd03","codeabcd04","codeabcd05"});
+		__assertServiceGroupReadWhereBusinessIdentifierOrNameContains__("c", new String[] {"codeabcd01","codeabcd02","codeabcd03","codeabcd04","codeabcd05"});
+		__assertServiceGroupReadWhereBusinessIdentifierOrNameContains__("code", new String[] {"codeabcd01","codeabcd02","codeabcd03","codeabcd04","codeabcd05"});
+		__assertServiceGroupReadWhereBusinessIdentifierOrNameContains__("n", new String[] {"codeabcd01","codeabcd02","codeabcd03","codeabcd04","codeabcd05"});
+		__assertServiceGroupReadWhereBusinessIdentifierOrNameContains__("name", new String[] {"codeabcd01","codeabcd02","codeabcd03","codeabcd04","codeabcd05"});
+		__assertServiceGroupReadWhereBusinessIdentifierOrNameContains__("01", new String[] {"codeabcd01"});
+		__assertServiceGroupReadWhereBusinessIdentifierOrNameContains__("02", new String[] {"codeabcd02"});
+		*/
+	}
+	
+	private void __assertFunctionReadWhereBusinessIdentifierOrNameContainsByTypesCategoriesCodes__(String string,Collection<String> categoriesCodes,String[] expectedCodes) {
+		assertThat(__inject__(FunctionPersistence.class).count(new Properties().
+				setQueryIdentifier(FunctionPersistence.COUNT_WHERE_BUSINESS_IDENTIFIER_OR_NAME_CONTAINS_BY_TYPES_CATEGORIES_CODES).setQueryFilters(new Filter().addField(Function.FIELD_CODE, string)
+						.addField(Function.FIELD_NAME, string).addField("categoriesCodes", categoriesCodes)
+						))).isEqualTo(Long.valueOf(ArrayHelper.getSize(expectedCodes)));
+		
+		Collection<Function> functions = __inject__(FunctionPersistence.class).read(new Properties().
+				setQueryIdentifier(FunctionPersistence.READ_WHERE_BUSINESS_IDENTIFIER_OR_NAME_CONTAINS_BY_TYPES_CATEGORIES_CODES).setQueryFilters(new Filter().addField(Function.FIELD_CODE, string)
+						.addField(Function.FIELD_NAME, string).addField("categoriesCodes", categoriesCodes)
+						));
+		
+		assertThat(functions).hasSize(ArrayHelper.getSize(expectedCodes));
+		assertThat(functions.stream().map(Function::getCode).collect(Collectors.toList())).containsExactlyInAnyOrder(expectedCodes);
 	}
 	
 	private void __assertServiceGroupReadWhereBusinessIdentifierOrNameContains__(String string,String[] expectedCodes) {
