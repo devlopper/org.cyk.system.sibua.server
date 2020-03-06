@@ -61,8 +61,8 @@ public class AdministrativeUnitPersistenceImpl extends AbstractPersistenceEntity
 	@Override
 	protected void __listenPostConstructPersistenceQueries__() {
 		super.__listenPostConstructPersistenceQueries__();
-		if(ApplicationScopeLifeCycleListener.isUserEnabled())
-			addQueryCollectInstances(readByUsersIdentifiers, "SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit WHERE EXISTS (SELECT userAdministrativeUnit FROM UserAdministrativeUnit userAdministrativeUnit WHERE userAdministrativeUnit.administrativeUnit = administrativeUnit AND userAdministrativeUnit.user.identifier IN :usersIdentifiers) ORDER BY administrativeUnit.code ASC");
+		//if(ApplicationScopeLifeCycleListener.isUserEnabled())
+		//	addQueryCollectInstances(readByUsersIdentifiers, "SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit WHERE EXISTS (SELECT userAdministrativeUnit FROM UserAdministrativeUnit userAdministrativeUnit WHERE userAdministrativeUnit.administrativeUnit = administrativeUnit AND userAdministrativeUnit.user.identifier IN :usersIdentifiers) ORDER BY administrativeUnit.code ASC");
 		
 		addQueryCollectInstances(readWhereCodeOrNameContainsAndSectionCodeLikes, "SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit WHERE LOWER(administrativeUnit.code) LIKE LOWER(:code) OR LOWER(administrativeUnit.name) LIKE LOWER(:name) AND LOWER(administrativeUnit.section.code) LIKE LOWER(:sectionCode) ORDER BY administrativeUnit.code ASC");
 		addQueryCollectInstances(readBySectionsCodes, "SELECT administrativeUnit FROM AdministrativeUnit administrativeUnit WHERE administrativeUnit.section.code IN :sectionsCodes ORDER BY administrativeUnit.code ASC");

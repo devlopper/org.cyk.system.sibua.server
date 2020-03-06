@@ -74,7 +74,7 @@ public class IdentificationSheet implements Serializable {
 	private InputStream codeVisualRepresentation;
 	
 	private String codeVisualRepresentationAsString;
-	
+	private Boolean validatedByOrdonnateur;
 	/**/
 	
 	public IdentificationSheet() {
@@ -92,8 +92,10 @@ public class IdentificationSheet implements Serializable {
 				identificationSheet.title += "CÔNTROLEURS FINANCIERS";
 			else if(codes.contains("1"))
 				identificationSheet.title += "ORDONNATEURS";
-			else
-				identificationSheet.title += "GESTIONNAIRES DE CREDITS";			
+			else {
+				identificationSheet.title += "GESTIONNAIRES DE CREDITS";
+				identificationSheet.validatedByOrdonnateur = Boolean.TRUE;
+			}
 			
 			final AtomicInteger index = new AtomicInteger(1);
 			identificationSheet.budgetaryFunctionsAsString = StringHelper.concatenate(user.getFunctions().stream().map(x->(index.getAndIncrement())+". "+x.getCode()+" "+x.getName())
@@ -154,22 +156,22 @@ public class IdentificationSheet implements Serializable {
 	public static Collection<IdentificationSheet> buildRandomlyMany() {
 		List<IdentificationSheet> identificationSheets = new ArrayList<>();
 		identificationSheets.add(buildRandomlyOne("FICHE DE RENSEIGNEMENT ET DE DEPOT DE SIGNATURE DES GESTIONNAIRES DE CREDITS",
-				List.of("GC2011010009 Gestionnaire de crédits de Direction Générale de la Décentramisation et du Développement Local")));
+				List.of("GC2011010009 Gestionnaire de crédits de Direction Générale de la Décentramisation et du Développement Local"),Boolean.TRUE));
 		
 		identificationSheets.add(buildRandomlyOne("FICHE DE RENSEIGNEMENT ET DE DEPOT DE SIGNATURE DES ORDONNATEURS",
 				List.of("GC2011010009 Gestionnaire de crédits de Direction Générale de la Décentramisation et du Développement Local"
-						,"ORD1113006 Ordonnateur de l' Autorite Nationale de Régulation des Marchés Publics (ANRMP)"
-						)));
+						,"ORD1113006 Ordonnateur de l' Autorite Nationale de Régulation des Marchés Publics (ANRMP)"),null));
 		
 		identificationSheets.add(buildRandomlyOne("FICHE DE RENSEIGNEMENT ET DE DEPOT DE SIGNATURE DES CÔNTROLEUR FINANCIERS",
 				List.of("GC2011010009 Gestionnaire de crédits de Direction Générale de la Décentramisation et du Développement Local"
-						,"CF001 Côntroleur fincancier du Département de Didiévi")));
+						,"CF001 Côntroleur fincancier du Département de Didiévi"),null));
 		return identificationSheets;
 	}
 	
-	public static IdentificationSheet buildRandomlyOne(String title,Collection<String> budgetaryFunctions) {
+	public static IdentificationSheet buildRandomlyOne(String title,Collection<String> budgetaryFunctions,Boolean validatedByOrdonnateur) {
 		IdentificationSheet identificationSheet = new IdentificationSheet();
 		identificationSheet.title = title;
+		identificationSheet.validatedByOrdonnateur = validatedByOrdonnateur;
 		BarCodeBuilder barCodeBuilder = new BarCodeBuilderImpl();
 		identificationSheet.setCodeVisualRepresentation(new ByteArrayInputStream(barCodeBuilder
 				.build(RandomHelper.getAlphabetic(3)+"-"+RandomHelper.getAlphabetic(4)+"-"+RandomHelper.getAlphabetic(3)

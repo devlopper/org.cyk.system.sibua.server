@@ -20,7 +20,7 @@ public class ReportBuilderJasperUnitTest extends AbstractWeldUnitTest {
 	@Test
 	public void text_without_datasource(){
 		Template template = new Template().setInputStream(IdentificationSheet.class.getResourceAsStream("report/fiche_identification.jrxml"));
-		IdentificationSheet identificationSheet = IdentificationSheet.buildRandomlyOne("TITLE",null);
+		IdentificationSheet identificationSheet = IdentificationSheet.buildRandomlyOne("TITLE",null,null);
 		ByteArrayOutputStream outputStream = (ByteArrayOutputStream) ReportBuilder.getInstance().build(template, new JRBeanCollectionDataSource(List.of(identificationSheet))
 				, JRPdfExporter.class);
 		try {

@@ -21,8 +21,8 @@ public class SectionPersistenceImpl extends AbstractPersistenceEntityImpl<Sectio
 	@Override
 	protected void __listenPostConstructPersistenceQueries__() {
 		super.__listenPostConstructPersistenceQueries__();
-		if(ApplicationScopeLifeCycleListener.isUserEnabled())
-			addQueryCollectInstances(readByUsersIdentifiers, "SELECT section FROM Section section WHERE EXISTS (SELECT userSection FROM UserSection userSection WHERE userSection.section = section AND userSection.user.identifier IN :usersIdentifiers)  ORDER BY section.code ASC");
+		//if(ApplicationScopeLifeCycleListener.isUserEnabled())
+		//	addQueryCollectInstances(readByUsersIdentifiers, "SELECT section FROM Section section WHERE EXISTS (SELECT userSection FROM UserSection userSection WHERE userSection.section = section AND userSection.user.identifier IN :usersIdentifiers)  ORDER BY section.code ASC");
 	}
 	
 	@Override

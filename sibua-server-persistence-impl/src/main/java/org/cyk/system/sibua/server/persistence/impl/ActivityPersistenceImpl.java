@@ -51,8 +51,8 @@ public class ActivityPersistenceImpl extends AbstractPersistenceEntityImpl<Activ
 	@Override
 	protected void __listenPostConstructPersistenceQueries__() {
 		super.__listenPostConstructPersistenceQueries__();
-		if(ApplicationScopeLifeCycleListener.isUserEnabled())
-			addQueryCollectInstances(readByUsersIdentifiers, "SELECT activity FROM Activity activity WHERE EXISTS (SELECT userActivity FROM UserActivity userActivity WHERE userActivity.activity = activity AND userActivity.user.identifier IN :usersIdentifiers)  ORDER BY activity.code ASC");
+		//if(ApplicationScopeLifeCycleListener.isUserEnabled())
+		//	addQueryCollectInstances(readByUsersIdentifiers, "SELECT activity FROM Activity activity WHERE EXISTS (SELECT userActivity FROM UserActivity userActivity WHERE userActivity.activity = activity AND userActivity.user.identifier IN :usersIdentifiers)  ORDER BY activity.code ASC");
 		addQueryCollectInstances(readBySectionsCodes, "SELECT activity FROM Activity activity WHERE activity.action.program.section.code IN :sectionsCodes ORDER BY activity.code ASC");
 		addQueryCollectInstances(readByProgramsCodes, "SELECT activity FROM Activity activity WHERE activity.action.program.code IN :programsCodes  ORDER BY activity.code ASC");
 		addQueryCollectInstances(readByActionsCodes, "SELECT activity FROM Activity activity WHERE activity.action.code IN :actionsCodes  ORDER BY activity.code ASC");

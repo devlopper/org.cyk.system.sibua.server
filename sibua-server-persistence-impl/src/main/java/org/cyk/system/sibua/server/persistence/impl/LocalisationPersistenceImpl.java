@@ -21,8 +21,8 @@ public class LocalisationPersistenceImpl extends AbstractPersistenceEntityImpl<L
 	@Override
 	protected void __listenPostConstructPersistenceQueries__() {
 		super.__listenPostConstructPersistenceQueries__();
-		if(ApplicationScopeLifeCycleListener.isUserEnabled())
-			addQueryCollectInstances(readByUsersIdentifiers, "SELECT localisation FROM Localisation localisation WHERE EXISTS (SELECT userLocalisation FROM UserLocalisation userLocalisation WHERE userLocalisation.localisation = localisation AND userLocalisation.user.identifier IN :usersIdentifiers)  ORDER BY localisation.code ASC");
+		//if(ApplicationScopeLifeCycleListener.isUserEnabled())
+		//	addQueryCollectInstances(readByUsersIdentifiers, "SELECT localisation FROM Localisation localisation WHERE EXISTS (SELECT userLocalisation FROM UserLocalisation userLocalisation WHERE userLocalisation.localisation = localisation AND userLocalisation.user.identifier IN :usersIdentifiers)  ORDER BY localisation.code ASC");
 	}
 	
 	@Override
