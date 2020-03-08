@@ -10,6 +10,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.cyk.system.sibua.server.persistence.entities.user.FunctionType;
 import org.cyk.utility.__kernel__.instance.InstanceGetter;
 import org.cyk.utility.__kernel__.object.__static__.persistence.AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl;
 import org.cyk.utility.__kernel__.string.StringHelper;
@@ -25,6 +26,8 @@ public class Activity extends AbstractIdentifiableSystemScalarStringIdentifiable
 	private static final long serialVersionUID = 1L;
 
 	/*@NotNull */@ManyToOne @JoinColumn(name = COLUMN_ACTION) private Action action;
+	@ManyToOne @JoinColumn(name = COLUMN_FUNCTION_TYPE) private FunctionType functionType;
+	
 	@Column(name = COLUMN_YEAR) private Integer year;
 	@Column(name = COLUMN_AMOUNT_AE) private Long amountAE;
 	@Column(name = COLUMN_AMOUNT_CP) private Long amountCP;
@@ -85,6 +88,7 @@ public class Activity extends AbstractIdentifiableSystemScalarStringIdentifiable
 	}
 	
 	public static final String FIELD_ACTION = "action";
+	public static final String FIELD_FUNCTION_TYPE = "functionType";
 	public static final String FIELD_YEAR = "year";
 	public static final String FIELD_AMOUNT_AE = "amountAE";
 	public static final String FIELD_AMOUNT_CP = "amountCP";
@@ -103,6 +107,7 @@ public class Activity extends AbstractIdentifiableSystemScalarStringIdentifiable
 	public static final String FIELD_IS_BENEFICIAIRE = "isBeneficiaire";
 	
 	public static final String COLUMN_ACTION = FIELD_ACTION;
+	public static final String COLUMN_FUNCTION_TYPE = "typfonc";
 	public static final String COLUMN_YEAR = "ANNEE";
 	public static final String COLUMN_AMOUNT_AE = "MONTANT_AE";
 	public static final String COLUMN_AMOUNT_CP = "MONTANT_CP";

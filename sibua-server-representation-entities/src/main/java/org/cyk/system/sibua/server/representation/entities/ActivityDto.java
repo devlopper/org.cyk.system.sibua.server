@@ -3,6 +3,7 @@ package org.cyk.system.sibua.server.representation.entities;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import org.cyk.system.sibua.server.representation.entities.user.FunctionTypeDto;
 import org.cyk.utility.__kernel__.object.__static__.representation.AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl;
 
 import lombok.Getter;
@@ -15,6 +16,7 @@ public class ActivityDto extends AbstractIdentifiableSystemScalarStringIdentifia
 	private static final long serialVersionUID = 1L;
 
 	private ActionDto action;
+	private FunctionTypeDto functionType;
 	private SectionDto section;
 	private AdministrativeUnitDto administrativeUnit;
 	private AdministrativeUnitDto administrativeUnitBeneficiaire;
