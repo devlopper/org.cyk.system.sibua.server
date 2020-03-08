@@ -48,16 +48,16 @@ public class ActivityCostUnit extends AbstractIdentifiableSystemScalarStringImpl
 	public static final String FIELD_PROCEDURE = "procedure";
 	public static final String FIELD_EXEMPTED = "exempted";
 	
-	public static final String COLUMN_ACTIVITY = "ADP";
+	public static final String COLUMN_ACTIVITY = "ACTIVITE";
 	public static final String COLUMN_COST_UNIT = "UNITE_COUT";
-	public static final String COLUMN_FINANCEMENT_CP = "FINAN_CP";
-	public static final String COLUMN_FINANCEMENT_AE = "FINAN_AE";
+	public static final String COLUMN_FINANCEMENT_CP = "PREVISION_CP";
+	public static final String COLUMN_FINANCEMENT_AE = "PREVISION_AE";
 	public static final String COLUMN_ARBITRAGE_CP = "ARBITRAGE_CP";
 	public static final String COLUMN_ARBITRAGE_AE = "ARBITRAGE_AE";
 	public static final String COLUMN_BUDGET_CP = "BUDGET_CP";
 	public static final String COLUMN_BUDGET_AE = "BUDGET_AE";
-	public static final String COLUMN_PROCEDURE = "PROCEDURE";
-	public static final String COLUMN_EXEMPTED = "LIGNE_EXEMPTE";
+	public static final String COLUMN_PROCEDURE = "PROCEDURE_LIGNE";
+	public static final String COLUMN_EXEMPTED = "CARACTERE_EXEMPTION";
 	
-	public static final String TABLE_NAME = "LIGNE_IMPUTATION_ADP";	
+	public static final String TABLE_NAME = "LIGNE_IMPUTATION";	
 }
