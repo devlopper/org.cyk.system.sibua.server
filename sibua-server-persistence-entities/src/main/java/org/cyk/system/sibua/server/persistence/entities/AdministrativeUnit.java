@@ -1,6 +1,7 @@
 package org.cyk.system.sibua.server.persistence.entities;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -34,6 +35,9 @@ public class AdministrativeUnit extends AbstractIdentifiableSystemScalarStringId
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_FUNCTIONAL_CLASSIFICATION) private FunctionalClassification functionalClassification;
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_LOCALISATION) private Localisation localisation;
 	@NotNull @Column(name = COLUMN_ORDER_NUMBER) private Integer orderNumber;
+	
+	@Column(name = COLUMN_CREATION_DATE) private LocalDateTime creationDate;
+	@Column(name = COLUMN_MODIFICATION_DATE) private LocalDateTime modificationDate;
 	
 	@Transient private Integer numberOfActivities;
 	@Transient private Integer numberOfActivitiesBeneficiaire;
@@ -173,12 +177,16 @@ public class AdministrativeUnit extends AbstractIdentifiableSystemScalarStringId
 	public static final String FIELD_ADMINISTRATIVE_UNIT = "administrativeUnit";
 	public static final String FIELD_NUMBER_OF_ACTIVITIES = "numberOfActivities";
 	public static final String FIELD_NUMBER_OF_ACTIVITIES_BENEFICIAIRE = "numberOfActivitiesBeneficiaire";
+	public static final String FIELD_CREATION_DATE = "creationDate";
+	public static final String FIELD_MODIFICATION_DATE = "modificationDate";
 	
 	public static final String COLUMN_SECTION = Section.TABLE_NAME;	
 	public static final String COLUMN_SERVICE_GROUP = ServiceGroup.TABLE_NAME;	
 	public static final String COLUMN_FUNCTIONAL_CLASSIFICATION = FunctionalClassification.TABLE_NAME;	
 	public static final String COLUMN_LOCALISATION = Localisation.TABLE_NAME;
-	public static final String COLUMN_ORDER_NUMBER = FIELD_ORDER_NUMBER;	
+	public static final String COLUMN_ORDER_NUMBER = FIELD_ORDER_NUMBER;
+	public static final String COLUMN_CREATION_DATE = "date_creation";
+	public static final String COLUMN_MODIFICATION_DATE = "date_modification";
 	
 	public static final String TABLE_NAME = "unite_administrative";	
 	

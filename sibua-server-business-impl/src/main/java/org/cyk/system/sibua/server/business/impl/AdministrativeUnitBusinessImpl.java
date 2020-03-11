@@ -1,6 +1,7 @@
 package org.cyk.system.sibua.server.business.impl;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -187,6 +188,7 @@ public class AdministrativeUnitBusinessImpl extends AbstractBusinessEntityImpl<A
 	@Override
 	protected void __listenExecuteCreateBefore__(AdministrativeUnit administrativeUnit, Properties properties,BusinessFunctionCreator function) {
 		super.__listenExecuteCreateBefore__(administrativeUnit, properties, function);
+		administrativeUnit.setCreationDate(LocalDateTime.now());
 		administrativeUnit.setOrderNumber(__getNextOrderNumber__(administrativeUnit.getServiceGroup(), new HashMap<>()));
 		if(StringHelper.isBlank(administrativeUnit.getCode()))
 			administrativeUnit.setCode(__generateCode__(administrativeUnit));
@@ -416,6 +418,7 @@ public class AdministrativeUnitBusinessImpl extends AbstractBusinessEntityImpl<A
 				}
 			}
 		}
+		administrativeUnit.setModificationDate(LocalDateTime.now());
 	}
 
 	@Override

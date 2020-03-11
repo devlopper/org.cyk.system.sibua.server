@@ -1,6 +1,7 @@
 package org.cyk.system.sibua.server.persistence.entities;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Collection;
 
 import javax.persistence.Column;
@@ -34,6 +35,9 @@ public class Activity extends AbstractIdentifiableSystemScalarStringIdentifiable
 	@Column(name = COLUMN_NAT_DEP_CODE) private String natDepCode;
 	@Column(name = COLUMN_CAT_USB_CODE) private String catUsbCode;
 	@Column(name = COLUMN_CAT_ATV_CODE) private String catAtvCode;
+	
+	@Column(name = COLUMN_CREATION_DATE) private LocalDateTime creationDate;
+	@Column(name = COLUMN_MODIFICATION_DATE) private LocalDateTime modificationDate;
 	
 	@Transient private Section section;
 	@Transient private Program program;
@@ -105,6 +109,8 @@ public class Activity extends AbstractIdentifiableSystemScalarStringIdentifiable
 	public static final String FIELD_NUMBER_OF_COST_UNITS = "numberOfCostUnits";
 	public static final String FIELD_IS_GESTIONNAIRE = "isGestionnaire";
 	public static final String FIELD_IS_BENEFICIAIRE = "isBeneficiaire";
+	public static final String FIELD_CREATION_DATE = "creationDate";
+	public static final String FIELD_MODIFICATION_DATE = "modificationDate";
 	
 	public static final String COLUMN_ACTION = FIELD_ACTION;
 	public static final String COLUMN_FUNCTION_TYPE = "typfonc";
@@ -114,6 +120,8 @@ public class Activity extends AbstractIdentifiableSystemScalarStringIdentifiable
 	public static final String COLUMN_NAT_DEP_CODE = "NAT_DEP_CODE";
 	public static final String COLUMN_CAT_USB_CODE = "CAT_USB_CODE";
 	public static final String COLUMN_CAT_ATV_CODE = "CAT_ATV_CODE";
+	public static final String COLUMN_CREATION_DATE = "date_creation";
+	public static final String COLUMN_MODIFICATION_DATE = "date_modification";
 	
 	public static final String TABLE_NAME = "activite";	
 	

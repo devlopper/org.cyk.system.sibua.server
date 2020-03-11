@@ -23,6 +23,7 @@
     	
     	<class>org.cyk.system.sibua.server.persistence.entities.Section</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit</class>
+    	<class>org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitFunctionType</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.Program</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.Action</class>
     	<class>org.cyk.system.sibua.server.persistence.entities.Activity</class>

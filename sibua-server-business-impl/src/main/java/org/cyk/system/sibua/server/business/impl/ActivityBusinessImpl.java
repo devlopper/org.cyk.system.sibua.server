@@ -1,6 +1,7 @@
 package org.cyk.system.sibua.server.business.impl;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -67,5 +68,6 @@ public class ActivityBusinessImpl extends AbstractBusinessEntityImpl<Activity, A
 				}
 			}
 		}
+		activity.setModificationDate(LocalDateTime.now());
 	}
 }

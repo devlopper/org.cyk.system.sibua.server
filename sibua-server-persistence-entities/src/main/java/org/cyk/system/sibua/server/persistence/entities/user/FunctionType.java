@@ -6,8 +6,10 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
+import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
 import org.cyk.utility.__kernel__.instance.InstanceGetter;
 import org.cyk.utility.__kernel__.object.__static__.persistence.AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl;
 import org.cyk.utility.__kernel__.string.StringHelper;
@@ -23,6 +25,8 @@ public class FunctionType extends AbstractIdentifiableSystemScalarStringIdentifi
 	private static final long serialVersionUID = 1L;
 
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_CATEGORY) private FunctionCategory category;
+	
+	@Transient private AdministrativeUnit administrativeUnit;
 	
 	@Override
 	public FunctionType setCode(String code) {
@@ -43,6 +47,7 @@ public class FunctionType extends AbstractIdentifiableSystemScalarStringIdentifi
 	}
 	
 	public static final String FIELD_CATEGORY = "category";
+	public static final String FIELD_ADMINISTRATIVE_UNIT = "administrativeUnit";
 	
 	public static final String COLUMN_CATEGORY = "catfonc";
 	

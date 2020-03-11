@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitPersistence;
 import org.cyk.system.sibua.server.persistence.entities.Action;
 import org.cyk.system.sibua.server.persistence.entities.Activity;
 import org.cyk.system.sibua.server.persistence.entities.ActivityDestination;
@@ -32,6 +33,7 @@ import org.cyk.system.sibua.server.persistence.entities.user.UserProgram;
 import org.cyk.system.sibua.server.persistence.entities.user.UserSection;
 import org.cyk.utility.__kernel__.AbstractApplicationScopeLifeCycleListener;
 import org.cyk.utility.__kernel__.klass.PersistableClassesGetter;
+import org.cyk.utility.__kernel__.persistence.query.QueryHelper;
 
 @ApplicationScoped
 public class ApplicationScopeLifeCycleListener extends AbstractApplicationScopeLifeCycleListener implements Serializable {
@@ -41,6 +43,8 @@ public class ApplicationScopeLifeCycleListener extends AbstractApplicationScopeL
 	
 	@Override
 	public void __initialize__(Object object) {
+		__inject__(org.cyk.utility.server.persistence.impl.ApplicationScopeLifeCycleListener.class).initialize(null);
+		QueryHelper.scan(List.of(AdministrativeUnitPersistence.class.getPackage()));	
 		ArrayList<Class<?>> classes = new ArrayList<>();
 		if(isUserEnabled()) {
 			classes.addAll(List.of(UserProgram.class,UserFunction.class,UserLocalisation.class,UserSection.class,UserActivity.class,UserFile.class,UserAdministrativeUnit.class
