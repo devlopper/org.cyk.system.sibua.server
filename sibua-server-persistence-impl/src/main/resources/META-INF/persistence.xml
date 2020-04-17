@@ -53,7 +53,9 @@
 			<property name="hibernate.format_sql" value="false"/>
 			
 			<!-- Caching -->
+			<!--
 			<property name="javax.persistence.sharedCache.mode" value="DISABLE_SELECTIVE"/>
+			-->
 		</properties>
 
     </persistence-unit>  

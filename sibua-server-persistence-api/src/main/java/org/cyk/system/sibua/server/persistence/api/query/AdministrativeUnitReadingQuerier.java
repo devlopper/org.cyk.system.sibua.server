@@ -13,17 +13,18 @@ import org.cyk.utility.__kernel__.persistence.query.QueryExecutor;
 import org.cyk.utility.__kernel__.persistence.query.QueryExecutorArguments;
 import org.cyk.utility.__kernel__.persistence.query.QueryIdentifierBuilder;
 import org.cyk.utility.__kernel__.persistence.query.QueryStringHelper;
+import org.cyk.utility.__kernel__.persistence.query.QueryValueBuilder;
 import org.cyk.utility.__kernel__.persistence.query.filter.Filter;
 import org.cyk.utility.__kernel__.value.Value;
 
-public interface AdministrativeUnitQuerier extends Querier {
+public interface AdministrativeUnitReadingQuerier extends Querier {
 
 	Collection<AdministrativeUnit> readMany(QueryExecutorArguments arguments);
 	Long count(QueryExecutorArguments arguments);
 	
 	/**/
 	
-	public static abstract class AbstractImpl extends AbstractObject implements AdministrativeUnitQuerier,Serializable {
+	public static abstract class AbstractImpl extends AbstractObject implements AdministrativeUnitReadingQuerier,Serializable {
 		@Override
 		public Collection<AdministrativeUnit> readMany(QueryExecutorArguments arguments) {
 			if(arguments != null && arguments.getQuery() != null && QUERY_IDENTIFIER_READ_VIEW_01.equals(arguments.getQuery().getIdentifier()))
@@ -84,42 +85,28 @@ public interface AdministrativeUnitQuerier extends Querier {
 			+ " AND ("+QueryStringHelper.formatTupleFieldLike("administrativeUnit", "localisation.code","localisation") + " OR " + QueryStringHelper.formatTupleFieldLike("administrativeUnit", "localisation.name","localisation")+")"
 			+ "ORDER BY administrativeUnit.code ASC";
 	
-	String QUERY_VALUE_READ_VIEW_02 = "SELECT t.identifier,CONCAT(t.code,' ',t.name)"
-			+ ",CONCAT(section.code,' ',section.name) "
-			+ ",CONCAT(serviceGroup.code,' ',serviceGroup.name) "
-			+ ",CONCAT(functionalClassification.code,' ',functionalClassification.name) "
-			+ ",CONCAT(localisation.code,' ',localisation.name) "
-			
-			+ "FROM AdministrativeUnit t "
-			
-			+ "LEFT JOIN t.section section "
-			+ "LEFT JOIN t.serviceGroup serviceGroup "
-			+ "LEFT JOIN t.functionalClassification functionalClassification "
-			+ "LEFT JOIN t.localisation localisation "
-			
-			+ "WHERE "
+	String QUERY_VALUE_READ_VIEW_02_WHERE = " WHERE "
 			+ "("+QueryStringHelper.formatTupleFieldLike("t", "code","administrativeUnit") + " OR " + QueryStringHelper.formatTupleFieldLikeOrTokens("t", "name","administrativeUnitName",4,LogicalOperator.AND)+")"
 			+ " AND ("+QueryStringHelper.formatTupleFieldLike("t", "section.code","section") + " OR " + QueryStringHelper.formatTupleFieldLike("t", "section.name","section")+")"
 			+ " AND ("+QueryStringHelper.formatTupleFieldLike("t", "serviceGroup.code","serviceGroup") + " OR " + QueryStringHelper.formatTupleFieldLike("t", "serviceGroup.name","serviceGroup")+")"
 			+ " AND ("+QueryStringHelper.formatTupleFieldLike("t", "functionalClassification.code","functionalClassification") + " OR " + QueryStringHelper.formatTupleFieldLike("t", "functionalClassification.name","functionalClassification")+")"
-			+ " AND ("+QueryStringHelper.formatTupleFieldLike("t", "localisation.code","localisation") + " OR " + QueryStringHelper.formatTupleFieldLike("t", "localisation.name","localisation")+")"
-						
-			+ "ORDER BY t.code ASC";
-	/*
-	String QUERY_VALUE_READ_VIEW_02 = "SELECT t FROM AdministrativeUnit t "
-			+ "WHERE "
-			+ "("+QueryStringHelper.formatTupleFieldLike("t", "code","administrativeUnit") + " OR " + QueryStringHelper.formatTupleFieldLikeOrTokens("t", "name","administrativeUnitName",4,LogicalOperator.AND)+")"
-			+ " AND ("+QueryStringHelper.formatTupleFieldLike("t", "section.code","section") + " OR " + QueryStringHelper.formatTupleFieldLike("t", "section.name","section")+")"
-			+ " AND ("+QueryStringHelper.formatTupleFieldLike("t", "serviceGroup.code","serviceGroup") + " OR " + QueryStringHelper.formatTupleFieldLike("t", "serviceGroup.name","serviceGroup")+")"
-			+ " AND ("+QueryStringHelper.formatTupleFieldLike("t", "functionalClassification.code","functionalClassification") + " OR " + QueryStringHelper.formatTupleFieldLike("t", "functionalClassification.name","functionalClassification")+")"
-			+ " AND ("+QueryStringHelper.formatTupleFieldLike("t", "localisation.code","localisation") + " OR " + QueryStringHelper.formatTupleFieldLike("t", "localisation.name","localisation")+")"
-			+ "ORDER BY t.code ASC";
-	*/
+			+ " AND ("+QueryStringHelper.formatTupleFieldLike("t", "localisation.code","localisation") + " OR " + QueryStringHelper.formatTupleFieldLike("t", "localisation.name","localisation")+")";				
+	
+	String QUERY_VALUE_READ_VIEW_02 = "SELECT t.identifier,"
+			+QueryValueBuilder.deriveConcatsCodeAndNameFromTuplesNames("t",AdministrativeUnit.FIELD_SECTION,AdministrativeUnit.FIELD_SERVICE_GROUP
+					,AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION,AdministrativeUnit.FIELD_LOCALISATION)			
+			+ " FROM AdministrativeUnit t "
+			+QueryValueBuilder.deriveLeftJoinsFromFieldsNames("t", AdministrativeUnit.FIELD_SECTION,AdministrativeUnit.FIELD_SERVICE_GROUP
+					,AdministrativeUnit.FIELD_FUNCTIONAL_CLASSIFICATION,AdministrativeUnit.FIELD_LOCALISATION)			
+			+ QUERY_VALUE_READ_VIEW_02_WHERE	
+			+ " ORDER BY t.code ASC";
+	
+	String QUERY_VALUE_COUNT_VIEW_02 = "SELECT COUNT(t.identifier) FROM AdministrativeUnit t "+ QUERY_VALUE_READ_VIEW_02_WHERE;
 	
 	/**/
 	
-	static AdministrativeUnitQuerier getInstance() {
-		return Helper.getInstance(AdministrativeUnitQuerier.class, INSTANCE);
+	static AdministrativeUnitReadingQuerier getInstance() {
+		return Helper.getInstance(AdministrativeUnitReadingQuerier.class, INSTANCE);
 	}
 	
 	Value INSTANCE = new Value();

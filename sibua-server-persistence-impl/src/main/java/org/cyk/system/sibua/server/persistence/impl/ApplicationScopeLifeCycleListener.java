@@ -8,8 +8,9 @@ import java.util.Map;
 import javax.enterprise.context.ApplicationScoped;
 
 import org.cyk.system.sibua.server.annotation.System;
+import org.cyk.system.sibua.server.persistence.api.ActivitySelectQuerier;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitPersistence;
-import org.cyk.system.sibua.server.persistence.api.query.AdministrativeUnitQuerier;
+import org.cyk.system.sibua.server.persistence.api.query.AdministrativeUnitReadingQuerier;
 import org.cyk.system.sibua.server.persistence.entities.Action;
 import org.cyk.system.sibua.server.persistence.entities.Activity;
 import org.cyk.system.sibua.server.persistence.entities.ActivityDestination;
@@ -47,19 +48,27 @@ public class ApplicationScopeLifeCycleListener extends AbstractApplicationScopeL
 	public void __initialize__(Object object) {
 		__inject__(org.cyk.utility.server.persistence.impl.ApplicationScopeLifeCycleListener.class).initialize(null);
 		DependencyInjection.setQualifierClassTo(System.class, EntityReader.class,EntityCounter.class);
-		QueryHelper.addQueries(Query.build(Query.FIELD_IDENTIFIER,AdministrativeUnitQuerier.QUERY_IDENTIFIER_READ_VIEW_01
+		QueryHelper.addQueries(Query.build(Query.FIELD_IDENTIFIER,AdministrativeUnitReadingQuerier.QUERY_IDENTIFIER_READ_VIEW_01
 				,Query.FIELD_TUPLE_CLASS,AdministrativeUnit.class,Query.FIELD_RESULT_CLASS,AdministrativeUnit.class
-				,Query.FIELD_VALUE,AdministrativeUnitQuerier.QUERY_VALUE_READ_VIEW_01
+				,Query.FIELD_VALUE,AdministrativeUnitReadingQuerier.QUERY_VALUE_READ_VIEW_01
 				));		
-		QueryHelper.addQueries(Query.buildCountFromSelect(QueryGetter.getInstance().get(AdministrativeUnitQuerier.QUERY_IDENTIFIER_READ_VIEW_01)));
+		QueryHelper.addQueries(Query.buildCountFromSelect(QueryGetter.getInstance().get(AdministrativeUnitReadingQuerier.QUERY_IDENTIFIER_READ_VIEW_01)));
 		
-		QueryHelper.addQueries(Query.build(Query.FIELD_IDENTIFIER,AdministrativeUnitQuerier.QUERY_IDENTIFIER_READ_VIEW_02
+		QueryHelper.addQueries(Query.build(Query.FIELD_IDENTIFIER,AdministrativeUnitReadingQuerier.QUERY_IDENTIFIER_READ_VIEW_02
 				,Query.FIELD_TUPLE_CLASS,AdministrativeUnit.class,Query.FIELD_RESULT_CLASS,AdministrativeUnit.class
-				,Query.FIELD_VALUE,AdministrativeUnitQuerier.QUERY_VALUE_READ_VIEW_02
+				,Query.FIELD_VALUE,AdministrativeUnitReadingQuerier.QUERY_VALUE_READ_VIEW_02
 				).setTupleFieldsNamesIndexes(Map.of("identifier",0,"asString",1,"sectionAsString",2,"serviceGroupAsString",3,"functionalClassificationAsString"
 						,4,"localisationAsString",5))
-				);		
-		QueryHelper.addQueries(Query.buildCountFromSelect(QueryGetter.getInstance().get(AdministrativeUnitQuerier.QUERY_IDENTIFIER_READ_VIEW_02)));
+				);				
+		QueryHelper.addQueries(Query.buildCount(AdministrativeUnit.class,AdministrativeUnitReadingQuerier.QUERY_NAME_COUNT_VIEW_02,AdministrativeUnitReadingQuerier.QUERY_VALUE_COUNT_VIEW_02));
+		
+		QueryHelper.addQueries(Query.build(Query.FIELD_IDENTIFIER,ActivitySelectQuerier.QUERY_IDENTIFIER_READ_VIEW_01
+				,Query.FIELD_TUPLE_CLASS,Activity.class,Query.FIELD_RESULT_CLASS,Activity.class
+				,Query.FIELD_VALUE,ActivitySelectQuerier.QUERY_VALUE_READ_VIEW_01
+				).setTupleFieldsNamesIndexes(Map.of("identifier",0,"asString",1,"actionAsString",2,"programAsString",3,"sectionAsString",4,"functionTypeAsString",5
+						,Activity.FIELD_BENEFICIARY_AS_STRING,6,Activity.FIELD_MANAGER_AS_STRING,7,"catAtvCode",8))
+			);				
+		QueryHelper.addQueries(Query.buildCount(Activity.class,ActivitySelectQuerier.QUERY_NAME_COUNT_VIEW_01,ActivitySelectQuerier.QUERY_VALUE_COUNT_VIEW_01));
 		
 		QueryHelper.scan(List.of(AdministrativeUnitPersistence.class.getPackage()));	
 		ArrayList<Class<?>> classes = new ArrayList<>();

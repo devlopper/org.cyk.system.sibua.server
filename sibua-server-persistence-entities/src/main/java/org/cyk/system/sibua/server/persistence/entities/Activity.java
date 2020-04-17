@@ -52,6 +52,9 @@ public class Activity extends AbstractIdentifiableSystemScalarStringIdentifiable
 	@Transient private Boolean isGestionnaire;
 	@Transient private Boolean isBeneficiaire;
 	
+	/* As String */	
+	@Transient private String sectionAsString,programAsString,actionAsString,functionTypeAsString,managerAsString,beneficiaryAsString;
+	
 	public Activity(String code,String name,String actionCode) {
 		super(code,name);
 		setActionFromCode(actionCode);
@@ -126,4 +129,12 @@ public class Activity extends AbstractIdentifiableSystemScalarStringIdentifiable
 	public static final String TABLE_NAME = "activite";	
 	
 	public static final String CODE_NEW_PREFIX = "NA";
+	
+	/* As String*/
+	public static final String FIELD_FUNCTION_TYPE_AS_STRING = "functionTypeAsString";
+	public static final String FIELD_SECTION_AS_STRING = "sectionAsString";
+	public static final String FIELD_PROGRAM_AS_STRING = "programAsString";
+	public static final String FIELD_ACTION_AS_STRING = "actionAsString";
+	public static final String FIELD_MANAGER_AS_STRING = "managerAsString";
+	public static final String FIELD_BENEFICIARY_AS_STRING = "beneficiaryAsString";
 }
