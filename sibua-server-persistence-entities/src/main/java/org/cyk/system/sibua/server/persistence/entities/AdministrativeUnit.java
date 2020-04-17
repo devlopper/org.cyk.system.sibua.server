@@ -55,6 +55,14 @@ public class AdministrativeUnit extends AbstractIdentifiableSystemScalarStringId
 	
 	@Transient private AdministrativeUnit administrativeUnit;
 	
+	/* As String */	
+	@Transient private String asString,sectionAsString,serviceGroupAsString,functionalClassificationAsString,localisationAsString;
+	
+	public AdministrativeUnit(String identifier,String code) {
+		setIdentifier(identifier);
+		setCode(code);
+	}
+	
 	public AdministrativeUnit(String code,String name,String sectionCode,String serviceGroupCode,String functionalClassificationCode,String localisationCode) {
 		super(code, name);
 		setSectionFromCode(sectionCode);

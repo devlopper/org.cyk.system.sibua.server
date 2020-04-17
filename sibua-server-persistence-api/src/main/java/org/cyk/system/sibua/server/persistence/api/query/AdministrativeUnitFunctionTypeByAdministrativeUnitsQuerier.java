@@ -4,7 +4,7 @@ import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit;
 import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitFunctionType;
 import org.cyk.utility.__kernel__.DependencyInjection;
 import org.cyk.utility.__kernel__.Helper;
-import org.cyk.utility.__kernel__.persistence.query.ByDimensionOneQuerier;
+import org.cyk.utility.__kernel__.persistence.query.ByDimensionOneBusinessIdentifierQuerier;
 import org.cyk.utility.__kernel__.persistence.query.annotation.Queries;
 import org.cyk.utility.__kernel__.persistence.query.annotation.Query;
 import org.cyk.utility.__kernel__.value.Value;
@@ -12,7 +12,7 @@ import org.cyk.utility.__kernel__.value.Value;
 @Queries(value = {
 		@Query(tupleClass = AdministrativeUnitFunctionType.class,name = AdministrativeUnitFunctionTypeByAdministrativeUnitsQuerier.QUERY_NAME_READ,value = "SELECT tuple FROM AdministrativeUnitFunctionType tuple WHERE tuple.administrativeUnit.code IN :"+AdministrativeUnitFunctionTypeByAdministrativeUnitsQuerier.PARAMETER_NAME_ADMINISTRATIVE_UNITS_CODES)
 })
-public interface AdministrativeUnitFunctionTypeByAdministrativeUnitsQuerier extends ByDimensionOneQuerier<AdministrativeUnitFunctionType, String,AdministrativeUnit,String> {
+public interface AdministrativeUnitFunctionTypeByAdministrativeUnitsQuerier extends ByDimensionOneBusinessIdentifierQuerier<AdministrativeUnitFunctionType,AdministrativeUnit,String> {
 
 	/**/
 	

@@ -2,10 +2,17 @@ package org.cyk.system.sibua.server.persistence.impl.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.persistence.Tuple;
+
+import org.apache.commons.lang3.StringUtils;
 import org.cyk.system.sibua.server.persistence.api.ActionPersistence;
 import org.cyk.system.sibua.server.persistence.api.ActivityPersistence;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitActivityPersistence;
@@ -41,13 +48,84 @@ import org.cyk.system.sibua.server.persistence.entities.user.FunctionCategory;
 import org.cyk.system.sibua.server.persistence.entities.user.FunctionType;
 import org.cyk.utility.__kernel__.array.ArrayHelper;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
-import org.cyk.utility.__kernel__.properties.Properties;
+import org.cyk.utility.__kernel__.persistence.query.EntityReader;
+import org.cyk.utility.__kernel__.persistence.query.Query;
+import org.cyk.utility.__kernel__.persistence.query.QueryExecutorArguments;
+import org.cyk.utility.__kernel__.persistence.query.QueryGetter;
+import org.cyk.utility.__kernel__.persistence.query.QueryHelper;
 import org.cyk.utility.__kernel__.persistence.query.filter.Filter;
+import org.cyk.utility.__kernel__.properties.Properties;
 import org.cyk.utility.server.persistence.test.arquillian.AbstractPersistenceArquillianIntegrationTestWithDefaultDeployment;
 import org.junit.Test;
+import org.openjdk.jol.info.GraphLayout;
 
 public class PersistenceIntegrationTest extends AbstractPersistenceArquillianIntegrationTestWithDefaultDeployment {
 	private static final long serialVersionUID = 1L;
+	
+	@Override
+	protected void __listenBefore__() {
+		super.__listenBefore__();
+		QueryHelper.getQueries().setIsRegisterableToEntityManager(Boolean.TRUE);
+		QueryHelper.QUERIES.add(Query.build(AdministrativeUnit.class, "read.constructor", "SELECT new org.cyk.system.sibua.server.persistence.entities.AdministrativeUnit(t.identifier,t.code) FROM AdministrativeUnit t"));
+		QueryHelper.QUERIES.add(Query.build(AdministrativeUnit.class, "read.tuple", "SELECT t.identifier,t.code FROM AdministrativeUnit t",Tuple.class));
+		QueryHelper.QUERIES.add(Query.build(AdministrativeUnit.class, "read.array", "SELECT t.identifier,t.code FROM AdministrativeUnit t"));
+	}
+	
+	@Override
+	protected void __listenAfter__() {
+		super.__listenAfter__();
+		QueryHelper.clear();
+	}
+	
+	public <T> void printReadQueryUsageInformations(Class<T> tupleClass,Collection<String> queriesIdentifiers) {
+		System.out.println(String.format("%1$s %2$s %1$s", StringUtils.repeat('=',50),tupleClass.getSimpleName()));		
+		Map<String,GraphLayout> map = new LinkedHashMap<>();
+		if(CollectionHelper.isNotEmpty(queriesIdentifiers))
+			queriesIdentifiers.forEach(queryIdentifier -> {
+				Query query = QueryGetter.getInstance().get(queryIdentifier);
+				map.put(queryIdentifier, GraphLayout.parseInstance(EntityReader.getInstance().readMany(query.getResultClass(),new QueryExecutorArguments()
+						.setQuery(QueryGetter.getInstance().get(queryIdentifier)))));
+			});
+		
+		printReadQueryUsageInformationsLine("Query.ID", "#O", "#B","#KB","MB","B/O");
+		map.forEach( (queryIdentifier,graphLayout) -> {
+			printReadQueryUsageInformationsLine(queryIdentifier, graphLayout.totalCount()+"", graphLayout.totalSize()+""
+					,new BigDecimal(graphLayout.totalSize()).divide(new BigDecimal("1024"),2,RoundingMode.HALF_DOWN)+""
+					,new BigDecimal(graphLayout.totalSize()).divide(new BigDecimal("1024"),2,RoundingMode.HALF_DOWN).divide(new BigDecimal("1024"),2,RoundingMode.HALF_DOWN)+""
+					,new BigDecimal(graphLayout.totalSize()).divide(new BigDecimal(graphLayout.totalCount()),2,RoundingMode.HALF_DOWN)+"");
+			//System.out.println(StringUtils.leftPad(queryIdentifier,50)+" | "+StringUtils.leftPad(,10)+" | "+StringUtils.leftPad((graphLayout.totalSize()/1024)+"",15));
+		});
+	}
+	
+	public <T> void printReadQueryUsageInformationsLine(String queryIdentifier,String numberOfObjects,String numberOfBytes,String numberOfKiloBytes,String numberOfMegaBytes
+			,String numberOfBytesPerObject) {
+		System.out.println(String.format("%s | %s | %s | %s | %s | %s", StringUtils.leftPad(queryIdentifier,50),StringUtils.leftPad(numberOfObjects,10),
+				StringUtils.leftPad(numberOfBytes,15),StringUtils.leftPad(numberOfKiloBytes,10),StringUtils.leftPad(numberOfMegaBytes,5),StringUtils.leftPad(numberOfBytesPerObject,5)));
+	}
+	
+	public <T> void printReadQueryUsageInformations(Class<T> tupleClass,String...queriesIdentifiers) {
+		printReadQueryUsageInformations(tupleClass, CollectionHelper.listOf(queriesIdentifiers));
+	}
+	
+	@Test
+	public void read_administrativeUnits() throws Exception{
+		userTransaction.begin();
+		__inject__(SectionPersistence.class).create(new Section().setCode("1").setName("1"));
+		__inject__(ServiceGroupPersistence.class).create(new ServiceGroup().setCode("1").setName("1"));
+		__inject__(FunctionalClassificationPersistence.class).create(new FunctionalClassification().setCode("1").setName("1"));
+		__inject__(LocalisationPersistence.class).create(new Localisation().setCode("1").setName("1"));
+		for(Integer index = 0 ; index < 10 ; index = index + 1)
+			__inject__(AdministrativeUnitPersistence.class).create(new AdministrativeUnit().setServiceGroupFromCode("1").setFunctionalClassificationFromCode("1")
+				.setLocalisationFromCode("1").setSectionFromCode("1").setCode(index+"").setName("1").setOrderNumber(1));
+		userTransaction.commit();
+		
+		printReadQueryUsageInformations(AdministrativeUnit.class,"AdministrativeUnit.read", "AdministrativeUnit.read.constructor","AdministrativeUnit.read.tuple","AdministrativeUnit.read.array");
+	}
+	
+	@Test
+	public void read_administrativeUnits_view() throws Exception{
+		
+	}
 	
 	@Test
 	public void readWhereAdministrativeUnitDoesNotExistBySectionsCodes_() throws Exception{

@@ -7,27 +7,27 @@ import org.cyk.system.sibua.server.persistence.entities.AdministrativeUnitFuncti
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.object.AbstractObject;
 import org.cyk.utility.__kernel__.persistence.query.QueryExecutor;
-import org.cyk.utility.__kernel__.persistence.query.QueryExecutor.Arguments;
+import org.cyk.utility.__kernel__.persistence.query.QueryExecutorArguments;
 import org.cyk.utility.__kernel__.persistence.query.QueryGetter;
 
 public class AdministrativeUnitFunctionTypeByAdministrativeUnitsQuerierImpl extends AbstractObject implements AdministrativeUnitFunctionTypeByAdministrativeUnitsQuerier,Serializable {
 
 	@Override
-	public Collection<AdministrativeUnitFunctionType> readByBusinessIdentifiers(Collection<String> businessIdentifiers,Arguments arguments) {
+	public Collection<AdministrativeUnitFunctionType> readByIdentifiers(Collection<String> businessIdentifiers,QueryExecutorArguments arguments) {
 		if(CollectionHelper.isEmpty(businessIdentifiers))
 			return null;
 		if(arguments == null)
-			arguments = new Arguments().setQuery(QueryGetter.getInstance().getBySelect(AdministrativeUnitFunctionType.class,QUERY_NAME_READ))
+			arguments = new QueryExecutorArguments().setQuery(QueryGetter.getInstance().getBySelect(AdministrativeUnitFunctionType.class,QUERY_NAME_READ))
 			.addFilterField(PARAMETER_NAME_ADMINISTRATIVE_UNITS_CODES,businessIdentifiers);
 		return QueryExecutor.getInstance().executeReadMany(AdministrativeUnitFunctionType.class,arguments);
 	}
 
 	@Override
-	public Long countByBusinessIdentifiers(Collection<String> businessIdentifiers, Arguments arguments) {
+	public Long countByIdentifiers(Collection<String> businessIdentifiers, QueryExecutorArguments arguments) {
 		if(CollectionHelper.isEmpty(businessIdentifiers))
 			return null;
 		if(arguments == null)
-			arguments = new Arguments().setQuery(QueryGetter.getInstance().getByCount(AdministrativeUnitFunctionType.class,QUERY_NAME_COUNT))
+			arguments = new QueryExecutorArguments().setQuery(QueryGetter.getInstance().getByCount(AdministrativeUnitFunctionType.class,QUERY_NAME_COUNT))
 			.addFilterField(PARAMETER_NAME_ADMINISTRATIVE_UNITS_CODES,businessIdentifiers);
 		return QueryExecutor.getInstance().executeCount(arguments);
 	}

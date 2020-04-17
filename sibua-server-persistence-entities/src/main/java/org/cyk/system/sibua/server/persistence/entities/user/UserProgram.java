@@ -2,11 +2,8 @@ package org.cyk.system.sibua.server.persistence.entities.user;
 
 import java.io.Serializable;
 
-import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
 import org.cyk.system.sibua.server.persistence.entities.Program;
@@ -18,9 +15,10 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Getter @Setter @Accessors(chain=true) @NoArgsConstructor
-@Entity @Table(name=UserProgram.TABLE_NAME,uniqueConstraints = {
+/*@Entity @Table(name=UserProgram.TABLE_NAME,uniqueConstraints = {
 		@UniqueConstraint(columnNames = {UserProgram.COLUMN_USER,UserProgram.COLUMN_PROGRAM})
 })
+*/
 public class UserProgram extends AbstractIdentifiableSystemScalarStringImpl implements Serializable {
 	private static final long serialVersionUID = 1L;
 	

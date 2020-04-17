@@ -29,4 +29,8 @@ public class AdministrativeUnitDto extends AbstractIdentifiableSystemScalarStrin
 	private ArrayList<ActivityDto> activitiesBeneficiaire;
 	private ArrayList<DestinationDto> destinations;
 	private ArrayList<ActivityDestinationDto> activityDestinations;
+	
+	/* As String */
+	
+	private String asString,sectionAsString,serviceGroupAsString,functionalClassificationAsString,localisationAsString;
 }

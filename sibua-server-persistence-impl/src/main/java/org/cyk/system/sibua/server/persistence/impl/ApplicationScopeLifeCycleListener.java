@@ -3,10 +3,13 @@ package org.cyk.system.sibua.server.persistence.impl;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import org.cyk.system.sibua.server.annotation.System;
 import org.cyk.system.sibua.server.persistence.api.AdministrativeUnitPersistence;
+import org.cyk.system.sibua.server.persistence.api.query.AdministrativeUnitQuerier;
 import org.cyk.system.sibua.server.persistence.entities.Action;
 import org.cyk.system.sibua.server.persistence.entities.Activity;
 import org.cyk.system.sibua.server.persistence.entities.ActivityDestination;
@@ -24,15 +27,14 @@ import org.cyk.system.sibua.server.persistence.entities.user.Function;
 import org.cyk.system.sibua.server.persistence.entities.user.FunctionCategory;
 import org.cyk.system.sibua.server.persistence.entities.user.FunctionType;
 import org.cyk.system.sibua.server.persistence.entities.user.User;
-import org.cyk.system.sibua.server.persistence.entities.user.UserActivity;
-import org.cyk.system.sibua.server.persistence.entities.user.UserAdministrativeUnit;
-import org.cyk.system.sibua.server.persistence.entities.user.UserFile;
 import org.cyk.system.sibua.server.persistence.entities.user.UserFunction;
-import org.cyk.system.sibua.server.persistence.entities.user.UserLocalisation;
-import org.cyk.system.sibua.server.persistence.entities.user.UserProgram;
-import org.cyk.system.sibua.server.persistence.entities.user.UserSection;
 import org.cyk.utility.__kernel__.AbstractApplicationScopeLifeCycleListener;
+import org.cyk.utility.__kernel__.DependencyInjection;
 import org.cyk.utility.__kernel__.klass.PersistableClassesGetter;
+import org.cyk.utility.__kernel__.persistence.query.EntityCounter;
+import org.cyk.utility.__kernel__.persistence.query.EntityReader;
+import org.cyk.utility.__kernel__.persistence.query.Query;
+import org.cyk.utility.__kernel__.persistence.query.QueryGetter;
 import org.cyk.utility.__kernel__.persistence.query.QueryHelper;
 
 @ApplicationScoped
@@ -44,11 +46,25 @@ public class ApplicationScopeLifeCycleListener extends AbstractApplicationScopeL
 	@Override
 	public void __initialize__(Object object) {
 		__inject__(org.cyk.utility.server.persistence.impl.ApplicationScopeLifeCycleListener.class).initialize(null);
+		DependencyInjection.setQualifierClassTo(System.class, EntityReader.class,EntityCounter.class);
+		QueryHelper.addQueries(Query.build(Query.FIELD_IDENTIFIER,AdministrativeUnitQuerier.QUERY_IDENTIFIER_READ_VIEW_01
+				,Query.FIELD_TUPLE_CLASS,AdministrativeUnit.class,Query.FIELD_RESULT_CLASS,AdministrativeUnit.class
+				,Query.FIELD_VALUE,AdministrativeUnitQuerier.QUERY_VALUE_READ_VIEW_01
+				));		
+		QueryHelper.addQueries(Query.buildCountFromSelect(QueryGetter.getInstance().get(AdministrativeUnitQuerier.QUERY_IDENTIFIER_READ_VIEW_01)));
+		
+		QueryHelper.addQueries(Query.build(Query.FIELD_IDENTIFIER,AdministrativeUnitQuerier.QUERY_IDENTIFIER_READ_VIEW_02
+				,Query.FIELD_TUPLE_CLASS,AdministrativeUnit.class,Query.FIELD_RESULT_CLASS,AdministrativeUnit.class
+				,Query.FIELD_VALUE,AdministrativeUnitQuerier.QUERY_VALUE_READ_VIEW_02
+				).setTupleFieldsNamesIndexes(Map.of("identifier",0,"asString",1,"sectionAsString",2,"serviceGroupAsString",3,"functionalClassificationAsString"
+						,4,"localisationAsString",5))
+				);		
+		QueryHelper.addQueries(Query.buildCountFromSelect(QueryGetter.getInstance().get(AdministrativeUnitQuerier.QUERY_IDENTIFIER_READ_VIEW_02)));
+		
 		QueryHelper.scan(List.of(AdministrativeUnitPersistence.class.getPackage()));	
 		ArrayList<Class<?>> classes = new ArrayList<>();
 		if(isUserEnabled()) {
-			classes.addAll(List.of(UserProgram.class,UserFunction.class,UserLocalisation.class,UserSection.class,UserActivity.class,UserFile.class,UserAdministrativeUnit.class
-					,User.class,Function.class,FunctionType.class,FunctionCategory.class));
+			classes.addAll(List.of(UserFunction.class,User.class,Function.class,FunctionType.class,FunctionCategory.class));
 		}
 		classes.addAll(List.of(AdministrativeUnitDestination.class
 				,ActivityDestination.class,Destination.class/*,AdministrativeUnitHierarchy.class*/

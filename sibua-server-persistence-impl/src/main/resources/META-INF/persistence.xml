@@ -51,6 +51,9 @@
 			<property name="hibernate.hbm2ddl.auto" value="${hibernate.hbm2ddl.auto}"/>
 			<property name="hibernate.show_sql" value="false"/>
 			<property name="hibernate.format_sql" value="false"/>
+			
+			<!-- Caching -->
+			<property name="javax.persistence.sharedCache.mode" value="DISABLE_SELECTIVE"/>
 		</properties>
 
     </persistence-unit>  
