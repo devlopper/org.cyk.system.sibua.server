@@ -32,5 +32,5 @@ public class AdministrativeUnitDto extends AbstractIdentifiableSystemScalarStrin
 	
 	/* As String */
 	
-	private String asString,sectionAsString,serviceGroupAsString,functionalClassificationAsString,localisationAsString;
+	private String sectionAsString,serviceGroupAsString,functionalClassificationAsString,localisationAsString;
 }

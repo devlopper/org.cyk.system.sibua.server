@@ -36,5 +36,6 @@ public class ServletContextListener extends AbstractServletContextListener imple
 		super.__initialize__(context);
 		__inject__(ApplicationScopeLifeCycleListener.class).initialize(null);	
 		QueryExecutor.AbstractImpl.LOG_LEVEL = Level.INFO;
+		QueryExecutor.AbstractImpl.LOGGABLE = Boolean.FALSE;		
 	}
 }

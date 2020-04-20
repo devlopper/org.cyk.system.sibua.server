@@ -32,5 +32,5 @@ public class ActivityDto extends AbstractIdentifiableSystemScalarStringIdentifia
 	private Boolean isBeneficiaire;
 	
 	/* As String */	
-	@Transient private String asString,sectionAsString,programAsString,actionAsString,functionTypeAsString,managerAsString,beneficiaryAsString;
+	@Transient private String sectionAsString,programAsString,actionAsString,functionTypeAsString,managerAsString,beneficiaryAsString;
 }

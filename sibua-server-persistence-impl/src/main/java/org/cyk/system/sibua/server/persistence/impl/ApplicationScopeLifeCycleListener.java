@@ -57,7 +57,7 @@ public class ApplicationScopeLifeCycleListener extends AbstractApplicationScopeL
 		QueryHelper.addQueries(Query.build(Query.FIELD_IDENTIFIER,AdministrativeUnitReadingQuerier.QUERY_IDENTIFIER_READ_VIEW_02
 				,Query.FIELD_TUPLE_CLASS,AdministrativeUnit.class,Query.FIELD_RESULT_CLASS,AdministrativeUnit.class
 				,Query.FIELD_VALUE,AdministrativeUnitReadingQuerier.QUERY_VALUE_READ_VIEW_02
-				).setTupleFieldsNamesIndexes(Map.of("identifier",0,"asString",1,"sectionAsString",2,"serviceGroupAsString",3,"functionalClassificationAsString"
+				).setTupleFieldsNamesIndexes(Map.of("identifier",0,AdministrativeUnit.FIELD_AS_STRING,1,"sectionAsString",2,"serviceGroupAsString",3,"functionalClassificationAsString"
 						,4,"localisationAsString",5))
 				);				
 		QueryHelper.addQueries(Query.buildCount(AdministrativeUnit.class,AdministrativeUnitReadingQuerier.QUERY_NAME_COUNT_VIEW_02,AdministrativeUnitReadingQuerier.QUERY_VALUE_COUNT_VIEW_02));
@@ -65,7 +65,7 @@ public class ApplicationScopeLifeCycleListener extends AbstractApplicationScopeL
 		QueryHelper.addQueries(Query.build(Query.FIELD_IDENTIFIER,ActivitySelectQuerier.QUERY_IDENTIFIER_READ_VIEW_01
 				,Query.FIELD_TUPLE_CLASS,Activity.class,Query.FIELD_RESULT_CLASS,Activity.class
 				,Query.FIELD_VALUE,ActivitySelectQuerier.QUERY_VALUE_READ_VIEW_01
-				).setTupleFieldsNamesIndexes(Map.of("identifier",0,"asString",1,"actionAsString",2,"programAsString",3,"sectionAsString",4,"functionTypeAsString",5
+				).setTupleFieldsNamesIndexes(Map.of("identifier",0,Activity.FIELD_AS_STRING,1,"actionAsString",2,"programAsString",3,"sectionAsString",4,"functionTypeAsString",5
 						,Activity.FIELD_BENEFICIARY_AS_STRING,6,Activity.FIELD_MANAGER_AS_STRING,7,"catAtvCode",8))
 			);				
 		QueryHelper.addQueries(Query.buildCount(Activity.class,ActivitySelectQuerier.QUERY_NAME_COUNT_VIEW_01,ActivitySelectQuerier.QUERY_VALUE_COUNT_VIEW_01));
