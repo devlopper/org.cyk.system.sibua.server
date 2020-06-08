@@ -53,7 +53,7 @@ public class Action extends AbstractIdentifiableSystemScalarStringIdentifiableBu
 	public static final String FIELD_PROGRAM = "program";
 	public static final String FIELD_SECTION = "section";
 	
-	public static final String COLUMN_PROGRAM = FIELD_PROGRAM;
+	public static final String COLUMN_PROGRAM = "programme";
 	
 	public static final String TABLE_NAME = "action";	
 }
