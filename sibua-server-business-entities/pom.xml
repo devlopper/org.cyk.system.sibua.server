@@ -28,6 +28,13 @@
 			<artifactId>jee-utility-server-business</artifactId>
 			<version>0.1.0</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>net.sf.jasperreports</groupId>
+			<artifactId>jasperreports</artifactId>
+			<version>6.11.0</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 </project>

@@ -1,1 +1,1 @@
-docker build --tag "sibua-server:latest" ../../
+docker build --tag "mic-affectation-api:latest" ../../

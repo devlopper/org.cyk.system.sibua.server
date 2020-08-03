@@ -1,0 +1,33 @@
+Publishing with time stamp : 202006081136 
+The push refers to repository [10.3.4.18:5000/mic-affectation-api]
+75b1a289e636: Preparing
+13f0b213c32d: Preparing
+849cb74592b3: Preparing
+f1b5933fe4b5: Preparing
+13f0b213c32d: Mounted from mic-resources
+f1b5933fe4b5: Mounted from mic-resources
+849cb74592b3: Mounted from mic-resources
+75b1a289e636: Pushed
+202006081136: digest: sha256:46543aeee916209a2857a732171a6d5474cb5ed0df6129934b58c0299d2b74d4 size: 1164
+Publishing with time stamp : 202006081354 
+The push refers to repository [10.3.4.18:5000/mic-affectation-api]
+4caad38ee3f9: Preparing
+13f0b213c32d: Preparing
+849cb74592b3: Preparing
+f1b5933fe4b5: Preparing
+13f0b213c32d: Layer already exists
+f1b5933fe4b5: Layer already exists
+849cb74592b3: Layer already exists
+4caad38ee3f9: Pushed
+202006081354: digest: sha256:fbe9fdf752195c66c96a6f052369691379adf73e487ddd3508c91f4c1bb02763 size: 1164
+Publishing with time stamp : 202006181742 
+The push refers to repository [10.3.4.18:5000/mic-affectation-api]
+738651efa152: Preparing
+13f0b213c32d: Preparing
+849cb74592b3: Preparing
+f1b5933fe4b5: Preparing
+13f0b213c32d: Layer already exists
+849cb74592b3: Layer already exists
+f1b5933fe4b5: Layer already exists
+738651efa152: Pushed
+202006181742: digest: sha256:e9ec88a2c22d5c3fee146a4f9724f8dc113e829dd3ef7d9627a95e8d4e7ee830 size: 1164

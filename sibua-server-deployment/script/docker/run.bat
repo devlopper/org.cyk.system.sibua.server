@@ -1,1 +1,1 @@
-docker run -p 8080:8080 sibua-server:latest
+docker run -p 8080:8080 mic-affectation-api:latest
